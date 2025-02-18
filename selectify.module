@@ -1,0 +1,309 @@
+<?php
+
+/**
+ * @file
+ * Provides the module implementation for selectify.
+ *
+ * Filename:     selectify.module
+ * Website:      https://www.flashwebcenter.com
+ * Description:  template.
+ * Developer:    Alaa Haddad https://www.alaahaddad.com.
+ */
+
+use Drupal\Core\Template\Attribute;
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function selectify_help($route_name, RouteMatchInterface $route_match): ?string {
+  if ($route_name === 'help.page.selectify') {
+    return _selectify_helper_render_readme();
+  }
+  return NULL;
+}
+
+/**
+ * Helper function to render README.md.
+ *
+ * @return string
+ *   The rendered content of README.md.
+ */
+function _selectify_helper_render_readme(): string {
+  $readme_path = __DIR__ . '/README.md';
+  $text = file_get_contents($readme_path);
+
+  if ($text === FALSE) {
+    return t('README.md file not found.');
+  }
+
+  if (!\Drupal::moduleHandler()->moduleExists('markdown')) {
+    return '<pre>' . htmlspecialchars($text) . '</pre>';
+  }
+
+  // Use the Markdown filter to render the README.
+  $filter_manager = \Drupal::service('plugin.manager.filter');
+  $settings = \Drupal::config('markdown.settings')->getRawData();
+  $filter = $filter_manager->createInstance('markdown', ['settings' => $settings]);
+  return $filter->process($text, 'en')->getProcessedText();
+}
+
+/**
+ * Implements hook_theme_suggestions_alter().
+ */
+function selectify_theme_suggestions_alter(array &$suggestions, array $variables) {
+  // Ensure class attribute exists and is an array.
+  if (!empty($variables['element']['#attributes']['class'])) {
+    // Cast to array.
+    $classes = (array) $variables['element']['#attributes']['class'];
+
+    if (in_array('selectify-dropdown', $classes)) {
+      $suggestions[] = 'selectify__dropdown';
+    }
+    if (in_array('selectify-dropdown-checkbox', $classes)) {
+      $suggestions[] = 'selectify__dropdown_checkbox';
+    }
+    if (in_array('selectify-dropdown-searchable', $classes)) {
+      $suggestions[] = 'selectify__dropdown_searchable';
+    }
+    if (in_array('selectify-dropdown-tags', $classes)) {
+      $suggestions[] = 'selectify__dropdown_tags';
+    }
+    if (in_array('selectify-dual', $classes)) {
+      $suggestions[] = 'selectify__dual';
+    }
+
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function selectify_theme($existing, $type, $theme, $path) {
+  return [
+    'selectify__dropdown' => [
+      'base hook' => 'select',
+      'template' => 'selectify--dropdown',
+      'path' => \Drupal::service('extension.list.module')->getPath('selectify') . '/templates',
+    ],
+    'selectify__dropdown_checkbox' => [
+      'base hook' => 'select',
+      'template' => 'selectify--dropdown-checkbox',
+      'path' => \Drupal::service('extension.list.module')->getPath('selectify') . '/templates',
+    ],
+    'selectify__dropdown_searchable' => [
+      'base hook' => 'select',
+      'template' => 'selectify--dropdown-searchable',
+      'path' => \Drupal::service('extension.list.module')->getPath('selectify') . '/templates',
+    ],
+    'selectify__dropdown_tags' => [
+      'base hook' => 'select',
+      'template' => 'selectify--dropdown-tags',
+      'path' => \Drupal::service('extension.list.module')->getPath('selectify') . '/templates',
+    ],
+    'selectify__dual' => [
+      'base hook' => 'select',
+      'template' => 'selectify--dual',
+      'path' => \Drupal::service('extension.list.module')->getPath('selectify') . '/templates',
+    ],
+
+  ];
+}
+
+/**
+ * Preprocess function for Selectify form widgets.
+ */
+function selectify_preprocess_selectify__dropdown(&$variables) {
+  _selectify_preprocess_widget($variables);
+}
+
+/**
+ * Preprocess function for Selectify form widgets.
+ */
+function selectify_preprocess_selectify__dropdown_checkbox(&$variables) {
+  _selectify_preprocess_widget($variables);
+}
+
+/**
+ * Preprocess function for Selectify form widgets.
+ */
+function selectify_preprocess_selectify__dropdown_searchable(&$variables) {
+  _selectify_preprocess_widget($variables);
+}
+
+/**
+ * Preprocess function for Selectify form widgets.
+ */
+function selectify_preprocess_selectify__dropdown_tags(&$variables) {
+  _selectify_preprocess_widget($variables);
+}
+
+/**
+ * Preprocess function for Selectify form widgets.
+ */
+function selectify_preprocess_selectify__dual(&$variables) {
+  _selectify_preprocess_widget($variables);
+}
+
+/**
+ * Common preprocessing logic for all Selectify widgets.
+ */
+function _selectify_preprocess_widget(&$variables) {
+  if (!isset($variables['element'])) {
+    return;
+  }
+
+  // Extract attributes from the form widget.
+  $attributes = $variables['element']['#attributes'] ?? [];
+
+  // Assign individual variables to be used in Twig.
+  $variables['unique_id'] = $attributes['id'] ?? 'selectify-default-id';
+  $variables['max_selected'] = $attributes['data-max-selections'] ?? 'null';
+  $variables['field_name'] = $attributes['data-field-name'] ?? 'unknown';
+  $variables['is_multiple'] = $attributes['data-multiple'] ?? FALSE;
+  $variables['placeholder'] = $attributes['data-placeholder'] ?? '';
+  $variables['is_required'] = $attributes['aria-required'] ?? FALSE;
+
+  // Pass all attributes as a Drupal Attribute object for easy usage in Twig.
+  $variables['attributes'] = new Attribute($attributes);
+}
+
+/**
+ * Retrieves Selectify settings with admin route check.
+ *
+ * @return array|false
+ *   Returns an array of settings if Selectify should be applied, otherwise false.
+ */
+function selectify_get_config() {
+  $config = \Drupal::config('selectify.settings');
+  $route = \Drupal::routeMatch()->getRouteObject();
+  $is_admin = \Drupal::service('router.admin_context')->isAdminRoute();
+
+  // Check if "Disable on Admin Route" is enabled and if we are on an admin page.
+  if ($config->get('disable_on_admin_routes') && $is_admin) {
+    // Prevent applying styles and libraries.
+    return FALSE;
+  }
+
+  return [
+    'enable_radio' => $config->get('enable_radio'),
+    'enable_checkbox' => $config->get('enable_checkbox'),
+    'disable_on_admin_routes' => $config->get('disable_on_admin_routes'),
+    'accent_color' => $config->get('accent_color'),
+  ];
+}
+
+/**
+ * Implements hook_preprocess_form_element() for Selectify.
+ */
+function selectify_preprocess_form_element(array &$variables): void {
+  $config = selectify_get_config();
+
+  // If Selectify is disabled (e.g., on admin routes), stop processing.
+  if ($config === FALSE) {
+    return;
+  }
+
+  if (!isset($variables['element']['#type'])) {
+    return;
+  }
+
+  if (in_array($variables['element']['#type'], ['checkbox', 'radio'], TRUE)) {
+    if ($variables['element']['#type'] === 'radio' && $config['enable_radio']) {
+      $variables['attributes']['class'][] = 'selectify-form-item selectify-radio-wrapper';
+    }
+    elseif ($variables['element']['#type'] === 'checkbox' && $config['enable_checkbox']) {
+      $variables['attributes']['class'][] = 'selectify-form-item selectify-checkbox-wrapper';
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_input() for Selectify.
+ */
+function selectify_preprocess_input(array &$variables): void {
+  $config = selectify_get_config();
+
+  // If Selectify is disabled (e.g., on admin routes), stop processing.
+  if ($config === FALSE) {
+    return;
+  }
+
+  if (!isset($variables['attributes']['type'])) {
+    return;
+  }
+
+  $type_html = $variables['attributes']['type'];
+
+  if ($type_html === 'radio' && $config['enable_radio']) {
+    $variables['attributes']['class'][] = 'selectify-radio';
+  }
+  elseif ($type_html === 'checkbox' && $config['enable_checkbox']) {
+    $variables['attributes']['class'][] = 'selectify-checkbox';
+  }
+}
+
+/**
+ * Implements hook_page_attachments() for Selectify.
+ */
+function selectify_page_attachments(array &$attachments) {
+  $config = selectify_get_config();
+
+  // If the function returns FALSE, do not attach any libraries.
+  if ($config === FALSE) {
+    return;
+  }
+
+  // Attach base styles only if radio or checkbox styling is enabled.
+  if ($config['enable_radio'] || $config['enable_checkbox']) {
+    $attachments['#attached']['library'][] = 'selectify/selectify-base';
+    $attachments['#attached']['library'][] = 'selectify/selectify-radio-checkbox';
+  }
+
+  // Attach color library based on user selection.
+  if (!empty($config['accent_color'])) {
+    $color_library = 'selectify/selectify-color-' . $config['accent_color'];
+    $attachments['#attached']['library'][] = $color_library;
+  }
+}
+/**
+ * Implements hook_form_views_exposed_form_alter().
+ */
+function selectify_form_views_exposed_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $view = $form_state->get('view');
+
+  if (!$view) {
+    return;
+  }
+
+  $config = \Drupal::config('selectify.settings');
+
+  // Check if we're applying Selectify site-wide.
+  $apply_site_wide = $config->get('apply_site_wide');
+  $global_widget = $config->get('global_selectify_widget');
+
+  foreach ($form as $key => &$element) {
+    if (isset($element['#type']) && $element['#type'] == 'select') {
+      // Get the specific widget setting.
+      $selected_widget = $apply_site_wide
+        ? $global_widget
+        : $config->get("widget_for_filter.$key") ?? 'selectify_dropdown';
+
+      // Apply Selectify templates and libraries.
+      $widget_map = [
+        'selectify_dropdown' => ['template' => 'selectify--dropdown', 'libraries' => ['selectify/selectify-dropdown']],
+        'selectify_tags' => ['template' => 'selectify--dropdown-tags', 'libraries' => ['selectify/selectify-tags']],
+        'selectify_searchable' => ['template' => 'selectify--dropdown-searchable', 'libraries' => ['selectify/selectify-searchable']],
+        'selectify_dual' => ['template' => 'selectify--dual', 'libraries' => ['selectify/selectify-dual-list']],
+        'selectify_checkbox' => ['template' => 'selectify--dropdown-checkbox', 'libraries' => ['selectify/selectify-base']],
+      ];
+
+      if (isset($widget_map[$selected_widget])) {
+        $config = $widget_map[$selected_widget];
+        $element['#theme'] = $config['template'];
+        $element['#attached']['library'] = $config['libraries'];
+      }
+    }
+  }
+}
+

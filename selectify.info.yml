@@ -1,0 +1,9 @@
+name: 'Selectify'
+type: module
+description: 'Provides advanced dropdowns and toggleable radios.'
+package: 'Custom'
+core_version_requirement: ^10 || ^11
+dependencies:
+  - drupal:views
+  - drupal:field
+configure: selectify.settings_form

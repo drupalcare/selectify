@@ -1,0 +1,3 @@
+administer selectify settings:
+  title: 'Administer Selectify settings'
+  description: 'Allows users to configure Selectify module settings.'

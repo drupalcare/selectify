@@ -1,0 +1,186 @@
+/* Base Reset for Selectify */
+.wrapper-selectify {
+  display: inline-block;
+}
+
+.selectify-select-dropdowns {
+  all: unset;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 200px;
+  width: auto;
+  max-width: fit-content;
+  border: none;
+  padding: 4px 8px;
+  background: var(--selectify-select-bg);
+  border-radius: 8px;
+  transition: background 0.3s ease-in-out, border-color 0.3s ease-in-out;
+}
+
+/* Typography Consistency */
+.selectify-select-dropdowns,
+.selectify-select-dropdowns * {
+  font-size: inherit;
+  color: var(--selectify-select-color);
+  line-height: 1.6;
+}
+
+/* Selected Options Display */
+.selectify-select-dropdowns .selectify-selected-display {
+  display: flex;
+  flex-grow: 0;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px;
+  min-width: 200px;
+}
+
+/* Selected Option Item */
+.selectify-select-dropdowns .selectify-selected-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* Individual Selected Item */
+.selectify-select-dropdowns .selectify-selected-one-option {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  background: var(--selectify-select-bg);
+}
+
+/* Remove Tag Button */
+.selectify-select-dropdowns .remove-tag {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.selectify-select-dropdowns .remove-tag:hover svg {
+  opacity: 0.8;
+  transform: scale(1.1);
+}
+
+/* Dropdown Arrow */
+.selectify-select-dropdowns .selectify-dorpdown-arrow {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: transform 0.3s ease-in-out;
+  margin-left: auto;
+}
+
+.selectify-select-dropdowns .selectify-dorpdown-arrow svg {
+  height: 24px;
+  width: 24px;
+  fill: var(--selectify-select-arrow-color);
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Opened Dropdown Arrow */
+.selectify-select-dropdowns .selectify-opened .selectify-dorpdown-arrow svg {
+  transform: rotate(180deg);
+}
+
+/* Dropdown Display */
+.selectify-select-dropdowns .selectify-available-display {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  overflow-y: auto;
+  max-height: 220px;
+  display: none;
+  border-radius: 8px;
+  z-index: 100;
+  box-shadow: var(--selectify-dropdown-shadow);
+  background: var(--selectify-select-bg);
+  padding: 6px;
+  min-width: 100%;
+  width: auto;
+  max-width: none;
+}
+
+/* Available Option Item */
+.selectify-select-dropdowns .selectify-available-one-option {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: background 0.3s ease-in-out;
+  cursor: pointer;
+}
+
+.selectify-select-dropdowns .selectify-available-one-option:hover {
+  background: var(--selectify-option-hover-bg);
+}
+
+/* Active Option */
+.selectify-select-dropdowns .selectify-available-one-option:active {
+  background: var(--selectify-option-active-bg);
+}
+
+/* Clear All Button */
+.selectify-select-dropdowns .selectify-select-footer button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: var(--selectify-select-hover-bg);
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: background 0.3s ease-in-out;
+}
+
+.selectify-select-dropdowns .selectify-select-footer button:hover {
+  opacity: 0.8;
+}
+
+/* Search Input */
+.selectify-select-dropdowns .search-input {
+  position: relative;
+}
+
+.selectify-select-dropdowns .search-input input {
+  width: 100%;
+  padding: 8px 12px 8px 32px;
+  border-radius: 6px;
+  outline: none;
+  transition: border 0.2s ease-in-out;
+}
+
+.selectify-select-dropdowns .search-input .manage-search {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+/* RTL Support */
+[dir="rtl"] .selectify-select-dropdowns {
+  text-align: right;
+}
+
+[dir="rtl"] .selectify-select-dropdowns .selectify-selected-display {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .selectify-select-dropdowns .selectify-dorpdown-arrow {
+  transform: rotate(180deg);
+}

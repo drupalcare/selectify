@@ -1,0 +1,10 @@
+selectify.settings_form:
+  path: '/admin/config/selectify/settings'
+  defaults:
+    _form: '\Drupal\selectify\Form\SelectifySettingsForm'
+    _title: 'Selectify Radio & Checkbox Settings'
+  requirements:
+    _permission: 'administer selectify settings'
+  options:
+    _admin_route: true
+    theme: 'gin'

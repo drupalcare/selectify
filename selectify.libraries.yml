@@ -1,0 +1,144 @@
+selectify-base:
+  css:
+    component:
+      css/selectify-base.css: { weight: -50 }
+  js:
+    js/selectify-base.js: { }
+  dependencies:
+    - core/drupal
+    - core/drupal.ajax
+    - core/drupalSettings
+    - core/once
+
+selectify-dropdowns:
+  css:
+    theme:
+      css/selectify-dropdowns.css:  { weight: 0 }
+
+selectify-helper:
+  js:
+    js/selectify-helper.js: {}
+  dependencies:
+    - core/drupal
+    - core/drupal.ajax
+    - core/drupalSettings
+    - core/once
+
+selectify-dropdown:
+  css:
+    theme:
+      css/selectify-dropdown.css:  { weight: 0 }
+  js:
+    js/selectify-dropdown.js: {}
+  dependencies:
+    - core/drupal
+    - core/drupal.ajax
+    - core/drupalSettings
+    - core/once
+    - selectify/selectify-base
+    - selectify/selectify-helper
+
+selectify-dropdown-checkbox:
+  css:
+    theme:
+      css/selectify-dropdown-checkbox.css:  { weight: 0 }
+  js:
+    js/selectify-dropdown-checkbox.js: {}
+  dependencies:
+    - core/drupal
+    - core/drupal.ajax
+    - core/drupalSettings
+    - core/once
+    - selectify/selectify-base
+    - selectify/selectify-helper
+
+
+selectify-dropdown-searchable:
+  css:
+    theme:
+      css/selectify-dropdown-searchable.css:  { weight: 0 }
+  js:
+    js/selectify-dropdown-searchable.js: {}
+  dependencies:
+    - core/drupal
+    - core/drupal.ajax
+    - core/drupalSettings
+    - core/once
+    - selectify/selectify-base
+    - selectify/selectify-helper
+
+selectify-dropdown-tags:
+  css:
+    theme:
+      css/selectify-dropdown-tags.css:  { weight: 0 }
+  js:
+    js/selectify-dropdown-tags.js: {}
+  dependencies:
+    - core/drupal
+    - core/drupal.ajax
+    - core/drupalSettings
+    - core/once
+    - selectify/selectify-base
+    - selectify/selectify-helper
+
+selectify-dual:
+  css:
+    theme:
+      css/selectify-dual.css:  { weight: 0 }
+  js:
+    js/selectify-dual.js: {}
+  dependencies:
+    - core/drupal
+    - core/drupal.ajax
+    - core/drupalSettings
+    - core/once
+    - selectify/selectify-base
+    - selectify/selectify-helper
+
+selectify-radio-checkbox:
+  css:
+    theme:
+      css/selectify-radio-checkbox.css: { weight: 0 }
+  js:
+    js/selectify-radio-checkbox.js: { }
+  dependencies:
+    - core/drupal
+    - core/drupal.ajax
+    - core/drupalSettings
+    - core/once
+
+# Color-specific libraries
+selectify-color-blue:
+  css:
+    component:
+      css/colors/selectify-color-blue.css: {}
+
+selectify-color-coral:
+  css:
+    component:
+      css/colors/selectify-color-coral.css: {}
+
+selectify-color-gold:
+  css:
+    component:
+      css/colors/selectify-color-gold.css: {}
+
+selectify-color-indigo:
+  css:
+    component:
+      css/colors/selectify-color-indigo.css: {}
+
+selectify-color-neutral:
+  css:
+    component:
+      css/colors/selectify-color-neutral.css: {}
+
+selectify-color-slate:
+  css:
+    component:
+      css/colors/selectify-color-slate.css: {}
+
+selectify-color-teal:
+  css:
+    component:
+      css/colors/selectify-color-teal.css: {}

@@ -1,0 +1,90 @@
+{#
+/**
+ * @file
+ * Theme override for a select element.
+ *
+ * Available variables:
+ * - attributes: HTML attributes for the <select> tag.
+ * - options: The <option> element children.
+ *
+ * @see template_preprocess_select()
+ */
+#}
+{% apply spaceless %}
+{% set wrapper_id = "wrapper-" ~ attributes.id  %}
+<div id="{{ wrapper_id }}" class="wrapper-selectify {{ wrapper_id  }}">
+
+{% if element['#title'] is not empty %}
+  <label for="{{ attributes.id }}" {{ element['#title_attributes'].addClass('form-item__label') }}>
+    {{ element['#title'] }}
+  </label>
+{% endif %}
+
+  {% if attributes.title is not empty %}
+    <label for="{{ attributes.id }}">{{ attributes.title }}</label>
+  {% endif %}
+  <div class="selectify selectify-select selectify-select-dropdowns selectify-searchable searchable"
+     tabindex="0"
+     role="combobox"
+     aria-haspopup="listbox"
+     aria-expanded="false"
+     data-target-id="{{ unique_id }}"
+     data-max-selections="{{ max_selected }}"
+     data-drupal-selector="edit-{{ field_name|replace({'_': '-'}) }}"
+     data-field-name="{{ field_name }}"
+     data-multiple="{{ is_multiple ? 'true' : 'false' }}"
+     data-placeholder="{{ placeholder|default('') }}"
+     data-tracking="selectify-widget"
+     aria-describedby="edit-{{ field_name }}--description"
+     aria-required="{{ is_required ? 'true' : 'false' }}">
+    <div class="selectify-selected-display">
+      {% set selected_options = (options is iterable ? options|filter(o => o.selected) : []) %}
+      {% if selected_options|length > 0 %}
+      <div class="selectify-selected-options">
+        {% for selected in selected_options %}
+        <div class="selectify-selected-one-option" data-value="{{ selected.value }}">
+          <span>{{ selected.label }}</span>
+          <button class="remove-tag">
+            {% include '@selectify/partials/svg/_delete.html.twig' %}
+          </button>
+        </div>
+       {% endfor %}
+      </div>
+      {% endif %}
+      <span class="selectify-dorpdown-arrow">
+        {% include '@selectify/partials/svg/_expand_circle_down.html.twig' %}
+      </span>
+    </div>
+
+    <div class="selectify-available-display" aria-hidden="true">
+      <div class="options-inner">
+        <div class="search-input">
+          {% include '@selectify/partials/svg/_manage_search.html.twig' %}
+          <input type="text" class="multi-search-input" placeholder="Search..." />
+        </div>
+        {% for option in options %}
+        <div class="selectify-available-one-option" data-value="{{ option.value }}">
+          <label for="option-{{ option.value }}">{{ option.label }}</label>
+        </div>
+        {% endfor %}
+
+        <div class="selectify-select-footer">
+          <button type="button" class="selectify-clear-all">
+            <span>
+              {% include '@selectify/partials/svg/_clear_all.html.twig' %}
+            </span>
+            <span>{{ 'Clear All'|t }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden select for form submission -->
+  <select {{ attributes.addClass('selectify-visually-hidden', 'visually-hidden') }}>
+    {% for option in options %}
+      <option value="{{ option.value }}" {{ option.selected ? 'selected="selected"' }}>{{ option.label }}</option>
+    {% endfor %}
+  </select>
+</div>
+{% endapply %}

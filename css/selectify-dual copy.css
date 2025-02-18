@@ -1,0 +1,82 @@
+.selectify-select {
+  all: unset;
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  min-width: 120px;
+  width: auto;
+  border: none;
+  padding: 0;
+  background: var(--selectify-select-bg);
+}
+
+.dual {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border: 1px solid var(--selectify-select-border-color, #ddd);
+  border-radius: 6px;
+  background-color: var(--selectify-select-bg, #fff);
+  padding: 10px;
+}
+
+/* Two-Column Layout */
+.dual-list-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+
+.dual-list-available,
+.dual-list-selected {
+  flex: 1;
+  border: 1px solid var(--selectify-select-border-color);
+  padding: 10px;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+/* Options inside the lists */
+.dual-list-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--selectify-select-border-color);
+}
+
+.dual-list-option:last-child {
+  border-bottom: none;
+}
+
+/* Buttons */
+.dual-list-option button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+}
+
+.dual-list-footer {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+/* Responsive Behavior: Collapse to Single Column on Small Screens */
+@media (max-width: 768px) {
+  .dual-list-container {
+    flex-direction: column;
+  }
+  .dual-list-available,
+  .dual-list-selected {
+    width: 100%;
+  }
+}

@@ -1,0 +1,10 @@
+selectify.settings:
+  type: config_object
+  label: 'Selectify Settings'
+  mapping:
+    enable_radio:
+      type: boolean
+      label: 'Enable custom styles for radio buttons'
+    enable_checkbox:
+      type: boolean
+      label: 'Enable custom styles for checkboxes'
