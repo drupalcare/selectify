@@ -58,7 +58,7 @@ class SelectifyDropdownSearchableWidget extends OptionsSelectWidget {
     FieldDefinitionInterface $field_definition,
     array $settings,
     array $third_party_settings,
-    ConfigFactoryInterface $config_factory
+    ConfigFactoryInterface $config_factory,
   ) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $third_party_settings);
     $this->configFactory = $config_factory;
@@ -86,9 +86,6 @@ class SelectifyDropdownSearchableWidget extends OptionsSelectWidget {
     $element = parent::formElement($items, $delta, $element, $form, $form_state);
     // Get selected accent color from settings.
     $selected_accent = $this->configFactory->get('selectify.settings')->get('accent_color') ?: 'default';
-
-    // Attach correct library.
-    $element['#attached']['library'][] = "selectify/accent-{$selected_accent}";
 
     $is_multiple = $this->fieldDefinition->getFieldStorageDefinition()->isMultiple();
     // Generate a unique ID based on field name and delta.

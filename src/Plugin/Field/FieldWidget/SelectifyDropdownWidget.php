@@ -58,7 +58,7 @@ class SelectifyDropdownWidget extends OptionsSelectWidget {
     FieldDefinitionInterface $field_definition,
     array $settings,
     array $third_party_settings,
-    ConfigFactoryInterface $config_factory
+    ConfigFactoryInterface $config_factory,
   ) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $third_party_settings);
     $this->configFactory = $config_factory;
@@ -87,9 +87,6 @@ class SelectifyDropdownWidget extends OptionsSelectWidget {
 
     // Get selected accent color from settings.
     $selected_accent = $this->configFactory->get('selectify.settings')->get('accent_color') ?: 'default';
-
-    // Attach correct library.
-    $element['#attached']['library'][] = "selectify/accent-{$selected_accent}";
 
     $is_multiple = $this->fieldDefinition->getFieldStorageDefinition()->isMultiple();
 
@@ -152,6 +149,11 @@ class SelectifyDropdownWidget extends OptionsSelectWidget {
       'selectify/selectify-dropdowns',
       'selectify/selectify-dropdown',
     ];
+
+    // Conditionally add the color library.
+    if (!empty($selected_accent)) {
+      $element['#attached']['library'][] = "selectify/selectify-color-{$selected_accent}";
+    }
 
     // Attach JavaScript settings specific to this widget.
     $element['#attached']['drupalSettings']['selectify']['maxSelections'][$this->fieldDefinition->getName()] = $max_selected;

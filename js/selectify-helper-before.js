@@ -180,7 +180,7 @@ Drupal.selectify.syncHiddenSelect = (nativeSelect, selectedValues) => {
                 option.removeAttribute("selected");
                 option.classList.remove("selected");
 
-                // ✅ Fully remove the `class` attribute if it's empty
+                // Fully remove the `class` attribute if it's empty
                 if (!option.classList.length) {
                     option.removeAttribute("class");
                 }

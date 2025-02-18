@@ -12,6 +12,7 @@
 #}
 {% apply spaceless %}
 {% set wrapper_id = "wrapper-" ~ attributes.id  %}
+{% set clean_field_name = field_name|replace({'_': '-', '[]': ''}) %}
 <div id="{{ wrapper_id }}" class="wrapper-selectify {{ wrapper_id  }}">
 
 {% if element['#title'] is not empty %}
@@ -26,15 +27,25 @@
   <div class="selectify selectify-select selectify-select-dual-list selectify-dual dual"
      tabindex="0"
      role="combobox"
+     aria-expanded="false"
      data-target-id="{{ unique_id }}"
      data-max-selections="{{ max_selected }}"
-     data-drupal-selector="edit-{{ field_name|replace({'_': '-'}) }}"
-     data-field-name="{{ field_name }}"
+     data-drupal-selector="edit-{{ clean_field_name }}"
+     data-field-name="{{ clean_field_name }}"
      data-multiple="{{ is_multiple ? 'true' : 'false' }}"
-     data-placeholder="{{ placeholder|default('') }}"
      data-tracking="selectify-widget"
-     aria-describedby="edit-{{ field_name }}--description"
-     aria-required="{{ is_required ? 'true' : 'false' }}">
+     aria-describedby="edit-{{ clean_field_name }}--description"
+     {% if is_views %}
+       data-drupal-selector="{{ views_attributes['data-drupal-selector'] }}"
+       class="{{ views_attributes['class'] }}"
+       size="{{ views_attributes['size'] }}"
+       aria-invalid="{{ views_attributes['aria-invalid'] }}"
+     {% else %}
+     data-placeholder="{{ placeholder|default('') }}"
+     aria-required="{{ is_required ? 'true' : 'false' }}"
+     {% endif %}
+     >
+
     <div class="dual-container">
 
     <div class="selectify-available-display-dual dual-available" aria-hidden="true">
@@ -71,14 +82,19 @@
 
   </div>
   <div class="selectify-select-footer dual-footer">
-      <button type="button" class="selectify-clear-all dual-clear-all">
-        <span>
-          {% include '@selectify/partials/svg/_clear_all.html.twig' %}
-        </span>
-        <span>{{ 'Clear All'|t }}</span>
-      </button>
-    </div>
-</div>
+    <button type="button" class="selectify-clear-all dual-clear-all">
+      <span>
+        {% include '@selectify/partials/svg/_clear_all.html.twig' %}
+      </span>
+      <span>{{ 'Clear All'|t }}</span>
+    </button>
+  </div>
+  {% if max_selected is not null and max_selected is defined and max_selected is not empty %}
+  <div class="selectify-max-selection-message hide">
+    {{ 'You can only select up to @count options.'|t({'@count': max_selected}) }}
+  </div>
+  {% endif %}
+  </div>
 
   <!-- Hidden select for form submission -->
   <select {{ attributes.addClass('selectify-visually-hidden', 'visually-hidden') }}>

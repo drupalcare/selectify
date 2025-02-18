@@ -12,7 +12,7 @@ selectify-base:
 
 selectify-dropdowns:
   css:
-    theme:
+    component:
       css/selectify-dropdowns.css:  { weight: 0 }
 
 selectify-helper:
@@ -26,7 +26,7 @@ selectify-helper:
 
 selectify-dropdown:
   css:
-    theme:
+    component:
       css/selectify-dropdown.css:  { weight: 0 }
   js:
     js/selectify-dropdown.js: {}
@@ -40,7 +40,7 @@ selectify-dropdown:
 
 selectify-dropdown-checkbox:
   css:
-    theme:
+    component:
       css/selectify-dropdown-checkbox.css:  { weight: 0 }
   js:
     js/selectify-dropdown-checkbox.js: {}
@@ -55,7 +55,7 @@ selectify-dropdown-checkbox:
 
 selectify-dropdown-searchable:
   css:
-    theme:
+    component:
       css/selectify-dropdown-searchable.css:  { weight: 0 }
   js:
     js/selectify-dropdown-searchable.js: {}
@@ -69,7 +69,7 @@ selectify-dropdown-searchable:
 
 selectify-dropdown-tags:
   css:
-    theme:
+    component:
       css/selectify-dropdown-tags.css:  { weight: 0 }
   js:
     js/selectify-dropdown-tags.js: {}
@@ -83,7 +83,7 @@ selectify-dropdown-tags:
 
 selectify-dual:
   css:
-    theme:
+    component:
       css/selectify-dual.css:  { weight: 0 }
   js:
     js/selectify-dual.js: {}
@@ -97,7 +97,7 @@ selectify-dual:
 
 selectify-radio-checkbox:
   css:
-    theme:
+    component:
       css/selectify-radio-checkbox.css: { weight: 0 }
   js:
     js/selectify-radio-checkbox.js: { }
@@ -107,38 +107,43 @@ selectify-radio-checkbox:
     - core/drupalSettings
     - core/once
 
+selectify-settings-style:
+  css:
+    component:
+      css/selectify-settings-style.css: {}
+
 # Color-specific libraries
 selectify-color-blue:
   css:
-    component:
+    theme:
       css/colors/selectify-color-blue.css: {}
 
 selectify-color-coral:
   css:
-    component:
+    theme:
       css/colors/selectify-color-coral.css: {}
 
 selectify-color-gold:
   css:
-    component:
+    theme:
       css/colors/selectify-color-gold.css: {}
 
 selectify-color-indigo:
   css:
-    component:
+    theme:
       css/colors/selectify-color-indigo.css: {}
 
 selectify-color-neutral:
   css:
-    component:
+    theme:
       css/colors/selectify-color-neutral.css: {}
 
 selectify-color-slate:
   css:
-    component:
+    theme:
       css/colors/selectify-color-slate.css: {}
 
 selectify-color-teal:
   css:
-    component:
+    theme:
       css/colors/selectify-color-teal.css: {}

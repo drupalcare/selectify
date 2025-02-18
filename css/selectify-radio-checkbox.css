@@ -2,12 +2,12 @@
 input.selectify-radio[type="radio"],
 input.selectify-checkbox[type="checkbox"] {
   all: unset;
-  appearance: none;
+  appearance: none!important;
   cursor: pointer;
-  display: inline-block;
+  display: inline-block!important;
   vertical-align: top;
-  position: relative;
-  overflow: hidden;
+  position: relative!important;
+  overflow: hidden!important;
   clip-path: circle(1.5rem at 50% 50%);
   border-radius: 12px!important;
   border: none!important;

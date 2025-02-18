@@ -1,0 +1,11 @@
+/* Highlight selected rows */
+.selected-widget-row {
+  background-color: #d4edda; /* Light green */
+  border-left: 4px solid #28a745; /* Drupal green */
+}
+
+/* Make the dropdown stand out inside selected rows */
+.selected-widget-row select {
+  border-color: #28a745 !important;
+  font-weight: bold;
+}

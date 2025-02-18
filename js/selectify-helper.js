@@ -12,6 +12,7 @@
   Drupal.selectify = Drupal.selectify || {};
 /**
  * Handles selection limits for multi-select components.
+ * Shows a message with animation when the max selection limit is reached.
  *
  * @param {string} type - The type of selectify component (e.g., "checkbox", "dual", "dropdown").
  * @param {HTMLElement} selectifySelect - The main Selectify wrapper element.
@@ -20,7 +21,7 @@
  * @param {string} itemSelector - The CSS selector for selectable options.
  */
   Drupal.selectify.handleSelectionLimit = function (type, selectifySelect, nativeSelect, maxSelections, itemSelector) {
-    if (!Number.isInteger(maxSelections)) {
+    if (!Number.isInteger(maxSelections) || maxSelections <= 0) {
       return;
     }
 
@@ -33,8 +34,21 @@
       : selectifySelect.querySelector('.selectify-selected-display');
 
     const clearAllButton = selectifySelect.querySelector('.selectify-clear-all');
+    const maxSelectionMessage = selectifySelect.querySelector('.selectify-max-selection-message');
     const items = selectifySelect.querySelectorAll(itemSelector);
     let selectedCount = 0;
+
+    function showMaxSelectionMessage() {
+      if (maxSelectionMessage) {
+        maxSelectionMessage.classList.remove('hide');
+        maxSelectionMessage.classList.add('show');
+
+        setTimeout(() => {
+          maxSelectionMessage.classList.remove('show');
+          maxSelectionMessage.classList.add('hide');
+        }, 3000);
+      }
+    }
 
     if (type === 'checkbox') {
       const items = selectifySelect.querySelectorAll('.selectify-available-one-option input[type="checkbox"]');
@@ -48,6 +62,7 @@
           if (this.checked && selectedCount > maxSelections) {
             this.checked = false;
             selectedCount--;
+            showMaxSelectionMessage();
             return;
           }
 
@@ -69,7 +84,7 @@
         });
       });
     }
-     else {
+    else {
       items.forEach((item) => {
         item.addEventListener('click', function (event) {
           event.preventDefault();
@@ -80,6 +95,7 @@
 
           if (!item.classList.contains('selected')) {
             if (selectedCount >= maxSelections) {
+              showMaxSelectionMessage();
               return; // Stop if max selection limit reached.
             }
             item.classList.add('selected', 'hidden');

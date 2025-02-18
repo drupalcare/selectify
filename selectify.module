@@ -156,13 +156,41 @@ function _selectify_preprocess_widget(&$variables) {
   // Extract attributes from the form widget.
   $attributes = $variables['element']['#attributes'] ?? [];
 
-  // Assign individual variables to be used in Twig.
-  $variables['unique_id'] = $attributes['id'] ?? 'selectify-default-id';
-  $variables['max_selected'] = $attributes['data-max-selections'] ?? 'null';
-  $variables['field_name'] = $attributes['data-field-name'] ?? 'unknown';
-  $variables['is_multiple'] = $attributes['data-multiple'] ?? FALSE;
-  $variables['placeholder'] = $attributes['data-placeholder'] ?? '';
-  $variables['is_required'] = $attributes['aria-required'] ?? FALSE;
+  // Improved detection for Views exposed filters using the selectify-views class.
+  $is_views = FALSE;
+  if (!empty($attributes['class']) && is_array($attributes['class']) && in_array('selectify-views', $attributes['class'])) {
+    $is_views = TRUE;
+  }
+
+  // Set the variable for Twig.
+  $variables['is_views'] = $is_views;
+
+  if ($is_views) {
+
+    $variables['unique_id'] = $attributes['id'] ?? '';
+    $variables['is_multiple'] = (isset($attributes['multiple']) && $attributes['multiple'] === 'multiple') ? TRUE : FALSE;
+    $variables['max_selected'] = (isset($attributes['multiple']) && $attributes['multiple'] === 'multiple') ? NULL : 1;
+    $variables['field_name'] = $attributes['name'] ?? '';
+
+    // Store Views-related attributes separately.
+    $variables['views_attributes'] = [
+      'data-drupal-selector' => $attributes['data-drupal-selector'] ?? '',
+      'class' => !empty($attributes['class']) ? implode(' ', (array) $attributes['class']) : '',
+      'size' => $attributes['size'] ?? '',
+      'aria-invalid' => $attributes['aria-invalid'] ?? '',
+    ];
+  }
+  else {
+    // Assign field widget-specific attributes.
+    $variables['unique_id'] = $attributes['id'] ?? 'selectify-default-id';
+    $variables['field_name'] = $attributes['data-field-name'] ?? 'unknown';
+    $variables['is_multiple'] = $attributes['data-multiple'] ?? FALSE;
+    $variables['placeholder'] = $attributes['data-placeholder'] ?? '';
+    $variables['is_required'] = $attributes['aria-required'] ?? FALSE;
+
+    // No Views attributes in field widgets.
+    $variables['views_attributes'] = [];
+  }
 
   // Pass all attributes as a Drupal Attribute object for easy usage in Twig.
   $variables['attributes'] = new Attribute($attributes);
@@ -208,13 +236,14 @@ function selectify_preprocess_form_element(array &$variables): void {
     return;
   }
 
-  if (in_array($variables['element']['#type'], ['checkbox', 'radio'], TRUE)) {
-    if ($variables['element']['#type'] === 'radio' && $config['enable_radio']) {
-      $variables['attributes']['class'][] = 'selectify-form-item selectify-radio-wrapper';
-    }
-    elseif ($variables['element']['#type'] === 'checkbox' && $config['enable_checkbox']) {
-      $variables['attributes']['class'][] = 'selectify-form-item selectify-checkbox-wrapper';
-    }
+  $type = $variables['element']['#type'];
+
+  // Add the correct wrapper class only if the feature is enabled.
+  if ($type === 'radio' && ($config['enable_radio'] === TRUE)) {
+    $variables['attributes']['class'][] = 'selectify-form-item selectify-radio-wrapper';
+  }
+  elseif ($type === 'checkbox' && ($config['enable_checkbox'] === TRUE)) {
+    $variables['attributes']['class'][] = 'selectify-form-item selectify-checkbox-wrapper';
   }
 }
 
@@ -233,12 +262,13 @@ function selectify_preprocess_input(array &$variables): void {
     return;
   }
 
-  $type_html = $variables['attributes']['type'];
+  $type = $variables['attributes']['type'];
 
-  if ($type_html === 'radio' && $config['enable_radio']) {
+  // Add the correct input class only if the feature is enabled.
+  if ($type === 'radio' && ($config['enable_radio'] === TRUE)) {
     $variables['attributes']['class'][] = 'selectify-radio';
   }
-  elseif ($type_html === 'checkbox' && $config['enable_checkbox']) {
+  elseif ($type === 'checkbox' && ($config['enable_checkbox'] === TRUE)) {
     $variables['attributes']['class'][] = 'selectify-checkbox';
   }
 }
@@ -255,55 +285,268 @@ function selectify_page_attachments(array &$attachments) {
   }
 
   // Attach base styles only if radio or checkbox styling is enabled.
-  if ($config['enable_radio'] || $config['enable_checkbox']) {
+  if (($config['enable_checkbox'] === TRUE) || ($config['enable_radio'] === TRUE)) {
     $attachments['#attached']['library'][] = 'selectify/selectify-base';
     $attachments['#attached']['library'][] = 'selectify/selectify-radio-checkbox';
+    if (!empty($config['accent_color'])) {
+      $color_library = 'selectify/selectify-color-' . $config['accent_color'];
+      $attachments['#attached']['library'][] = $color_library;
+    }
   }
 
-  // Attach color library based on user selection.
-  if (!empty($config['accent_color'])) {
-    $color_library = 'selectify/selectify-color-' . $config['accent_color'];
-    $attachments['#attached']['library'][] = $color_library;
-  }
 }
+
 /**
- * Implements hook_form_views_exposed_form_alter().
+ * Adds the 'selectify-views' class to all select elements in a Views exposed form.
+ *
+ * @param array &$form
+ *   The Views exposed form array.
  */
-function selectify_form_views_exposed_form_alter(&$form, FormStateInterface $form_state, $form_id) {
-  $view = $form_state->get('view');
+function addSelectifyViewsClass(array &$form) {
+  foreach ($form as &$element) {
+    if (is_array($element) && isset($element['#type']) && $element['#type'] === 'select') {
+      // Ensure #attributes array exists.
+      $element['#attributes'] = $element['#attributes'] ?? [];
 
-  if (!$view) {
-    return;
-  }
+      // Ensure class array exists.
+      $element['#attributes']['class'] = $element['#attributes']['class'] ?? [];
 
-  $config = \Drupal::config('selectify.settings');
-
-  // Check if we're applying Selectify site-wide.
-  $apply_site_wide = $config->get('apply_site_wide');
-  $global_widget = $config->get('global_selectify_widget');
-
-  foreach ($form as $key => &$element) {
-    if (isset($element['#type']) && $element['#type'] == 'select') {
-      // Get the specific widget setting.
-      $selected_widget = $apply_site_wide
-        ? $global_widget
-        : $config->get("widget_for_filter.$key") ?? 'selectify_dropdown';
-
-      // Apply Selectify templates and libraries.
-      $widget_map = [
-        'selectify_dropdown' => ['template' => 'selectify--dropdown', 'libraries' => ['selectify/selectify-dropdown']],
-        'selectify_tags' => ['template' => 'selectify--dropdown-tags', 'libraries' => ['selectify/selectify-tags']],
-        'selectify_searchable' => ['template' => 'selectify--dropdown-searchable', 'libraries' => ['selectify/selectify-searchable']],
-        'selectify_dual' => ['template' => 'selectify--dual', 'libraries' => ['selectify/selectify-dual-list']],
-        'selectify_checkbox' => ['template' => 'selectify--dropdown-checkbox', 'libraries' => ['selectify/selectify-base']],
-      ];
-
-      if (isset($widget_map[$selected_widget])) {
-        $config = $widget_map[$selected_widget];
-        $element['#theme'] = $config['template'];
-        $element['#attached']['library'] = $config['libraries'];
-      }
+      // Add the selectify-views class.
+      $element['#attributes']['class'][] = 'selectify-views';
     }
   }
 }
 
+/**
+ * Loads Selectify configuration settings.
+ *
+ * @return array
+ *   An associative array containing Selectify settings.
+ */
+function loadSelectifyConfig() {
+  $config = \Drupal::config('selectify.settings');
+
+  return [
+    'disable_on_admin_routes' => $config->get('disable_on_admin_routes'),
+    'widget_map' => $config->get('widget_for_filters') ?? [],
+    'apply_site_wide' => $config->get('apply_site_wide'),
+    'global_widget' => $config->get('global_selectify_widget'),
+  ];
+}
+
+/**
+ * Checks if Selectify is disabled on admin routes.
+ *
+ * @return bool
+ *   TRUE if Selectify is disabled on an admin route, FALSE otherwise.
+ */
+function isSelectifyDisabledOnAdminRoutes() {
+  // Fetch the configuration.
+  $config = loadSelectifyConfig();
+  $disable_on_admin_routes = $config['disable_on_admin_routes'];
+
+  if ($disable_on_admin_routes && \Drupal::routeMatch()->getRouteName() !== NULL) {
+    $current_path = \Drupal::service('path.current')->getPath();
+    if (strpos($current_path, '/admin') === 0) {
+      // \Drupal::messenger()->addMessage("Selectify is disabled on admin routes. Skipping.", 'warning');
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * Extracts and normalizes the form ID by replacing underscores with hyphens.
+ *
+ * @param array $form
+ *   The Views exposed form array.
+ *
+ * @return string
+ *   The normalized form ID.
+ */
+function normalizeFormId(array $form) {
+  $form_id = $form['#id'] ?? ($form['#attributes']['id'] ?? '');
+
+  if (is_array($form_id)) {
+    $form_id = reset($form_id);
+  }
+
+  return str_replace('_', '-', $form_id);
+}
+
+/**
+ * Retrieves the library dependencies for each Selectify widget type.
+ *
+ * @return array
+ *   An associative array where keys are widget names and values are arrays of required libraries.
+ */
+function getSelectifyWidgetLibraries() {
+  return [
+    'selectify_dropdown' => [
+      'selectify/selectify-base',
+      'selectify/selectify-helper',
+      'selectify/selectify-dropdowns',
+      'selectify/selectify-dropdown',
+    ],
+    'selectify_tags' => [
+      'selectify/selectify-base',
+      'selectify/selectify-helper',
+      'selectify/selectify-dropdowns',
+      'selectify/selectify-dropdown-tags',
+    ],
+    'selectify_searchable' => [
+      'selectify/selectify-base',
+      'selectify/selectify-helper',
+      'selectify/selectify-dropdowns',
+      'selectify/selectify-dropdown-searchable',
+    ],
+    'selectify_dual' => [
+      'selectify/selectify-base',
+      'selectify/selectify-helper',
+      'selectify/selectify-dual',
+    ],
+    'selectify_checkbox' => [
+      'selectify/selectify-base',
+      'selectify/selectify-helper',
+      'selectify/selectify-dropdowns',
+      'selectify/selectify-dropdown-checkbox',
+    ],
+  ];
+}
+
+/**
+ * Applies the global Selectify widget if site-wide setting is enabled.
+ *
+ * @param array &$form
+ *   The Views exposed form array.
+ * @param string $global_widget
+ *   The global widget type.
+ * @param array $widget_libraries
+ *   The widget-to-library mapping.
+ * @param array $widget_classes
+ *   The widget-to-class mapping.
+ */
+function applyGlobalSelectifyWidget(array &$form, $global_widget, array $widget_libraries, array $widget_classes) {
+  if (!empty($global_widget) && isset($widget_libraries[$global_widget])) {
+    // \Drupal::messenger()->addMessage("Applying Global Widget: {$global_widget}", 'status');
+    // Attach libraries.
+    foreach ($widget_libraries[$global_widget] as $library) {
+      $form['#attached']['library'][] = $library;
+    }
+
+    // \Drupal::messenger()->addMessage("Global Libraries Attached: " . implode(', ', $widget_libraries[$global_widget]), 'status');
+    // Apply widget-specific class if available.
+    if (isset($widget_classes[$global_widget])) {
+      $form['#attributes']['class'][] = 'selectify-views-form';
+
+      foreach ($form as &$element) {
+        if (is_array($element) && isset($element['#type']) && $element['#type'] === 'select') {
+          $element['#attributes']['class'][] = $widget_classes[$global_widget];
+        }
+      }
+
+      // \Drupal::messenger()->addMessage("Global Widget Applied: {$widget_classes[$global_widget]}", 'status');
+    }
+  }
+}
+
+/**
+ * Applies Selectify widgets based on the Views exposed filter configuration.
+ *
+ * @param array &$form
+ *   The Views exposed form array.
+ * @param array $widget_map
+ *   The stored configuration mapping of Views filters to widgets.
+ * @param string $clean_form_id
+ *   The current normalized form ID.
+ * @param array $widget_libraries
+ *   The widget-to-library mapping.
+ * @param array $widget_classes
+ *   The widget-to-class mapping.
+ */
+function applySelectifyWidget(array &$form, array $widget_map, $clean_form_id, array $widget_libraries, array $widget_classes) {
+  $applied_widget = FALSE;
+
+  foreach ($widget_map as $view_display_key => $widget_data) {
+    $stored_exposed_form_id = $widget_data['exposed_form_id'] ?? '';
+    $normalized_stored_form_id = str_replace('_', '-', $stored_exposed_form_id);
+
+    // \Drupal::messenger()->addMessage("Checking: {$view_display_key} | Stored Exposed Form ID: {$normalized_stored_form_id}", 'status');
+    if (!empty($normalized_stored_form_id) && $normalized_stored_form_id === $clean_form_id) {
+      $selected_widget = $widget_data['widget'];
+
+      // \Drupal::messenger()->addMessage("Match found! Applying Widget: {$selected_widget}", 'status');
+      // Attach corresponding libraries.
+      if (isset($widget_libraries[$selected_widget])) {
+        foreach ($widget_libraries[$selected_widget] as $library) {
+          $form['#attached']['library'][] = $library;
+        }
+        // \Drupal::messenger()->addMessage("Libraries attached: " . implode(', ', $widget_libraries[$selected_widget]), 'status');
+      }
+
+      // Apply widget class if available.
+      if (isset($widget_classes[$selected_widget])) {
+        $form['#attributes']['class'][] = 'selectify-views-form';
+
+        $applied_to_selects = 0;
+        foreach ($form as &$element) {
+          if (is_array($element) && isset($element['#type']) && $element['#type'] === 'select') {
+            $element['#attributes']['class'][] = $widget_classes[$selected_widget];
+            $applied_to_selects++;
+          }
+        }
+
+        // \Drupal::messenger()->addMessage("Applied '{$widget_classes[$selected_widget]}' class to {$applied_to_selects} select elements.", 'status');
+        $applied_widget = TRUE;
+      }
+    }
+  }
+
+  if (!$applied_widget) {
+    // \Drupal::messenger()->addMessage("No widget applied for this form.", 'warning');
+  }
+}
+
+/**
+ * Implements hook_preprocess_views_exposed_form() for Selectify.
+ */
+function selectify_preprocess_views_exposed_form(&$variables) {
+  $form = &$variables['form'];
+
+  // Check if Selectify is disabled on admin routes.
+  if (isSelectifyDisabledOnAdminRoutes()) {
+    return;
+  }
+
+  // Add the 'selectify-views' class to all selects.
+  addSelectifyViewsClass($form);
+
+  // Retrieve the Selectify configuration.
+  $config = loadSelectifyConfig();
+  $apply_site_wide = $config['apply_site_wide'];
+  $global_widget = $config['global_widget'];
+  $widget_map = $config['widget_map'];
+
+  // Extract and normalize the form ID (convert underscores to dashes).
+  $clean_form_id = normalizeFormId($form);
+
+  // Print detected form ID.
+  // \Drupal::messenger()->addMessage("Detected Form ID: {$clean_form_id}", 'status');.
+  // Load widget libraries and classes.
+  $widget_libraries = getSelectifyWidgetLibraries();
+  $widget_classes = [
+    'selectify_dropdown' => 'selectify-dropdown',
+    'selectify_tags' => 'selectify-dropdown-tags',
+    'selectify_searchable' => 'selectify-dropdown-searchable',
+    'selectify_dual' => 'selectify-dual',
+    'selectify_checkbox' => 'selectify-dropdown-checkbox',
+  ];
+
+  // Apply global widget if site-wide setting is enabled, otherwise process specific widgets.
+  if ($apply_site_wide) {
+    applyGlobalSelectifyWidget($form, $global_widget, $widget_libraries, $widget_classes);
+  }
+  else {
+    applySelectifyWidget($form, $widget_map, $clean_form_id, $widget_libraries, $widget_classes);
+  }
+}

@@ -8,3 +8,31 @@ selectify.settings:
     enable_checkbox:
       type: boolean
       label: 'Enable custom styles for checkboxes'
+    disable_on_admin_routes:
+      type: boolean
+      label: 'Disable Selectify on admin routes'
+    accent_color:
+      type: string
+      label: 'Selected accent color'
+    apply_site_wide:
+      type: boolean
+      label: 'Apply Selectify to all exposed filters'
+    global_selectify_widget:
+      type: string
+      label: 'Global Selectify Widget'
+    widget_for_filters:
+      type: sequence
+      label: 'Widget settings for Views Exposed Filters'
+      sequence:
+        - type: mapping
+          label: 'Filter Configuration'
+          mapping:
+            filter_id:
+              type: string
+              label: 'Filter Unique ID'
+            widget:
+              type: string
+              label: 'Selected Widget Type'
+            exposed_form_id:
+              type: string
+              label: 'Exposed Form ID'
