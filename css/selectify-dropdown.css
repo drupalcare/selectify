@@ -1,11 +1,12 @@
 .dropdown .selectify-available-one-option,
 .dropdown .selectify-available-one-option label {
-  cursor: pointer!important;
+  cursor: pointer !important;
 }
+
 .selectify-available-one-option label {
   pointer-events: none;
 }
 
 .dropdown .selectify-available-one-option.hidden {
-  display: block!important;
+  display: block !important;
 }

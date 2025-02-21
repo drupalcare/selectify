@@ -116,34 +116,41 @@ selectify-settings-style:
 selectify-color-blue:
   css:
     theme:
-      css/colors/selectify-color-blue.css: {}
+      css/selectify-style.css: {}
+      css/accent/selectify-color-blue.css: {}
 
 selectify-color-coral:
   css:
     theme:
-      css/colors/selectify-color-coral.css: {}
+      css/selectify-style.css: {}
+      css/accent/selectify-color-coral.css: {}
 
 selectify-color-gold:
   css:
     theme:
-      css/colors/selectify-color-gold.css: {}
+      css/selectify-style.css: {}
+      css/accent/selectify-color-gold.css: {}
 
 selectify-color-indigo:
   css:
     theme:
-      css/colors/selectify-color-indigo.css: {}
+      css/selectify-style.css: {}
+      css/accent/selectify-color-indigo.css: {}
 
 selectify-color-neutral:
   css:
     theme:
-      css/colors/selectify-color-neutral.css: {}
+      css/selectify-style.css: {}
+      css/accent/selectify-color-neutral.css: {}
 
 selectify-color-slate:
   css:
     theme:
-      css/colors/selectify-color-slate.css: {}
+      css/selectify-style.css: {}
+      css/accent/selectify-color-slate.css: {}
 
 selectify-color-teal:
   css:
     theme:
-      css/colors/selectify-color-teal.css: {}
+      css/selectify-style.css: {}
+      css/accent/selectify-color-teal.css: {}

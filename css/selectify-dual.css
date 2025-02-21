@@ -4,16 +4,10 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  border: 1px solid var(--selectify-select-border-color, #ddd);
   border-radius: 8px;
-  background-color: var(--selectify-select-bg, #fff);
   padding: 12px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-  font-family: system-ui, sans-serif;
-  cursor: pointer;
 }
 
-/* Improved Two-Column Layout */
 .dual-container {
   display: flex;
   justify-content: space-between;
@@ -23,75 +17,38 @@
   padding: 8px;
 }
 
-/* Improved Box Styling for Available & Selected Lists */
 .dual-available,
 .dual-selected {
+  border-style: solid;
+  border-width: 1px;
   min-width: 220px;
   flex: 1;
-  border: 1px solid var(--selectify-select-border-color);
   padding: 12px;
   min-height: 220px;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
   border-radius: 6px;
-  background: var(--selectify-select-bg);
   transition: border-color 0.2s ease-in-out;
 }
 
-/* Option Items Styling */
 .dual-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 10px 12px;
-  border-bottom: 1px solid var(--selectify-select-border-color);
-  border-radius: 4px;
   transition: background 0.2s ease, transform 0.1s ease;
   cursor: pointer;
   font-size: 14px;
   font-weight: 500;
 }
 
-.dual-item:hover {
-  background: var(--selectify-select-hover-bg, rgba(0, 0, 0, 0.05));
-  transform: scale(1.02);
+body .dual-selected-arrow,
+body .dual-available-arrow {
+  line-height: 0.8;
 }
 
-/* Avoid border cutoffs */
-.dual-item:last-child {
-  border-bottom: none;
-}
-
-/* Centered Footer */
-.dual-footer {
-  display: flex;
-  justify-content: center;
-  margin-top: 12px;
-  padding: 8px;
-}
-
-/* Clear All Button */
-.selectify-clear-all {
-  padding: 10px 16px;
-  font-size: 14px;
-  font-weight: 600;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.2s ease, transform 0.1s ease;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.selectify-clear-all:hover {
-  background: var(--selectify-select-hover-bg, rgba(0, 0, 0, 0.05));
-  transform: scale(1.05);
-}
-
-/* Responsive Behavior: Collapse to Single Column on Small Screens */
-@media (max-width: 768px) {
+@media (max-width:48rem) {
   .dual-container {
     flex-direction: column;
     gap: 8px;
@@ -101,10 +58,5 @@
   .dual-selected {
     width: 100%;
   }
-}
 
-/* Smooth Transitions for Hover Effects */
-.dual-item:hover,
-.selectify-clear-all:hover {
-  transition: all 0.2s ease-in-out;
 }

@@ -156,7 +156,8 @@ function _selectify_preprocess_widget(&$variables) {
   // Extract attributes from the form widget.
   $attributes = $variables['element']['#attributes'] ?? [];
 
-  // Improved detection for Views exposed filters using the selectify-views class.
+  // Improved detection for Views exposed filters using the
+  // selectify-views class.
   $is_views = FALSE;
   if (!empty($attributes['class']) && is_array($attributes['class']) && in_array('selectify-views', $attributes['class'])) {
     $is_views = TRUE;
@@ -192,6 +193,11 @@ function _selectify_preprocess_widget(&$variables) {
     $variables['views_attributes'] = [];
   }
 
+  $config = selectify_get_radio_checkbox_config();
+  if ($config && $config['enable_checkbox']) {
+    $variables['enable_checkbox'] = 'enable-checkbox';
+  }
+
   // Pass all attributes as a Drupal Attribute object for easy usage in Twig.
   $variables['attributes'] = new Attribute($attributes);
 }
@@ -200,14 +206,14 @@ function _selectify_preprocess_widget(&$variables) {
  * Retrieves Selectify settings with admin route check.
  *
  * @return array|false
- *   Returns an array of settings if Selectify should be applied, otherwise false.
+ *   Returns array of settings if Selectify should be applied, otherwise false.
  */
-function selectify_get_config() {
+function selectify_get_radio_checkbox_config() {
   $config = \Drupal::config('selectify.settings');
   $route = \Drupal::routeMatch()->getRouteObject();
   $is_admin = \Drupal::service('router.admin_context')->isAdminRoute();
 
-  // Check if "Disable on Admin Route" is enabled and if we are on an admin page.
+  // Check if Disable on Admin Route is enabled and if we are on an admin page.
   if ($config->get('disable_on_admin_routes') && $is_admin) {
     // Prevent applying styles and libraries.
     return FALSE;
@@ -225,7 +231,7 @@ function selectify_get_config() {
  * Implements hook_preprocess_form_element() for Selectify.
  */
 function selectify_preprocess_form_element(array &$variables): void {
-  $config = selectify_get_config();
+  $config = selectify_get_radio_checkbox_config();
 
   // If Selectify is disabled (e.g., on admin routes), stop processing.
   if ($config === FALSE) {
@@ -251,7 +257,7 @@ function selectify_preprocess_form_element(array &$variables): void {
  * Implements hook_preprocess_input() for Selectify.
  */
 function selectify_preprocess_input(array &$variables): void {
-  $config = selectify_get_config();
+  $config = selectify_get_radio_checkbox_config();
 
   // If Selectify is disabled (e.g., on admin routes), stop processing.
   if ($config === FALSE) {
@@ -277,7 +283,7 @@ function selectify_preprocess_input(array &$variables): void {
  * Implements hook_page_attachments() for Selectify.
  */
 function selectify_page_attachments(array &$attachments) {
-  $config = selectify_get_config();
+  $config = selectify_get_radio_checkbox_config();
 
   // If the function returns FALSE, do not attach any libraries.
   if ($config === FALSE) {
@@ -297,12 +303,12 @@ function selectify_page_attachments(array &$attachments) {
 }
 
 /**
- * Adds the 'selectify-views' class to all select elements in a Views exposed form.
+ * Adds the 'selectify-views' class to all select elements Views exposed form.
  *
  * @param array &$form
  *   The Views exposed form array.
  */
-function addSelectifyViewsClass(array &$form) {
+function selectify_add_views_class(array &$form) {
   foreach ($form as &$element) {
     if (is_array($element) && isset($element['#type']) && $element['#type'] === 'select') {
       // Ensure #attributes array exists.
@@ -323,7 +329,7 @@ function addSelectifyViewsClass(array &$form) {
  * @return array
  *   An associative array containing Selectify settings.
  */
-function loadSelectifyConfig() {
+function selectify_load_config() {
   $config = \Drupal::config('selectify.settings');
 
   return [
@@ -340,15 +346,16 @@ function loadSelectifyConfig() {
  * @return bool
  *   TRUE if Selectify is disabled on an admin route, FALSE otherwise.
  */
-function isSelectifyDisabledOnAdminRoutes() {
+function selectify_disabled_on_admin_routes() {
   // Fetch the configuration.
-  $config = loadSelectifyConfig();
+  $config = selectify_load_config();
   $disable_on_admin_routes = $config['disable_on_admin_routes'];
 
   if ($disable_on_admin_routes && \Drupal::routeMatch()->getRouteName() !== NULL) {
     $current_path = \Drupal::service('path.current')->getPath();
     if (strpos($current_path, '/admin') === 0) {
-      // \Drupal::messenger()->addMessage("Selectify is disabled on admin routes. Skipping.", 'warning');
+      // \Drupal::messenger()->addMessage("Selectify is disabled on admin
+      // routes. Skipping.", 'warning');
       return TRUE;
     }
   }
@@ -364,7 +371,7 @@ function isSelectifyDisabledOnAdminRoutes() {
  * @return string
  *   The normalized form ID.
  */
-function normalizeFormId(array $form) {
+function selectify_normalize_form_id(array $form) {
   $form_id = $form['#id'] ?? ($form['#attributes']['id'] ?? '');
 
   if (is_array($form_id)) {
@@ -378,9 +385,9 @@ function normalizeFormId(array $form) {
  * Retrieves the library dependencies for each Selectify widget type.
  *
  * @return array
- *   An associative array where keys are widget names and values are arrays of required libraries.
+ *   An associative array where keys are widget names and values are arrays
  */
-function getSelectifyWidgetLibraries() {
+function selectify_get_widget_libraries() {
   return [
     'selectify_dropdown' => [
       'selectify/selectify-base',
@@ -426,15 +433,18 @@ function getSelectifyWidgetLibraries() {
  * @param array $widget_classes
  *   The widget-to-class mapping.
  */
-function applyGlobalSelectifyWidget(array &$form, $global_widget, array $widget_libraries, array $widget_classes) {
+function selectify_global_widget(array &$form, $global_widget, array $widget_libraries, array $widget_classes) {
   if (!empty($global_widget) && isset($widget_libraries[$global_widget])) {
-    // \Drupal::messenger()->addMessage("Applying Global Widget: {$global_widget}", 'status');
+    // \Drupal::messenger()->addMessage("Applying Global Widget:
+    // {$global_widget}", 'status');
     // Attach libraries.
     foreach ($widget_libraries[$global_widget] as $library) {
       $form['#attached']['library'][] = $library;
     }
 
-    // \Drupal::messenger()->addMessage("Global Libraries Attached: " . implode(', ', $widget_libraries[$global_widget]), 'status');
+    // \Drupal::messenger()->addMessage("Global Libraries
+    // Attached: " . implode(', ', $widget_libraries[$global_widget]),
+    // 'status');
     // Apply widget-specific class if available.
     if (isset($widget_classes[$global_widget])) {
       $form['#attributes']['class'][] = 'selectify-views-form';
@@ -445,7 +455,6 @@ function applyGlobalSelectifyWidget(array &$form, $global_widget, array $widget_
         }
       }
 
-      // \Drupal::messenger()->addMessage("Global Widget Applied: {$widget_classes[$global_widget]}", 'status');
     }
   }
 }
@@ -464,24 +473,27 @@ function applyGlobalSelectifyWidget(array &$form, $global_widget, array $widget_
  * @param array $widget_classes
  *   The widget-to-class mapping.
  */
-function applySelectifyWidget(array &$form, array $widget_map, $clean_form_id, array $widget_libraries, array $widget_classes) {
+function selectify_single_widget(array &$form, array $widget_map, $clean_form_id, array $widget_libraries, array $widget_classes) {
   $applied_widget = FALSE;
 
   foreach ($widget_map as $view_display_key => $widget_data) {
     $stored_exposed_form_id = $widget_data['exposed_form_id'] ?? '';
     $normalized_stored_form_id = str_replace('_', '-', $stored_exposed_form_id);
 
-    // \Drupal::messenger()->addMessage("Checking: {$view_display_key} | Stored Exposed Form ID: {$normalized_stored_form_id}", 'status');
+    // \Drupal::messenger()->addMessage("Checking: {$view_display_key} |
+    // Stored Exposed Form ID: {$normalized_stored_form_id}", 'status');
     if (!empty($normalized_stored_form_id) && $normalized_stored_form_id === $clean_form_id) {
       $selected_widget = $widget_data['widget'];
 
-      // \Drupal::messenger()->addMessage("Match found! Applying Widget: {$selected_widget}", 'status');
+      // \Drupal::messenger()->addMessage("Match found! Applying Widget:
+      // {$selected_widget}", 'status');
       // Attach corresponding libraries.
       if (isset($widget_libraries[$selected_widget])) {
         foreach ($widget_libraries[$selected_widget] as $library) {
           $form['#attached']['library'][] = $library;
         }
-        // \Drupal::messenger()->addMessage("Libraries attached: " . implode(', ', $widget_libraries[$selected_widget]), 'status');
+        // \Drupal::messenger()->addMessage("Libraries attached: " .
+        // implode(', ', $widget_libraries[$selected_widget]), 'status');
       }
 
       // Apply widget class if available.
@@ -496,14 +508,12 @@ function applySelectifyWidget(array &$form, array $widget_map, $clean_form_id, a
           }
         }
 
-        // \Drupal::messenger()->addMessage("Applied '{$widget_classes[$selected_widget]}' class to {$applied_to_selects} select elements.", 'status');
+        // \Drupal::messenger()->addMessage("Applied '{$widget_classes
+        // [$selected_widget]}' class to {$applied_to_selects} select
+        // elements.", 'status');
         $applied_widget = TRUE;
       }
     }
-  }
-
-  if (!$applied_widget) {
-    // \Drupal::messenger()->addMessage("No widget applied for this form.", 'warning');
   }
 }
 
@@ -514,26 +524,27 @@ function selectify_preprocess_views_exposed_form(&$variables) {
   $form = &$variables['form'];
 
   // Check if Selectify is disabled on admin routes.
-  if (isSelectifyDisabledOnAdminRoutes()) {
+  if (selectify_disabled_on_admin_routes()) {
     return;
   }
 
   // Add the 'selectify-views' class to all selects.
-  addSelectifyViewsClass($form);
+  selectify_add_views_class($form);
 
   // Retrieve the Selectify configuration.
-  $config = loadSelectifyConfig();
+  $config = selectify_load_config();
   $apply_site_wide = $config['apply_site_wide'];
   $global_widget = $config['global_widget'];
   $widget_map = $config['widget_map'];
 
   // Extract and normalize the form ID (convert underscores to dashes).
-  $clean_form_id = normalizeFormId($form);
+  $clean_form_id = selectify_normalize_form_id($form);
 
   // Print detected form ID.
-  // \Drupal::messenger()->addMessage("Detected Form ID: {$clean_form_id}", 'status');.
+  // \Drupal::messenger()->addMessage("Detected Form ID:
+  // {$clean_form_id}", 'status');.
   // Load widget libraries and classes.
-  $widget_libraries = getSelectifyWidgetLibraries();
+  $widget_libraries = selectify_get_widget_libraries();
   $widget_classes = [
     'selectify_dropdown' => 'selectify-dropdown',
     'selectify_tags' => 'selectify-dropdown-tags',
@@ -542,11 +553,12 @@ function selectify_preprocess_views_exposed_form(&$variables) {
     'selectify_checkbox' => 'selectify-dropdown-checkbox',
   ];
 
-  // Apply global widget if site-wide setting is enabled, otherwise process specific widgets.
+  // Apply global widget if site-wide setting is enabled,
+  // otherwise process specific widgets.
   if ($apply_site_wide) {
-    applyGlobalSelectifyWidget($form, $global_widget, $widget_libraries, $widget_classes);
+    selectify_global_widget($form, $global_widget, $widget_libraries, $widget_classes);
   }
   else {
-    applySelectifyWidget($form, $widget_map, $clean_form_id, $widget_libraries, $widget_classes);
+    selectify_single_widget($form, $widget_map, $clean_form_id, $widget_libraries, $widget_classes);
   }
 }

@@ -199,7 +199,10 @@ class SelectifySettingsForm extends ConfigFormBase {
                 'selectify_checkbox' => $this->t('Checkbox'),
               ],
               '#default_value' => $selected_widget,
-              '#parents' => ['selectify_widgets', $view_machine_name, 'filters_table', $unique_key, 'widget'],
+              '#parents' => ['selectify_widgets',
+                $view_machine_name, 'filters_table',
+                $unique_key, 'widget',
+              ],
             ],
           ];
         }
@@ -227,23 +230,6 @@ class SelectifySettingsForm extends ConfigFormBase {
     $global_widget = $form_state->getValue('global_selectify_widget', $config->get('global_selectify_widget', 'none'));
     $views_widgets = $form_state->getValue('selectify_widgets', []);
 
-    /**
-     * Logic based on conditions:
-     *
-     * 1. If `disable_views_widgets` is checked:
-     *    - Clear all settings related to Vies Select.
-     * 2. If `apply_site_wide` is checked:
-     *    - Set `apply_site_wide = TRUE`
-     *    - Set `disable_views_widgets = FALSE`
-     *    - Store `global_selectify_widget`
-     *    - Clear `widget_for_filters`
-     * 3. If specific `selectify_widgets` are selected:
-     *    - Set `apply_site_wide = FALSE`
-     *    - Set `disable_views_widgets = FALSE`
-     *    - Store `widget_for_filters`
-     *    - Clear `global_selectify_widget`
-     */
-
     // If disabling Views Select, clear everything.
     if ($disable_views_widgets) {
       $config->set('disable_views_widgets', TRUE)
@@ -253,7 +239,7 @@ class SelectifySettingsForm extends ConfigFormBase {
 
       \Drupal::messenger()->addMessage($this->t('Selectify has been disabled. All related settings have been cleared.'), 'warning');
     }
-    // If applying site-wide Views Select, store global settings & clear widgets.
+    // If applying site-wide Views Select, store global settings/clear widgets.
     elseif ($apply_site_wide) {
       $config->set('apply_site_wide', TRUE)
         ->set('disable_views_widgets', FALSE)
@@ -279,7 +265,7 @@ class SelectifySettingsForm extends ConfigFormBase {
   }
 
   /**
-   * Processes Views widget settings and returns the updated widget configuration.
+   * Processes Views widget settings and returns updated widget configuration.
    *
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current form state.
@@ -323,7 +309,7 @@ class SelectifySettingsForm extends ConfigFormBase {
   }
 
   /**
-   * Retrieves all Views displays that have an exposed form with at least one exposed filter.
+   * Retrieves all Views displays that have an exposed form with at least one.
    *
    * @return array
    *   An array of exposed forms grouped by View & Display.

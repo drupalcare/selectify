@@ -14,16 +14,15 @@
   max-width: fit-content;
   border: none;
   padding: 4px 8px;
-  background: var(--selectify-select-bg);
   border-radius: 0;
   transition: background 0.3s ease-in-out, border-color 0.3s ease-in-out;
 }
+
 
 /* Typography Consistency */
 .selectify-select-dropdowns,
 .selectify-select-dropdowns * {
   font-size: inherit;
-  color: var(--selectify-select-color);
   line-height: 1.6;
 }
 
@@ -53,7 +52,6 @@
   padding: 6px 10px;
   font-size: 14px;
   font-weight: 500;
-  background: var(--selectify-select-bg);
 }
 
 /* Remove Tag Button */
@@ -85,7 +83,6 @@
 .selectify-select-dropdowns .selectify-dorpdown-arrow svg {
   height: 24px;
   width: 24px;
-  fill: var(--selectify-select-arrow-color);
   transition: transform 0.3s ease-in-out;
 }
 
@@ -103,8 +100,6 @@
   max-height: 220px;
   display: none;
   z-index: 100;
-  box-shadow: var(--selectify-dropdown-shadow);
-  background: var(--selectify-select-bg);
   padding: 6px;
   min-width: 100%;
   width: auto;
@@ -120,16 +115,13 @@
   cursor: pointer;
   font-weight: normal;
 }
-.selectify-select-dropdowns .selectify-available-one-option * {
-  font-weight: normal;
-}
-.selectify-select-dropdowns .selectify-available-one-option:hover {
-  background: var(--selectify-option-hover-bg);
+
+.checkbox.selectify-select-dropdowns .selectify-available-one-option {
+  gap: 8px;
 }
 
-/* Active Option */
-.selectify-select-dropdowns .selectify-available-one-option:active {
-  background: var(--selectify-option-active-bg);
+.selectify-select-dropdowns .selectify-available-one-option * {
+  font-weight: normal;
 }
 
 /* Clear All Button */
@@ -138,7 +130,6 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  background: var(--selectify-select-hover-bg);
   padding: 8px 12px;
   transition: background 0.3s ease-in-out;
 }
