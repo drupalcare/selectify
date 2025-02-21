@@ -29,13 +29,11 @@ body .selectify-select .options-inner,
 body .selectify-select .selectify-available-display,
 body .selectify-select .selectify-selected-display,
 body .selectify-select .selectify-selected-one-option {
-  font-size: 14px;
-  line-height: 1.2;
   background: var(--selectify-select-bg);
 }
 
 body .selectify-select {
-  border: 2px solid var(--selectify-select-border-color);
+  border: 1px solid var(--selectify-select-border-color);
   box-shadow: var(--selectify-dropdown-shadow);
 }
 

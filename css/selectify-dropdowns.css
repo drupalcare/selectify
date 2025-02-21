@@ -1,19 +1,20 @@
 /* Base Reset for Selectify */
 .wrapper-selectify {
   display: inline-block;
+  background-color: inherit;
 }
 
 .selectify-select-dropdowns {
-  all: unset;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-width: 200px;
+  min-width: 230px;
   width: auto;
   max-width: fit-content;
   border: none;
-  padding: 4px 8px;
+  padding: 0;
+  margin: 0;
   border-radius: 0;
   transition: background 0.3s ease-in-out, border-color 0.3s ease-in-out;
 }
@@ -22,8 +23,8 @@
 /* Typography Consistency */
 .selectify-select-dropdowns,
 .selectify-select-dropdowns * {
-  font-size: inherit;
   line-height: 1.6;
+  font-size: 0.875rem;
 }
 
 /* Selected Options Display */
@@ -32,9 +33,10 @@
   flex-grow: 0;
   align-items: center;
   flex-wrap: wrap;
-  gap: 6px;
-  padding: 8px;
-  min-width: 200px;
+  gap: 10px;
+  padding: 10px 12px;
+  min-width: 230px;
+  min-height: 50px;
 }
 
 /* Selected Option Item */
@@ -48,10 +50,11 @@
 .selectify-select-dropdowns .selectify-selected-one-option {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 6px 10px;
-  font-size: 14px;
-  font-weight: 500;
+  gap: 2px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  border-style: solid;
+  border-width: 1px;
 }
 
 /* Remove Tag Button */
