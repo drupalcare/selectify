@@ -19,14 +19,6 @@
   transition: background 0.3s ease-in-out, border-color 0.3s ease-in-out;
 }
 
-
-/* Typography Consistency */
-.selectify-select-dropdowns,
-.selectify-select-dropdowns * {
-  line-height: 1.6;
-  font-size: 0.875rem;
-}
-
 /* Selected Options Display */
 .selectify-select-dropdowns .selectify-selected-display {
   display: flex;
@@ -36,7 +28,7 @@
   gap: 10px;
   padding: 8px 12px;
   min-width: 230px;
-  min-height: 46px;
+  min-height: 48px;
 }
 
 /* Selected Option Item */

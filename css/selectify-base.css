@@ -50,17 +50,17 @@
   pointer-events: none;
 }
 
-
 .selectify-select {
   all: unset;
   background: var(--selectify-select-bg, inherit);
   border-color: var(--selectify-select-border-color, unset);
   border-radius: var(--selectify-select-border-radius, inherit);
   padding: var(--selectify-select-padding, inherit);
-  font-size: var(--selectify-select-font-size, inherit);
   color: var(--selectify-select-color, inherit);
   box-shadow: var(--selectify-dropdown-shadow, unset);
   cursor: pointer;
+  line-height: 1.6;
+  font-size: 0.875rem;
   transition: background 0.2s ease-in-out, border 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
@@ -162,9 +162,11 @@
   visibility: visible;
   transform: translateX(-50%) translateY(0);
 }
+
 .selectify-available-display {
   background: inherit;
 }
+
 /* Hide animation */
 .selectify-max-selection-message.hide {
   opacity: 0;
@@ -179,11 +181,11 @@
 .search-input {
   margin: 6px 0;
 }
+
 .remove-tag svg {
   width: 18px;
   height: 18px;
 }
-
 
 body .selectify-clear-all span.icon svg {
   width: 20px;
@@ -194,4 +196,10 @@ body .remove-tag,
 body .selectify-dorpdown-arrow,
 body .selectify-clear-all span.icon {
   line-height: 0.8;
+}
+
+.selectify-selected-one-option label,
+.selectify-available-one-option label {
+  padding: 0 !important;
+  line-height: 1.4;
 }

@@ -34,6 +34,9 @@
   ]) %}
 {% endif %}
 
+{# Merge with existing Drupal classes from `attributes.class` #}
+{% set all_classes = all_classes|merge(attributes.class|default([])) %}
+
 <div id="{{ wrapper_id }}" class="{{ all_classes|join(' ') }}">
 
   {% set label_text = element['#title'] ?: attributes.title %}

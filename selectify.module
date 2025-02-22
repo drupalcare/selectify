@@ -146,6 +146,31 @@ function selectify_preprocess_selectify__dual(&$variables) {
 }
 
 /**
+ * Cleans a theme name to allow only letters, numbers, and dashes.
+ */
+function selectify_clean_theme_name($name) {
+  return preg_replace('/[^a-zA-Z0-9-]/', '', $name);
+}
+
+/**
+ * Recursively finds the topmost base theme (the original parent).
+ */
+function selectify_get_root_parent_theme($theme_name) {
+  $theme_handler = \Drupal::service('theme_handler');
+  $theme_info = $theme_handler->getTheme($theme_name);
+
+  // If this theme has a base theme, continue checking recursively.
+  if (!empty($theme_info->info['base theme'])) {
+    $base_themes = (array) $theme_info->info['base theme'];
+    // Recursive call.
+    return selectify_get_root_parent_theme(reset($base_themes));
+  }
+
+  // If no base theme, this is the root theme.
+  return $theme_name;
+}
+
+/**
  * Common preprocessing logic for all Selectify widgets.
  */
 function _selectify_preprocess_widget(&$variables) {
@@ -155,19 +180,13 @@ function _selectify_preprocess_widget(&$variables) {
 
   // Extract attributes from the form widget.
   $attributes = $variables['element']['#attributes'] ?? [];
+  $variables['attributes'] = new Attribute($attributes);
 
-  // Improved detection for Views exposed filters using the
-  // selectify-views class.
-  $is_views = FALSE;
-  if (!empty($attributes['class']) && is_array($attributes['class']) && in_array('selectify-views', $attributes['class'])) {
-    $is_views = TRUE;
-  }
-
-  // Set the variable for Twig.
+  // Detect if it's a Views exposed filter.
+  $is_views = !empty($attributes['class']) && is_array($attributes['class']) && in_array('selectify-views', $attributes['class']);
   $variables['is_views'] = $is_views;
 
   if ($is_views) {
-
     $variables['unique_id'] = $attributes['id'] ?? '';
     $variables['is_multiple'] = (isset($attributes['multiple']) && $attributes['multiple'] === 'multiple') ? TRUE : FALSE;
     $variables['max_selected'] = (isset($attributes['multiple']) && $attributes['multiple'] === 'multiple') ? NULL : 1;
@@ -185,21 +204,39 @@ function _selectify_preprocess_widget(&$variables) {
     // Assign field widget-specific attributes.
     $variables['unique_id'] = $attributes['id'] ?? 'selectify-default-id';
     $variables['field_name'] = $attributes['data-field-name'] ?? 'unknown';
-    $variables['is_multiple'] = $attributes['data-multiple'] ?? FALSE;
+    $variables['is_multiple'] = filter_var($attributes['data-multiple'] ?? FALSE, FILTER_VALIDATE_BOOLEAN);
     $variables['placeholder'] = $attributes['data-placeholder'] ?? '';
-    $variables['is_required'] = $attributes['aria-required'] ?? FALSE;
+    $variables['is_required'] = filter_var($attributes['aria-required'] ?? FALSE, FILTER_VALIDATE_BOOLEAN);
 
     // No Views attributes in field widgets.
     $variables['views_attributes'] = [];
   }
 
-  $config = selectify_get_radio_checkbox_config();
-  if ($config && $config['enable_checkbox']) {
-    $variables['enable_checkbox'] = 'enable-checkbox';
-  }
+  // background:Get the actual active theme for the request.
+  $theme_manager = \Drupal::service('theme.manager');
+  $active_theme = $theme_manager->getActiveTheme();
+  // The theme currently in use.
+  $theme_name = selectify_clean_theme_name($active_theme->getName());
 
-  // Pass all attributes as a Drupal Attribute object for easy usage in Twig.
-  $variables['attributes'] = new Attribute($attributes);
+  // background:Get the root parent theme.
+  $parent_theme = selectify_get_root_parent_theme($theme_name);
+  $parent_theme = selectify_clean_theme_name($parent_theme);
+
+  // Add the theme classes, ensuring the real parent is first.
+  $theme_classes = [];
+  if (!empty($parent_theme) && $parent_theme !== $theme_name) {
+    // background:Print the last (root) parent.
+    $theme_classes[] = 'theme-parent-' . $parent_theme;
+  }
+  // background:Print the currently active theme.
+  $theme_classes[] = 'theme-' . $theme_name;
+
+  // Get the Selectify checkbox configuration.
+  $config = selectify_get_radio_checkbox_config();
+  $variables['enable_checkbox'] = !empty($config['enable_checkbox']);
+
+  // Merge theme classes.
+  $variables['attributes']->addClass($theme_classes);
 }
 
 /**
