@@ -2,3 +2,10 @@ body .selectify-available-one-option.selected,
 body .selectify-available-one-option.selected * {
   font-weight: bold;
 }
+
+body .selectify-select-dropdowns.checkbox .selectify-available-one-option {
+  cursor: default;
+}
+body .selectify-select-dropdowns.checkbox .selectify-available-one-option label {
+  pointer-events: auto;
+}

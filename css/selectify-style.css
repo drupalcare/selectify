@@ -99,10 +99,6 @@ body .dual-item {
   border-bottom: 1px solid var(--selectify-select-border-color);
 }
 
-body .dual-item:last-child {
-  border-bottom: none;
-}
-
 body .selectify-available-one-option.selected,
 body .selectify-available-one-option.selected * {
   font-weight: bold;

@@ -122,20 +122,6 @@
   font-weight: normal;
 }
 
-/* Clear All Button */
-.selectify-select-dropdowns .selectify-select-footer button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 8px 12px;
-  transition: background 0.3s ease-in-out;
-}
-
-.selectify-select-dropdowns .selectify-select-footer button:hover {
-  opacity: 0.8;
-}
-
 /* Search Input */
 .selectify-select-dropdowns .search-input {
   position: relative;

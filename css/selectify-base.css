@@ -201,5 +201,24 @@ body .selectify-clear-all span.icon {
 .selectify-selected-one-option label,
 .selectify-available-one-option label {
   padding: 0 !important;
+  line-height: 1.2;
+}
+
+.selectify-available-one-option label {
+  pointer-events: none;
+}
+
+/* Clear All Button */
+.selectify-select .selectify-select-footer button {
   line-height: 1.4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  transition: background 0.3s ease-in-out;
+}
+
+.selectify-select .selectify-select-footer button:hover {
+  opacity: 0.8;
 }
