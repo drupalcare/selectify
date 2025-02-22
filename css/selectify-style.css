@@ -15,7 +15,7 @@
 }
 
 body .wrapper-selectify {
-  background-color: transparent;
+  background: transparent;
 }
 
 body .selectify-select,
@@ -25,7 +25,6 @@ body .selectify-select * {
 }
 
 body .selectify-select,
-body .selectify-select .options-inner,
 body .selectify-select .selectify-available-display,
 body .selectify-select .selectify-selected-display,
 body .selectify-select .selectify-selected-one-option {

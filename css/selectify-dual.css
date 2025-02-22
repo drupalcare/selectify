@@ -14,17 +14,17 @@
   gap: 12px;
   align-items: stretch;
   flex-wrap: wrap;
-  padding: 8px;
 }
 
 .dual-available,
 .dual-selected {
   border-style: solid;
   border-width: 1px;
-  min-width: 220px;
+  min-width: 330px;
   flex: 1;
-  padding: 12px;
+  padding: 12px 6px;
   min-height: 220px;
+  max-height: 500px;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
@@ -46,6 +46,23 @@
 body .dual-selected-arrow,
 body .dual-available-arrow {
   line-height: 0.8;
+}
+
+.dual-available-option.dual-item {
+  border-style: dotted;
+  border-width: 1px;
+  border-right: none;
+  border-radius: 0 24px 24px 0;
+  margin-bottom: 2px;
+}
+
+.selectify-selected-one-option.dual-item {
+  border-style: solid;
+  border-width: 1px;
+  border-left: none;
+  border-radius: 24px 0 0 24px;
+  flex-direction: row-reverse;
+  margin-bottom: 2px;
 }
 
 @media (max-width:48rem) {

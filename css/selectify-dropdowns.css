@@ -1,7 +1,7 @@
 /* Base Reset for Selectify */
 .wrapper-selectify {
   display: inline-block;
-  background-color: inherit;
+  background: inherit;
 }
 
 .selectify-select-dropdowns {
@@ -34,9 +34,9 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 10px;
-  padding: 10px 12px;
+  padding: 8px 12px;
   min-width: 230px;
-  min-height: 50px;
+  min-height: 46px;
 }
 
 /* Selected Option Item */
@@ -99,15 +99,17 @@
   position: absolute;
   top: 100%;
   left: 0;
-  overflow-y: auto;
   max-height: 220px;
   display: none;
   z-index: 100;
-  padding: 6px;
+  padding: 0;
   min-width: 100%;
   width: auto;
   max-width: none;
+  z-index: 600;
+  overflow: hidden;
 }
+
 
 /* Available Option Item */
 .selectify-select-dropdowns .selectify-available-one-option {
@@ -162,6 +164,10 @@
   height: 20px;
   pointer-events: none;
   opacity: 0.7;
+}
+
+.selectify-selected-options [data-value="All"] .remove-tag {
+  display: none!important;
 }
 
 /* RTL Support */

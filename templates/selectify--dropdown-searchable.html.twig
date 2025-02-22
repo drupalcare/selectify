@@ -11,19 +11,39 @@
  */
 #}
 {% apply spaceless %}
-{% set wrapper_id = "wrapper-" ~ attributes.id  %}
+{% set wrapper_id = "wrapper-" ~ attributes.id %}
 {% set clean_field_name = field_name|replace({'_': '-', '[]': ''}) %}
-<div id="{{ wrapper_id }}" class="wrapper-selectify {{ wrapper_id  }}">
 
-{% if element['#title'] is not empty %}
-  <label for="{{ attributes.id }}" {{ element['#title_attributes'].addClass('form-item__label') }}>
-    {{ element['#title'] }}
-  </label>
+{# Combine default Drupal classes with Selectify classes #}
+{% set all_classes = [
+  'wrapper-selectify',
+  wrapper_id,
+  'views-exposed-form__item',
+  'js-form-item',
+  'form-item',
+  'js-form-type-select',
+  'form-type--select'
+] %}
+
+{# Add extra Views-specific classes if this is an exposed filter #}
+{% if is_views %}
+  {% set all_classes = all_classes|merge([
+    'views-exposed-form__item--preceding-actions',
+    'js-form-item-status',
+    'form-item--status'
+  ]) %}
 {% endif %}
 
-  {% if attributes.title is not empty %}
-    <label for="{{ attributes.id }}">{{ attributes.title }}</label>
+<div id="{{ wrapper_id }}" class="{{ all_classes|join(' ') }}">
+
+  {% set label_text = element['#title'] ?: attributes.title %}
+
+  {% if label_text is not empty %}
+    <label for="{{ attributes.id }}" {{ element['#title_attributes'].addClass('form-item__label') }}>
+      {{ label_text }}
+    </label>
   {% endif %}
+
   <div class="selectify selectify-select selectify-select-dropdowns selectify-searchable searchable"
      tabindex="0"
      role="combobox"

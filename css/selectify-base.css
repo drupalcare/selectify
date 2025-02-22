@@ -53,7 +53,7 @@
 
 .selectify-select {
   all: unset;
-  background-color: var(--selectify-select-bg, inherit);
+  background: var(--selectify-select-bg, inherit);
   border-color: var(--selectify-select-border-color, unset);
   border-radius: var(--selectify-select-border-radius, inherit);
   padding: var(--selectify-select-padding, inherit);
@@ -67,7 +67,7 @@
 .selectify-radio,
 .selectify-checkbox {
   border: none;
-  background-color: var(--selectify-checkbox-bg, inherit);
+  background: var(--selectify-checkbox-bg, inherit);
   border-radius: var(--selectify-radio-border-radius, inherit);
   padding: var(--selectify-radio-padding, inherit);
   box-shadow: none;
