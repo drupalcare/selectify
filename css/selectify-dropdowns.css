@@ -107,7 +107,8 @@
   width: auto;
   max-width: none;
   z-index: 600;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 
