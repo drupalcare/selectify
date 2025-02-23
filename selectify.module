@@ -580,7 +580,6 @@ function selectify_preprocess_views_exposed_form(&$variables) {
 
   // These css classes must match the css classes in field widget and in
   // selectify_theme_suggestions_alter()
-
   $widget_libraries = selectify_get_widget_libraries();
   $widget_classes = [
     'selectify_dropdown' => 'selectify-apply-dropdown',

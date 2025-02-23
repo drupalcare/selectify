@@ -333,11 +333,6 @@ Drupal.selectify.syncHiddenSelect = (nativeSelect, selectedValues) => {
       // Insert the wrapper before the arrow
       arrowIcon.insertAdjacentHTML('beforebegin', wrapperHTML);
 
-      // Hide placeholder when selections exist
-      placeholder?.classList.add('hidden');
-    } else {
-      // Show placeholder if no selection
-      placeholder?.classList.remove('hidden');
     }
   };
 
@@ -375,11 +370,6 @@ Drupal.selectify.syncHiddenSelect = (nativeSelect, selectedValues) => {
       // Insert the wrapper before the arrow
       arrowIcon.insertAdjacentHTML('beforebegin', wrapperHTML);
 
-      // Hide placeholder when selections exist
-      placeholder?.classList.add('hidden');
-    } else {
-      // Show placeholder if no selection
-      placeholder?.classList.remove('hidden');
     }
   };
 
@@ -469,8 +459,11 @@ Drupal.selectify.syncHiddenSelect = (nativeSelect, selectedValues) => {
       option.selected = !option.selected;
 
       // Apply or remove classes based on selection state.
-      targetElement.classList.toggle("selected", option.selected);
-      targetElement.classList.toggle("hidden", option.selected);
+      if (option.selected) {
+        targetElement.classList.add("selected", "hidden");
+      } else {
+        targetElement.classList.remove("selected", "hidden");
+      }
 
       // Apply selected class to the native select option.
       if (option.selected) {
@@ -488,7 +481,6 @@ Drupal.selectify.syncHiddenSelect = (nativeSelect, selectedValues) => {
     Drupal.selectify.syncHiddenSelect(nativeSelect, selectedValues);
     Drupal.selectify.updateSelectedDisplay(type, nativeSelect, selectedDisplay, clearAllButton);
   };
-
 
   /**
    * Removes a selected tag.

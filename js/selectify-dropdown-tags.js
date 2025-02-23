@@ -102,7 +102,6 @@
         event.stopPropagation();
         if (event.target.classList.contains('selectify-available-one-option')) {
           Drupal.selectify.toggleMultiSelectOption(type, nativeSelect, event.target, selectedDisplay, clearAllButton);
-          event.target.classList.add('hidden'); // Hide instead of remove.
         }
       });
     });

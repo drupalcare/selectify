@@ -232,3 +232,11 @@ body .selectify-clear-all span.icon {
 .selectify-select .selectify-select-footer button:hover {
   opacity: 0.8;
 }
+
+@media (min-width:36rem) {
+  .selectify-selected-one-option label,
+  .selectify-available-one-option label {
+    white-space: nowrap;
+  }
+
+}
