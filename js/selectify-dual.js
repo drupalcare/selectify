@@ -104,7 +104,7 @@
         // Unhide the corresponding option in the dropdown.
         const correspondingOption = dropdownMenu.querySelector(`.selectify-available-one-option[data-value="${valueToRemove}"]`);
         if (correspondingOption) {
-          correspondingOption.classList.remove('hidden');
+          correspondingOption.classList.remove('hidden', 'selected');
         }
 
         // Update hidden <select> field.

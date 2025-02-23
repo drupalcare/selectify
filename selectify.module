@@ -584,7 +584,7 @@ function selectify_preprocess_views_exposed_form(&$variables) {
   $widget_libraries = selectify_get_widget_libraries();
   $widget_classes = [
     'selectify_dropdown' => 'selectify-apply-dropdown',
-    'selectify_tags' => 'selectify-apply--tags',
+    'selectify_tags' => 'selectify-apply-tags',
     'selectify_searchable' => 'selectify-apply-searchable',
     'selectify_checkbox' => 'selectify-apply-checkbox',
     'selectify_dual' => 'selectify-apply-dual',
