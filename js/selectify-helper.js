@@ -62,7 +62,6 @@
           if (this.checked && selectedCount > maxSelections) {
             this.checked = false;
             selectedCount--;
-            showMaxSelectionMessage();
             return;
           }
 
@@ -75,6 +74,9 @@
             }
           });
 
+          if (selectedCount === maxSelections) {
+            showMaxSelectionMessage();
+          }
           // Toggle "Clear All" button visibility
           clearAllButton.classList.toggle('hidden', selectedValues.length === 0);
 

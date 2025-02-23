@@ -1,12 +1,16 @@
-.dropdown .selectify-available-one-option,
-.dropdown .selectify-available-one-option label {
+body .selectify-dropdown-widget .selectify-available-one-option,
+body .selectify-dropdown-widget .selectify-available-one-option label {
   cursor: pointer !important;
 }
 
-.selectify-available-one-option label {
+body .selectify-dropdown-widget .selectify-available-one-option label {
   pointer-events: none;
 }
 
-.dropdown .selectify-available-one-option.hidden {
+body .selectify-dropdown-widget .selectify-available-one-option.hidden {
   display: block !important;
+}
+
+body .selectify-dropdown-widget .selectify-available-one-option.hidden label {
+  font-weight: bold !important;
 }

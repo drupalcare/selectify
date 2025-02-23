@@ -16,7 +16,7 @@
    */
   Drupal.behaviors.selectifySelectTags = {
     attach: (context) => {
-      once('selectifyMultiSelectTags', '.selectify-select.tags', context).forEach((selectifySelect) => {
+      once('selectifyMultiSelectTags', '.selectify-dropdown-tags-widget', context).forEach((selectifySelect) => {
         setTimeout(() => {
           // Retrieve the target ID from the data attribute.
           const targetId = selectifySelect.getAttribute('data-target-id');

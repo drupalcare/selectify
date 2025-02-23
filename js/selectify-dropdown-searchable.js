@@ -16,10 +16,11 @@
    */
   Drupal.behaviors.selectifySelectSearchable = {
     attach: (context) => {
-      once('selectifyMultiSelectSearchable', '.selectify-select.searchable', context).forEach((selectifySelect) => {
+      once('selectifyMultiSelectSearchable', '.selectify-dropdown-searchable-widget', context).forEach((selectifySelect) => {
         setTimeout(() => {
           // Retrieve the target ID from the data attribute.
           const targetId = selectifySelect.getAttribute('data-target-id');
+
           if (!targetId) {
             console.error('Selectify: Missing data-target-id on dropdown element', selectifySelect);
             return;

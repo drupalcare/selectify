@@ -91,7 +91,7 @@ class SelectifyDropdownWidget extends OptionsSelectWidget {
     $is_multiple = $this->fieldDefinition->getFieldStorageDefinition()->isMultiple();
 
     // Generate a unique ID based on field name and delta.
-    $unique_id = Html::getUniqueId('selectify-dropdown-' . $this->fieldDefinition->getName() . '-' . $delta);
+    $unique_id = Html::getUniqueId('selectify-dropdown-widget-' . $this->fieldDefinition->getName() . '-' . $delta);
 
     // Determine the maximum number of selections allowed.
     $max_selected = $this->fieldDefinition->getFieldStorageDefinition()->getCardinality();
@@ -120,7 +120,7 @@ class SelectifyDropdownWidget extends OptionsSelectWidget {
     // Merge required attributes for JavaScript and accessibility.
     $element['#attributes'] += [
       'id' => $unique_id,
-      'class' => ['selectify-dropdown'],
+      'class' => ['selectify-apply-dropdown'],
       'data-max-selections' => $max_selected,
       'data-drupal-selector' => Html::getUniqueId('edit-' . str_replace('_', '-', $this->fieldDefinition->getName())),
       'data-field-name' => $this->fieldDefinition->getName(),

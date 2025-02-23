@@ -57,19 +57,19 @@ function selectify_theme_suggestions_alter(array &$suggestions, array $variables
     // Cast to array.
     $classes = (array) $variables['element']['#attributes']['class'];
 
-    if (in_array('selectify-dropdown', $classes)) {
+    if (in_array('selectify-apply-dropdown', $classes)) {
       $suggestions[] = 'selectify__dropdown';
     }
-    if (in_array('selectify-dropdown-checkbox', $classes)) {
+    if (in_array('selectify-apply-checkbox', $classes)) {
       $suggestions[] = 'selectify__dropdown_checkbox';
     }
-    if (in_array('selectify-dropdown-searchable', $classes)) {
+    if (in_array('selectify-apply-searchable', $classes)) {
       $suggestions[] = 'selectify__dropdown_searchable';
     }
-    if (in_array('selectify-dropdown-tags', $classes)) {
+    if (in_array('selectify-apply-tags', $classes)) {
       $suggestions[] = 'selectify__dropdown_tags';
     }
-    if (in_array('selectify-dual', $classes)) {
+    if (in_array('selectify-apply-dual', $classes)) {
       $suggestions[] = 'selectify__dual';
     }
 
@@ -204,6 +204,7 @@ function _selectify_preprocess_widget(&$variables) {
     // Assign field widget-specific attributes.
     $variables['unique_id'] = $attributes['id'] ?? 'selectify-default-id';
     $variables['field_name'] = $attributes['data-field-name'] ?? 'unknown';
+    $variables['max_selected'] = $attributes['data-max-selections'] ?? NULL;
     $variables['is_multiple'] = filter_var($attributes['data-multiple'] ?? FALSE, FILTER_VALIDATE_BOOLEAN);
     $variables['placeholder'] = $attributes['data-placeholder'] ?? '';
     $variables['is_required'] = filter_var($attributes['aria-required'] ?? FALSE, FILTER_VALIDATE_BOOLEAN);
@@ -577,17 +578,16 @@ function selectify_preprocess_views_exposed_form(&$variables) {
   // Extract and normalize the form ID (convert underscores to dashes).
   $clean_form_id = selectify_normalize_form_id($form);
 
-  // Print detected form ID.
-  // \Drupal::messenger()->addMessage("Detected Form ID:
-  // {$clean_form_id}", 'status');.
-  // Load widget libraries and classes.
+  // These css classes must match the css classes in field widget and in
+  // selectify_theme_suggestions_alter()
+
   $widget_libraries = selectify_get_widget_libraries();
   $widget_classes = [
-    'selectify_dropdown' => 'selectify-dropdown',
-    'selectify_tags' => 'selectify-dropdown-tags',
-    'selectify_searchable' => 'selectify-dropdown-searchable',
-    'selectify_dual' => 'selectify-dual',
-    'selectify_checkbox' => 'selectify-dropdown-checkbox',
+    'selectify_dropdown' => 'selectify-apply-dropdown',
+    'selectify_tags' => 'selectify-apply--tags',
+    'selectify_searchable' => 'selectify-apply-searchable',
+    'selectify_checkbox' => 'selectify-apply-checkbox',
+    'selectify_dual' => 'selectify-apply-dual',
   ];
 
   // Apply global widget if site-wide setting is enabled,

@@ -102,8 +102,8 @@ class SelectifySettingsForm extends ConfigFormBase {
         'selectify_dropdown' => $this->t('Dropdown'),
         'selectify_tags' => $this->t('Tags'),
         'selectify_searchable' => $this->t('Searchable'),
-        'selectify_dual' => $this->t('Dual List'),
         'selectify_checkbox' => $this->t('Checkbox'),
+        'selectify_dual' => $this->t('Dual List'),
       ],
       '#default_value' => $config->get('global_selectify_widget') ?? 'none',
       '#states' => [

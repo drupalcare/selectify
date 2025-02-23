@@ -109,6 +109,19 @@
   margin: 0;
 }
 
+.options-inner,
+.selectify-selected-options.dual-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+}
+
+.options-inner > *,
+.selectify-selected-options.dual-inner > * {
+  width: 100%;
+}
+
 .selectify-clear-all {
   display: flex;
   padding: 8px 14px;
@@ -202,9 +215,6 @@ body .selectify-clear-all span.icon {
 .selectify-available-one-option label {
   padding: 0 !important;
   line-height: 1.2;
-}
-
-.selectify-available-one-option label {
   pointer-events: none;
 }
 

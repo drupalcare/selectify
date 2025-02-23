@@ -10,9 +10,7 @@
   --selectify-checkbox-disabled-circle: radial-gradient(circle at 40% 40%, #e0f2f1 0%, #b2dfdb 40%, #80cbc4 100%);
 }
 
-.selectify-dual,
 .selectify-select,
-.selectify-dual *,
 .selectify-select * {
   --selectify-select-bg: linear-gradient(180deg, #ffffff 0%, #f1f9f9 100%);
   --selectify-select-hover-bg: linear-gradient(0deg, #f1f9f9 0%, #eafbfa 100%);

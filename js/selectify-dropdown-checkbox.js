@@ -13,7 +13,7 @@
 
   Drupal.behaviors.selectifySelectCheckbox = {
     attach: (context) => {
-      once('selectifyMultiSelectCheckbox', '.selectify-select.checkbox', context).forEach((selectifySelect) => {
+      once('selectifyMultiSelectCheckbox', '.selectify-dropdown-checkbox-widget', context).forEach((selectifySelect) => {
         setTimeout(() => {
         // Retrieve the target ID from data attribute.
         const targetId = selectifySelect.getAttribute('data-target-id');

@@ -89,7 +89,7 @@ class SelectifyDropdownCheckboxWidget extends OptionsSelectWidget {
 
     $is_multiple = $this->fieldDefinition->getFieldStorageDefinition()->isMultiple();
     // Generate a unique ID based on field name and delta.
-    $unique_id = Html::getUniqueId('selectify-checkbox-' . $this->fieldDefinition->getName() . '-' . $delta);
+    $unique_id = Html::getUniqueId('selectify-dropdown-checkbox-widget-' . $this->fieldDefinition->getName() . '-' . $delta);
     // Determine the maximum number of selections allowed.
     $max_selected = $this->fieldDefinition->getFieldStorageDefinition()->getCardinality();
     $max_selected = $max_selected === -1 ? 'null' : (string) $max_selected;
@@ -116,7 +116,7 @@ class SelectifyDropdownCheckboxWidget extends OptionsSelectWidget {
 
     $element['#attributes'] += [
       'id' => $unique_id,
-      'class' => ['selectify-dropdown-checkbox'],
+      'class' => ['selectify-apply-checkbox'],
       'data-max-selections' => $max_selected,
       'data-drupal-selector' => Html::getUniqueId('edit-' . str_replace('_', '-', $this->fieldDefinition->getName())),
       'data-field-name' => $this->fieldDefinition->getName(),
