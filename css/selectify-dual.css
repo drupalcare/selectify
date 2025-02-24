@@ -1,3 +1,8 @@
+.wrapper-selectify-dual-widget {
+  display: block;
+  width: 100%;
+}
+
 .selectify-select-dual-list {
   all: unset;
   position: relative;
@@ -9,18 +14,18 @@
 }
 
 .dual-container {
+  flex-direction: row;
   display: flex;
   justify-content: space-between;
   gap: 12px;
   align-items: stretch;
-  flex-wrap: wrap;
 }
 
 .dual-available,
 .dual-selected {
   border-style: solid;
   border-width: 1px;
-  min-width: 330px;
+  min-width: 180px;
   flex: 1;
   padding: 12px 6px;
   min-height: 220px;
@@ -60,6 +65,22 @@ body .dual-available-arrow {
   border-radius: 24px 0 0 24px;
   flex-direction: row-reverse;
   margin-bottom: 2px;
+}
+
+@media (min-width:62rem) {
+  .dual-available,
+  .dual-selected {
+    min-width: 220px;
+  }
+
+}
+
+@media (min-width:75rem) {
+  .dual-available,
+  .dual-selected {
+    min-width: 300px;
+  }
+
 }
 
 @media (max-width:48rem) {
