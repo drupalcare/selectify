@@ -67,6 +67,20 @@ body .dual-available-arrow {
   margin-bottom: 2px;
 }
 
+html[dir="rtl"] .selectify-selected-one-option.dual-item {
+  border-radius: 0 24px 24px 0;
+}
+
+html[dir="rtl"] .dual-available-option.dual-item {
+  border-radius: 24px 0 0 24px;
+  flex-direction: row;
+}
+
+html[dir="rtl"] .selectify-selected-one-option.dual-item .dual-selected-arrow,
+html[dir="rtl"] .dual-available-option .dual-available-arrow {
+  transform: rotate(180deg);
+}
+
 @media (min-width:62rem) {
   .dual-available,
   .dual-selected {

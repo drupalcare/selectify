@@ -18,6 +18,11 @@ input.selectify-checkbox[type="checkbox"] {
   transition: background 0.3s ease, border 0.3s ease, color 0.3s ease, opacity 0.3s ease;
 }
 
+html[dir="rtl"] input.selectify-radio[type="radio"],
+html[dir="rtl"] input.selectify-checkbox[type="checkbox"] {
+  margin-left: 8px!important;
+}
+
 /* Inner indicator styling */
 input.selectify-radio[type="radio"]::before,
 input.selectify-checkbox[type="checkbox"]::before {
@@ -38,6 +43,17 @@ input.selectify-radio[type="radio"]:checked::before,
 input.selectify-checkbox[type="checkbox"]:checked::before {
   transform: translateX(20px) !important;
   box-shadow: none;
+}
+
+html[dir="rtl"] input.selectify-radio[type="radio"]::before,
+html[dir="rtl"] input.selectify-checkbox[type="checkbox"]::before {
+  transform: translateX(-2px) !important;
+}
+
+/* RTL Checked State */
+html[dir="rtl"] input.selectify-radio[type="radio"]:checked::before,
+html[dir="rtl"] input.selectify-checkbox[type="checkbox"]:checked::before {
+  transform: translateX(-20px) !important;
 }
 
 /* Disabled state */

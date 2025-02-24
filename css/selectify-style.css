@@ -41,7 +41,14 @@ body .selectify-select .selectify-available-display {
   cursor: pointer;
 }
 
-body .selectify-select .search-input input,
+body .selectify-select .search-input input {
+  width: calc(100% - 16px);
+  margin: 0 auto;
+  border-radius: 5px;
+  border: 1px solid var(--selectify-select-border-color);
+  box-shadow: none!important;
+}
+
 body .selectify-select .selectify-available-display {
   border: 1px solid var(--selectify-select-border-color);
   box-shadow: var(--selectify-dropdown-shadow);
