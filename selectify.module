@@ -149,6 +149,9 @@ function selectify_preprocess_selectify__dual(&$variables) {
  * Cleans a theme name to allow only letters, numbers, and dashes.
  */
 function selectify_clean_theme_name($name) {
+  // Convert spaces and underscores to dashes.
+  $name = str_replace([' ', '_'], '-', $name);
+  // Remove any character that is not a letter, number, or dash.
   return preg_replace('/[^a-zA-Z0-9-]/', '', $name);
 }
 
@@ -217,20 +220,19 @@ function _selectify_preprocess_widget(&$variables) {
   $theme_manager = \Drupal::service('theme.manager');
   $active_theme = $theme_manager->getActiveTheme();
   // The theme currently in use.
-  $theme_name = selectify_clean_theme_name($active_theme->getName());
+  $theme_name = $active_theme->getName();
 
   // background:Get the root parent theme.
   $parent_theme = selectify_get_root_parent_theme($theme_name);
-  $parent_theme = selectify_clean_theme_name($parent_theme);
 
   // Add the theme classes, ensuring the real parent is first.
   $theme_classes = [];
   if (!empty($parent_theme) && $parent_theme !== $theme_name) {
     // background:Print the last (root) parent.
-    $theme_classes[] = 'theme-parent-' . $parent_theme;
+    $theme_classes[] = 'theme-parent-' . selectify_clean_theme_name($parent_theme);
   }
   // background:Print the currently active theme.
-  $theme_classes[] = 'theme-' . $theme_name;
+  $theme_classes[] = 'theme-' . selectify_clean_theme_name($theme_name);
 
   // Get the Selectify checkbox configuration.
   $config = selectify_get_radio_checkbox_config();
