@@ -40,16 +40,7 @@
 
 <div id="{{ wrapper_id }}" class="{{ all_classes|join(' ') }}">
 
-  {% set label_text = element['#title'] ?: attributes.title %}
-  {% set label_classes = element['#title_attributes']|default({}).addClass('form-item__label') %}
-
-  {% if label_text is not empty %}
-    <label for="{{ attributes.id }}" class="form-item__label {{ label_classes }}">
-      {{ label_text }}
-    </label>
-  {% endif %}
-
-<div class="selectify selectify-select selectify-select-dropdowns selectify-dropdown-widget"
+  <div class="selectify selectify-select selectify-select-dropdowns selectify-dropdown-widget"
      tabindex="0"
      role="combobox"
      aria-haspopup="listbox"

@@ -39,13 +39,6 @@
 
 <div id="{{ wrapper_id }}" class="{{ all_classes|join(' ') }}">
 
-  {% set label_text = element['#title'] ?: attributes.title %}
-
-  {% if label_text is not empty %}
-    <label for="{{ attributes.id }}" {{ element['#title_attributes'].addClass('form-item__label') }}>
-      {{ label_text }}
-    </label>
-  {% endif %}
   <div class="selectify selectify-select selectify-select-dual-list selectify-dual-widget"
      tabindex="0"
      role="combobox"

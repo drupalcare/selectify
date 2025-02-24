@@ -39,15 +39,6 @@
 
 <div id="{{ wrapper_id }}" class="{{ all_classes|join(' ') }}">
 
-{% if element['#title'] is not empty %}
-  <label for="{{ attributes.id }}" {{ element['#title_attributes'].addClass('form-item__label') }}>
-    {{ element['#title'] }}
-  </label>
-{% endif %}
-
-  {% if attributes.title is not empty %}
-    <label for="{{ attributes.id }}">{{ attributes.title }}</label>
-  {% endif %}
   <div class="selectify selectify-select selectify-select-dropdowns selectify-dropdown-tags-widget"
      tabindex="0"
      role="combobox"
