@@ -97,9 +97,19 @@
       if (event.target.matches('.selectify-available-one-option input[type="checkbox"]')) {
         const optionValue = event.target.value;
         const correspondingOption = nativeSelect.querySelector(`option[value="${optionValue}"]`);
+        const parentOption = event.target.closest('.selectify-available-one-option'); // Get parent div
 
         if (correspondingOption) {
           correspondingOption.selected = event.target.checked;
+        }
+
+        // **Add or remove .selected and .hidden on the parent div**
+        if (parentOption) {
+          if (event.target.checked) {
+            parentOption.classList.add('selected');
+          } else {
+            parentOption.classList.remove('selected');
+          }
         }
 
         Drupal.selectify.syncHiddenSelect(nativeSelect, Drupal.selectify.getSelectedValues(nativeSelect));
@@ -111,8 +121,21 @@
     // Handle "Clear All" functionality.
     if (clearAllButton) {
       clearAllButton.addEventListener('click', () => {
+        // Unselect all options in the hidden select
         nativeSelect.querySelectorAll('option').forEach(option => option.selected = false);
+
+        // Uncheck all checkboxes
         options.forEach(opt => opt.checked = false);
+
+        // Remove .selected and .hidden from parent elements
+        options.forEach(opt => {
+          const parentOption = opt.closest('.selectify-available-one-option');
+          if (parentOption) {
+            parentOption.classList.remove('selected');
+          }
+        });
+
+        // Sync hidden select and update UI
         Drupal.selectify.syncHiddenSelect(nativeSelect, []);
         Drupal.selectify.updateSelectedDisplay(type, nativeSelect, selectedDisplay, clearAllButton);
         nativeSelect.dispatchEvent(new Event('change'));

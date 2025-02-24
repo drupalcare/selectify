@@ -7,10 +7,10 @@ body .selectify-dropdown-widget .selectify-available-one-option label {
   pointer-events: none;
 }
 
-body .selectify-dropdown-widget .selectify-available-one-option.hidden {
+body .selectify-dropdown-widget .selectify-available-one-option.selected {
   display: block !important;
 }
 
-body .selectify-dropdown-widget .selectify-available-one-option.hidden label {
+body .selectify-dropdown-widget .selectify-available-one-option.selected label {
   font-weight: bold !important;
 }

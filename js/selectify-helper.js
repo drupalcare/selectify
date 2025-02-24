@@ -180,7 +180,7 @@
 Drupal.selectify.syncHiddenSelect = (nativeSelect, selectedValues) => {
     if (!nativeSelect) return;
 
-    console.log("Syncing hidden select:", selectedValues);
+    // console.log("Syncing hidden select:", selectedValues);
 
     nativeSelect.querySelectorAll("option").forEach(option => {
         if (option.value === "_none") {
@@ -501,11 +501,12 @@ Drupal.selectify.syncHiddenSelect = (nativeSelect, selectedValues) => {
       option.selected = false;
     }
 
-    const optionElement = document.querySelector(`.selectify-available-one-option[data-value="${value}"]`);
-    if (optionElement) {
-      optionElement.classList.remove('selected', 'hidden'); // Ensure option becomes visible again.
-    }
+    const dropdownMenu = selectedDisplay.closest('.selectify-select').querySelector('.selectify-available-display');
+    const optionElement = dropdownMenu.querySelector(`.selectify-available-one-option[data-value="${value}"]`);
 
+    if (optionElement) {
+      optionElement.classList.remove('selected', 'hidden'); // Remove both classes correctly
+    }
     // Sync the hidden select field.
     const selectedValues = Array.from(nativeSelect.options)
       .filter(opt => opt.selected)

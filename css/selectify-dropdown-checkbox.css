@@ -5,3 +5,7 @@ body .selectify-dropdown-checkbox-widget .selectify-available-one-option label {
   pointer-events: auto;
   padding: 0 6px!important;
 }
+
+body .selectify-dropdown-checkbox-widget .selectify-available-one-option.selected label {
+  font-weight: bold;
+}
