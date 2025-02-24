@@ -4,6 +4,11 @@
   background: inherit;
 }
 
+.views-exposed-form .wrapper-selectify {
+  display: block;
+  width: 100%;
+}
+
 .selectify-select-dropdowns {
   position: relative;
   display: flex;
