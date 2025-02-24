@@ -85,7 +85,7 @@ body .selectify-clear-all:hover,
 body .selectify-selected-one-option.dual-item:hover,
 body .selectify-available-one-option:hover {
   background: var(--selectify-select-hover-bg);
-  transform: scale(1.02);
+  transform: scale(1.01);
 }
 
 body .selectify-available-one-option:active {
