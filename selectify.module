@@ -58,19 +58,19 @@ function selectify_theme_suggestions_alter(array &$suggestions, array $variables
     $classes = (array) $variables['element']['#attributes']['class'];
 
     if (in_array('selectify-apply-dropdown', $classes)) {
-      $suggestions[] = 'selectify__dropdown';
+      $suggestions[] = 'select__selectify_dropdown';
     }
     if (in_array('selectify-apply-checkbox', $classes)) {
-      $suggestions[] = 'selectify__dropdown_checkbox';
+      $suggestions[] = 'select__selectify_dropdown_checkbox';
     }
     if (in_array('selectify-apply-searchable', $classes)) {
-      $suggestions[] = 'selectify__dropdown_searchable';
+      $suggestions[] = 'select__selectify_dropdown_searchable';
     }
     if (in_array('selectify-apply-tags', $classes)) {
-      $suggestions[] = 'selectify__dropdown_tags';
+      $suggestions[] = 'select__selectify_dropdown_tags';
     }
     if (in_array('selectify-apply-dual', $classes)) {
-      $suggestions[] = 'selectify__dual';
+      $suggestions[] = 'select__selectify_dual';
     }
 
   }
@@ -81,30 +81,30 @@ function selectify_theme_suggestions_alter(array &$suggestions, array $variables
  */
 function selectify_theme($existing, $type, $theme, $path) {
   return [
-    'selectify__dropdown' => [
+    'select__selectify_dropdown' => [
       'base hook' => 'select',
-      'template' => 'selectify--dropdown',
-      'path' => \Drupal::service('extension.list.module')->getPath('selectify') . '/templates',
+      'template' => 'select--selectify-dropdown',
+      'path' => $path . '/templates',
     ],
-    'selectify__dropdown_checkbox' => [
+    'select__selectify_dropdown_checkbox' => [
       'base hook' => 'select',
-      'template' => 'selectify--dropdown-checkbox',
-      'path' => \Drupal::service('extension.list.module')->getPath('selectify') . '/templates',
+      'template' => 'select--selectify-dropdown-checkbox',
+      'path' => $path . '/templates',
     ],
-    'selectify__dropdown_searchable' => [
+    'select__selectify_dropdown_searchable' => [
       'base hook' => 'select',
-      'template' => 'selectify--dropdown-searchable',
-      'path' => \Drupal::service('extension.list.module')->getPath('selectify') . '/templates',
+      'template' => 'select--selectify-dropdown-searchable',
+      'path' => $path . '/templates',
     ],
-    'selectify__dropdown_tags' => [
+    'select__selectify_dropdown_tags' => [
       'base hook' => 'select',
-      'template' => 'selectify--dropdown-tags',
-      'path' => \Drupal::service('extension.list.module')->getPath('selectify') . '/templates',
+      'template' => 'select--selectify-dropdown-tags',
+      'path' => $path . '/templates',
     ],
-    'selectify__dual' => [
+    'select__selectify_dual' => [
       'base hook' => 'select',
-      'template' => 'selectify--dual',
-      'path' => \Drupal::service('extension.list.module')->getPath('selectify') . '/templates',
+      'template' => 'select--selectify-dual',
+      'path' => $path . '/templates',
     ],
 
   ];
@@ -113,35 +113,35 @@ function selectify_theme($existing, $type, $theme, $path) {
 /**
  * Preprocess function for Selectify form widgets.
  */
-function selectify_preprocess_selectify__dropdown(&$variables) {
+function selectify_preprocess_select__selectify_dropdown(&$variables) {
   _selectify_preprocess_widget($variables);
 }
 
 /**
  * Preprocess function for Selectify form widgets.
  */
-function selectify_preprocess_selectify__dropdown_checkbox(&$variables) {
+function selectify_preprocess_select__selectify_dropdown_checkbox(&$variables) {
   _selectify_preprocess_widget($variables);
 }
 
 /**
  * Preprocess function for Selectify form widgets.
  */
-function selectify_preprocess_selectify__dropdown_searchable(&$variables) {
+function selectify_preprocess_select__selectify_dropdown_searchable(&$variables) {
   _selectify_preprocess_widget($variables);
 }
 
 /**
  * Preprocess function for Selectify form widgets.
  */
-function selectify_preprocess_selectify__dropdown_tags(&$variables) {
+function selectify_preprocess_select__selectify_dropdown_tags(&$variables) {
   _selectify_preprocess_widget($variables);
 }
 
 /**
  * Preprocess function for Selectify form widgets.
  */
-function selectify_preprocess_selectify__dual(&$variables) {
+function selectify_preprocess_select__selectify_dual(&$variables) {
   _selectify_preprocess_widget($variables);
 }
 
