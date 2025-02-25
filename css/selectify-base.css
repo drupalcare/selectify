@@ -57,7 +57,7 @@
   border-radius: var(--selectify-select-border-radius, inherit);
   padding: var(--selectify-select-padding, inherit);
   color: var(--selectify-select-color, inherit);
-  box-shadow: var(--selectify-dropdown-shadow, unset);
+  box-shadow: none;
   cursor: pointer;
   line-height: 1.6;
   font-size: 0.875rem;
