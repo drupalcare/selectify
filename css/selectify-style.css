@@ -20,20 +20,19 @@ body .wrapper-selectify {
 
 body .selectify-select,
 body .selectify-select * {
-  color: var(--selectify-select-color);
-  border-color: var(--selectify-select-border-color);
+  color: var(--selectify-select-color, var(--r-tx));
+  border-color: var(--selectify-select-border-color, var(--r-br));
 }
 
 body .selectify-select,
 body .selectify-select .selectify-available-display,
 body .selectify-select .selectify-selected-display,
 body .selectify-select .selectify-selected-one-option {
-  background: var(--selectify-select-bg);
+  background: var(--selectify-select-bg, var(--r-bg));
 }
 
 body .selectify-select {
-  border: 1px solid var(--selectify-select-border-color);
-  box-shadow: none;
+  border: 1px solid var(--selectify-select-border-color, var(--r-br));
 }
 
 body .selectify-select .selectify-selected-display,
@@ -45,65 +44,65 @@ body .selectify-select .search-input input {
   width: calc(100% - 16px);
   margin: 0 auto;
   border-radius: 5px;
-  border: 1px solid var(--selectify-select-border-color);
+  border: 1px solid var(--selectify-select-border-color, var(--r-br));
   box-shadow: none!important;
 }
 
 body .selectify-select .selectify-available-display {
-  border: 1px solid var(--selectify-select-border-color);
-  box-shadow: var(--selectify-dropdown-shadow);
+  border: 1px solid var(--selectify-select-border-color, var(--r-br));
+  box-shadow: var(--selectify-dropdown-shadow, unset);
 }
 
 body .selectify-select .search-input+.selectify-selected-one-option {
-  border-top: 1px dashed var(--selectify-select-border-color);
+  border-top: 1px dashed var(--selectify-select-border-color, var(--r-br));
 }
 
 body .selectify-select:hover {
-  background: var(--selectify-select-hover-bg);
-  border-color: var(--selectify-select-focus-border-color);
+  background: var(--selectify-select-hover-bg, var(--r-bg));
+  border-color: var(--selectify-select-focus-border-color, var(--r-br));
 }
 
 body .selectify-select *:focus {
   outline: none;
-  border-color: var(--selectify-select-focus-border-color);
-  box-shadow: var(--selectify-dropdown-shadow);
+  border-color: var(--selectify-select-focus-border-color, var(--r-br));
+  box-shadow: var(--selectify-dropdown-shadow, unset);
 }
 
 body .selectify-select:disabled {
-  background: var(--selectify-select-disabled-bg);
   cursor: not-allowed;
-  border-color: var(--selectify-select-border-color);
+  background: var(--selectify-select-disabled-bg, var(--r-bg));
+  border-color: var(--selectify-select-border-color, var(--r-br));
 }
 
 body .selectify-available-one-option {
-  background: var(--selectify-select-bg);
-  color: var(--selectify-select-color);
-  border-bottom: 1px solid var(--selectify-select-border-color);
+  background: var(--selectify-select-bg, var(--r-bg));
+  color: var(--selectify-select-color, var(--r-tx));
+  border-bottom: 1px solid var(--selectify-select-border-color, var(--r-br));
 }
 
 body .selectify-clear-all:hover,
 body .selectify-selected-one-option.dual-item:hover,
 body .selectify-available-one-option:hover {
-  background: var(--selectify-select-hover-bg);
+  background: var(--selectify-select-hover-bg, var(--r-bg));
   transform: translateY(2px);
 }
 
 body .selectify-available-one-option:active {
-  background: var(--selectify-option-active-bg);
+  background: var(--selectify-option-active-bg, var(--r-bg));
 }
 
 body .selectify-clear-all {
-  background: var(--selectify-select-hover-bg);
+  background: var(--selectify-select-hover-bg, var(--r-bg));
 }
 
 body .dual-available,
 body .dual-selected {
-  border-color: var(--selectify-select-border-color);
+  border-color: var(--selectify-select-border-color, var(--r-br));
 }
 
 /* Option Items Styling */
 body .dual-item {
-  border-bottom: 1px solid var(--selectify-select-border-color);
+  border-bottom: 1px solid var(--selectify-select-border-color, var(--r-br));
 }
 
 body .selectify-available-one-option.selected,
