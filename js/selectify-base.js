@@ -40,50 +40,66 @@
   };
 
   const slideUp = (target, duration = 600) => {
+    const trigger = target.previousElementSibling;
+
     target.style.transitionProperty = 'height, margin, padding';
     target.style.transitionDuration = `${duration}ms`;
-    target.style.transitionTimingFunction = 'ease-in-out'; // Added for smoother transition
+    target.style.transitionTimingFunction = 'ease-in-out';
     target.style.boxSizing = 'border-box';
     target.style.height = `${target.offsetHeight}px`;
     target.offsetHeight; // Trigger reflow
     target.classList.remove('toggled');
     target.setAttribute('aria-hidden', 'true');
+
+    if (trigger) {
+      trigger.setAttribute('aria-expanded', 'false');
+      setTimeout(() => trigger.focus(), duration);
+    }
+
     updateTabindex(target, false);
 
-    Object.keys(cssStyles)
-      .forEach(style => {
-        target.style[style] = cssStyles[style];
-      });
+    Object.keys(cssStyles).forEach(style => {
+      target.style[style] = cssStyles[style];
+    });
 
     setTimeout(() => {
       target.style.display = 'none';
       removeStyles(target);
     }, duration);
   };
+
   Drupal.selectify.slideUp = slideUp;
 
   const slideDown = (target, menuDisplay = 'block', duration = 600) => {
+    const trigger = target.previousElementSibling;
+
     target.style.removeProperty('display');
     let currentDisplay = window.getComputedStyle(target).display;
-
-    if (currentDisplay === 'none') currentDisplay = menuDisplay;
+    if (currentDisplay === 'none') {
+      currentDisplay = menuDisplay;
+    }
 
     target.style.display = menuDisplay;
     let height = target.offsetHeight;
     height = Math.round(height);
-    Object.keys(cssStyles)
-      .forEach(style => {
-        target.style[style] = cssStyles[style];
-      });
+
+    Object.keys(cssStyles).forEach(style => {
+      target.style[style] = cssStyles[style];
+    });
 
     target.offsetHeight; // Trigger reflow
     target.style.boxSizing = 'border-box';
-    target.style.transitionProperty = "height, margin, padding";
+    target.style.transitionProperty = 'height, margin, padding';
     target.style.transitionDuration = `${duration}ms`;
-    target.style.transitionTimingFunction = 'ease-in-out'; // Added for smoother transition
+    target.style.transitionTimingFunction = 'ease-in-out';
     target.style.height = `${height}px`;
     target.classList.add('toggled');
     target.setAttribute('aria-hidden', 'false');
+
+    if (trigger) {
+      trigger.setAttribute('aria-expanded', 'true');
+    }
+
     updateTabindex(target, true);
 
     ['paddingTop', 'paddingBottom', 'marginTop', 'marginBottom'].forEach(property => {
@@ -91,8 +107,9 @@
     });
 
     setTimeout(() => {
-      ['height', 'overflow', 'transitionDuration', 'transitionProperty'].forEach(property =>
-        target.style.removeProperty(property));
+      ['height', 'overflow', 'transitionDuration', 'transitionProperty'].forEach(property => {
+        target.style.removeProperty(property);
+      });
     }, duration);
   };
 

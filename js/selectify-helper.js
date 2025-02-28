@@ -95,28 +95,33 @@
           let selectedItems = [...items].filter(i => i.classList.contains('selected'));
           selectedCount = selectedItems.length;
 
-          if (!item.classList.contains('selected')) {
-            if (selectedCount >= maxSelections) {
+          if (!item.classList.contains('selected') && selectedCount >= maxSelections) {
               showMaxSelectionMessage();
               return; // Stop if max selection limit reached.
-            }
-            item.classList.add('selected', 'hidden');
-          } else {
-            item.classList.remove('selected', 'hidden');
           }
 
-          // Update selected items list.
-          selectedItems = [...items].filter(i => i.classList.contains('selected'));
-          selectedCount = selectedItems.length;
-          const selectedValues = selectedItems.map(i => i.getAttribute('data-value') || i.textContent.trim());
+          // Determine the value and toggle the hidden select's state directly.
+          const value = item.getAttribute('data-value') || item.textContent.trim();
+          const option = nativeSelect.querySelector(`option[value="${value}"]`);
 
-          // Sync hidden select field.
-          nativeSelect.querySelectorAll('option').forEach(option => {
-            option.selected = selectedValues.includes(option.value);
-          });
+          if (option) {
+              option.selected = !option.selected;
+          }
 
+          // After toggling, recalculate selected values (fresh from native select).
+          const selectedValues = Array.from(nativeSelect.options)
+              .filter(opt => opt.selected)
+              .map(opt => opt.value);
+
+          // Sync hidden select field (to ensure `<option>` elements match state).
+          Drupal.selectify.syncHiddenSelect(nativeSelect, selectedValues);
+
+          // Let updateSelectedDisplay() handle all visual updates, including selected/hidden/aria-selected.
+          Drupal.selectify.updateSelectedDisplay(type, nativeSelect, selectedDisplay, clearAllButton);
+
+          // Handle "Clear All" button visibility here if needed (this could also move into updateSelectedDisplay).
           if (clearAllButton) {
-            clearAllButton.classList.toggle('hidden', selectedValues.length === 0);
+              clearAllButton.classList.toggle('hidden', selectedValues.length === 0);
           }
 
           Drupal.selectify.syncHiddenSelect(nativeSelect, selectedValues);
@@ -147,6 +152,10 @@
     });
 
     Drupal.selectify.slideDown(dropdown);
+    const trigger = triggerElement || dropdown.previousElementSibling;
+    if (trigger) {
+      trigger.setAttribute('aria-expanded', 'true');
+    }
 
     // Add "selectify-opened" class to the parent select element.
     const parentSelect = triggerElement?.closest('.selectify-select');
@@ -163,6 +172,11 @@
    */
   Drupal.selectify.closeDropdown = (dropdown, triggerElement = null) => {
     Drupal.selectify.slideUp(dropdown);
+    const trigger = triggerElement || dropdown.previousElementSibling;
+    if (trigger) {
+      trigger.setAttribute('aria-expanded', 'false');
+      trigger.focus();
+    }
 
     // Remove "selectify-opened" class from the parent select element.
     const parentSelect = triggerElement?.closest('.selectify-select');
@@ -209,8 +223,6 @@ Drupal.selectify.syncHiddenSelect = (nativeSelect, selectedValues) => {
     nativeSelect.dispatchEvent(new Event("change", { bubbles: true }));
     nativeSelect.dispatchEvent(new Event("input", { bubbles: true }));
 };
-
-
 
   /**
    * Adjusts dropdown height dynamically based on available space.
@@ -289,6 +301,16 @@ Drupal.selectify.syncHiddenSelect = (nativeSelect, selectedValues) => {
     if (type === 'dual') {
       const dualSelectedArrow = selectedDisplay.querySelector('.dual-selected-arrow');
       Drupal.selectify.renderSelectifyDual(nativeSelect, selectedDisplay, dualSelectedArrow, selectedValues);
+    }
+
+    const wrapper = selectedDisplay.closest('.selectify-select');
+    if (wrapper) {
+        const availableOptions = wrapper.querySelectorAll('.selectify-available-one-option');
+        availableOptions.forEach(option => {
+            const value = option.dataset.value;
+            const isSelected = selectedValues.includes(value);
+            Drupal.selectify.updateOptionState(option, isSelected, type);
+        });
     }
 
     // Ensure "Clear All" button visibility.
@@ -459,11 +481,7 @@ Drupal.selectify.syncHiddenSelect = (nativeSelect, selectedValues) => {
       option.selected = !option.selected;
 
       // Apply or remove classes based on selection state.
-      if (option.selected) {
-        targetElement.classList.add("selected", "hidden");
-      } else {
-        targetElement.classList.remove("selected", "hidden");
-      }
+      Drupal.selectify.updateOptionState(targetElement, option.selected, type);
 
       // Apply selected class to the native select option.
       if (option.selected) {
@@ -558,40 +576,82 @@ Drupal.selectify.syncHiddenSelect = (nativeSelect, selectedValues) => {
    * @param {HTMLElement} dropdownMenu - The dropdown menu element.
    * @param {HTMLElement} selectedDisplay - The display area for selected options.
    */
-  Drupal.selectify.handleKeyboardNavigation = (selectifySelect, dropdownMenu, selectedDisplay) => {
-    // Ensure keyboard navigation event is only bound once per dropdown.
-    once('selectifyMultiSelectKeyboard', selectifySelect).forEach(() => {
-      selectifySelect.addEventListener('keydown', (event) => {
-        const key = event.key;
-        const isOpen = dropdownMenu.classList.contains('toggled');
+  Drupal.selectify.handleKeyboardNavigation = (selectifySelect, dropdownMenu, selectedDisplay, type) => {
+      // Ensure keyboard navigation event is only bound once per dropdown.
+      once('selectifyMultiSelectKeyboard', selectifySelect).forEach(() => {
+          selectifySelect.addEventListener('keydown', (event) => {
+              const key = event.key;
+              const isOpen = dropdownMenu.classList.contains('toggled');
+              const options = dropdownMenu.querySelectorAll('.selectify-available-one-option');
 
-        if ((key === 'Enter' || key === ' ') && !isOpen) {
-          event.preventDefault();
-          Drupal.selectify.openDropdown(dropdownMenu, selectedDisplay);
-        } else if (key === 'Escape' && isOpen) {
-          Drupal.selectify.closeDropdown(dropdownMenu, selectedDisplay);
-        } else if (key === 'ArrowDown' || key === 'ArrowUp') {
-          event.preventDefault();
-          const options = dropdownMenu.querySelectorAll('.selectify-available-one-option');
-          const selected = dropdownMenu.querySelector('.selected');
-          let newIndex;
+              if ((key === 'Enter' || key === ' ') && !isOpen) {
+                  event.preventDefault();
+                  Drupal.selectify.openDropdown(dropdownMenu, selectedDisplay);
 
-          if (!selected) {
-            // Start at first enabled option
-            newIndex = key === 'ArrowDown' ? 0 : options.length - 1;
-          } else {
-            let currentIndex = Array.from(options).indexOf(selected);
-            do {
-              newIndex = key === 'ArrowDown' ? currentIndex + 1 : currentIndex - 1;
-            } while (options[newIndex] && options[newIndex].classList.contains('disabled'));
-          }
+                  // Focus the first selectable option when opening.
+                  const firstOption = options[0];
+                  if (firstOption) {
+                      firstOption.focus();
+                      selectifySelect.setAttribute('aria-activedescendant', firstOption.id);
+                      Drupal.selectify.updateOptionState(firstOption, true, type);
+                  }
+              }
+              else if (key === 'Escape' && isOpen) {
+                  Drupal.selectify.closeDropdown(dropdownMenu, selectedDisplay);
+              }
+              else if (key === 'ArrowDown' || key === 'ArrowUp') {
+                  event.preventDefault();
 
-          if (newIndex >= 0 && newIndex < options.length) {
-            options[newIndex].focus();
-          }
-        }
+                  const currentFocused = document.activeElement.closest('.selectify-available-one-option');
+                  let newIndex = -1;
+
+                  if (!currentFocused) {
+                      // Start at first/last option if nothing is currently focused.
+                      newIndex = key === 'ArrowDown' ? 0 : options.length - 1;
+                  } else {
+                      const currentIndex = Array.from(options).indexOf(currentFocused);
+                      newIndex = key === 'ArrowDown' ? currentIndex + 1 : currentIndex - 1;
+                  }
+
+                  if (newIndex >= 0 && newIndex < options.length) {
+                      const newFocusedOption = options[newIndex];
+                      newFocusedOption.focus();
+
+                      // Update activedescendant and aria-selected
+                      selectifySelect.setAttribute('aria-activedescendant', newFocusedOption.id);
+
+                      options.forEach((option, index) => {
+                          Drupal.selectify.updateOptionState(option, index === newIndex, type);
+                      });
+                  }
+              }
+          });
       });
-    });
+  };
+
+  /**
+   * Updates selected state and applies "hidden" (for types like tags that remove selected items).
+   */
+  Drupal.selectify.updateOptionState = (optionElement, isSelected, type) => {
+      if (!optionElement) {
+          return;
+      }
+
+      if (type === 'checkbox') {
+          const checkbox = optionElement.querySelector('input[type="checkbox"]');
+          if (checkbox) {
+              checkbox.setAttribute('aria-checked', isSelected ? 'true' : 'false');
+              checkbox.checked = isSelected;
+          }
+          optionElement.classList.toggle('selected', isSelected);
+      } else {
+          optionElement.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+          optionElement.classList.toggle('selected', isSelected);
+
+          if (type === 'searchable' || type === 'tags' || type === 'dual') {
+              optionElement.classList.toggle('hidden', isSelected);
+          }
+      }
   };
 
   /**
