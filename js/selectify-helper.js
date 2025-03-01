@@ -555,6 +555,10 @@
     if (type === 'checkbox') {
       const checkbox = optionElement.querySelector('input[type="checkbox"]');
       if (checkbox) {
+        // For views exposed form, trust the actual checkbox state.
+        if (isExposedFilter) {
+          isSelected = checkbox.checked;
+        }
         checkbox.setAttribute('aria-checked', isSelected ? 'true' : 'false');
         checkbox.checked = isSelected;
       }
