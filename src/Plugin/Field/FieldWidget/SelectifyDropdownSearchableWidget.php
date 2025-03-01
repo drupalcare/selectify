@@ -147,6 +147,11 @@ class SelectifyDropdownSearchableWidget extends OptionsSelectWidget {
       'selectify/selectify-dropdown-searchable',
     ];
 
+    // Conditionally add the color library.
+    if (!empty($selected_accent)) {
+      $element['#attached']['library'][] = "selectify/selectify-color-{$selected_accent}";
+    }
+
     // Attach JavaScript settings specific to this widget.
     $element['#attached']['drupalSettings']['selectify']['maxSelections'][$this->fieldDefinition->getName()] = $max_selected;
 

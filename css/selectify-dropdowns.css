@@ -152,10 +152,6 @@
   opacity: 0.7;
 }
 
-.selectify-selected-options [data-value="All"] .remove-tag {
-  display: none !important;
-}
-
 /* RTL Support */
 html[dir="rtl"] .selectify-select-dropdowns .selectify-available-display {
   right: 0;

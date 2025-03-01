@@ -14,6 +14,13 @@
 {% set wrapper_id = "wrapper-" ~ attributes.id %}
 {% set clean_field_name = field_name|replace({'_': '-', '[]': ''}) %}
 
+{% set show_none = true %}
+{% if not is_views %}
+  {% if (max_selected > 1) and (not is_required) %}
+    {% set show_none = false %}
+  {% endif %}
+{% endif %}
+
 {# Combine default Drupal classes with Selectify classes #}
 {% set all_classes = [
   'wrapper-selectify',
@@ -44,6 +51,8 @@
      role="combobox"
      aria-haspopup="listbox"
      aria-expanded="false"
+     aria-activedescendant=""
+     aria-multiselectable="{{ is_multiple ? 'true' : 'false' }}"
      data-target-id="{{ unique_id }}"
      data-max-selections="{{ max_selected }}"
      data-drupal-selector="edit-{{ clean_field_name }}"
@@ -81,16 +90,18 @@
       </span>
     </div>
 
-    <div class="selectify-available-display" aria-hidden="true">
+    <div class="selectify-available-display"  role="listbox" aria-hidden="true">
       <div class="options-inner">
         <div class="search-input">
           {% include '@selectify/partials/svg/_manage_search.html.twig' %}
           <input type="text" class="multi-search-input" placeholder="Search..." />
         </div>
         {% for option in options %}
-        <div class="selectify-available-one-option" data-value="{{ option.value }}">
-          <label for="option-{{ option.value }}">{{ option.label }}</label>
-        </div>
+          {% if option.value != '_none' or show_none %}
+            <div class="selectify-available-one-option" role="option" id="option-{{ option.value }}" data-value="{{ option.value }}">
+              <span>{{ option.label }}</span>
+            </div>
+          {% endif %}
         {% endfor %}
 
         <div class="selectify-select-footer">
@@ -104,16 +115,18 @@
       </div>
     </div>
     {% if max_selected is not null and max_selected is defined and max_selected is not empty %}
-    <div class="selectify-max-selection-message hide">
+    <div class="selectify-max-selection-message hide" role="alert">
       {{ 'You can only select up to @count options.'|t({'@count': max_selected}) }}
     </div>
     {% endif %}
   </div>
 
   <!-- Hidden select for form submission -->
-  <select {{ attributes.addClass('selectify-visually-hidden', 'visually-hidden') }}>
+  <select {{ attributes.addClass('selectify-visually-hidden') }} aria-hidden="true">
     {% for option in options %}
-      <option value="{{ option.value }}" {{ option.selected ? 'selected="selected"' }}>{{ option.label }}</option>
+      {% if option.value != '_none' or show_none %}
+        <option value="{{ option.value }}" {{ option.selected ? 'selected="selected"' }}>{{ option.label }}</option>
+      {% endif %}
     {% endfor %}
   </select>
 </div>

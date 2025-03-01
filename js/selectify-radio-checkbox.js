@@ -13,11 +13,9 @@
    */
   Drupal.behaviors.selectifyRadioCheckbox = {
     attach: (context, settings) => {
-    const checkboxes = once('selectifyCheckbox', 'input[type="checkbox"].selectify-checkbox', context);
-    const radios = once('selectifyRadio', 'input[type="radio"].selectify-radio', context);
-
+      const checkboxes = once('selectifyCheckbox', 'input[type="checkbox"].selectify-checkbox', context);
+      const radios = once('selectifyRadio', 'input[type="radio"].selectify-radio', context);
       checkboxes.forEach((checkbox) => {
-
         detectMultiSelect(checkbox);
         updateCheckedState(checkbox);
         updateDisabledState(checkbox);
@@ -29,7 +27,6 @@
         addFocusAndHoverListeners(checkbox);
       });
       radios.forEach((radio) => {
-
         detectRadioGroup(radio);
         updateCheckedState(radio);
         updateDisabledState(radio);

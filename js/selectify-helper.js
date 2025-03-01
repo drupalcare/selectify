@@ -10,29 +10,26 @@
   'use strict';
   // Ensure Drupal.selectify namespace exists
   Drupal.selectify = Drupal.selectify || {};
-/**
- * Handles selection limits for multi-select components.
- * Shows a message with animation when the max selection limit is reached.
- *
- * @param {string} type - The type of selectify component (e.g., "checkbox", "dual", "dropdown").
- * @param {HTMLElement} selectifySelect - The main Selectify wrapper element.
- * @param {HTMLElement} nativeSelect - The corresponding hidden <select> element.
- * @param {number|null} maxSelections - The maximum number of selections allowed.
- * @param {string} itemSelector - The CSS selector for selectable options.
- */
-  Drupal.selectify.handleSelectionLimit = function (type, selectifySelect, nativeSelect, maxSelections, itemSelector) {
+  /**
+   * Handles selection limits for multi-select components.
+   * Shows a message with animation when the max selection limit is reached.
+   *
+   * @param {string} type - The type of selectify component (e.g., "checkbox", "dual", "dropdown").
+   * @param {HTMLElement} selectifySelect - The main Selectify wrapper element.
+   * @param {HTMLElement} nativeSelect - The corresponding hidden <select> element.
+   * @param {number|null} maxSelections - The maximum number of selections allowed.
+   * @param {string} itemSelector - The CSS selector for selectable options.
+   */
+  Drupal.selectify.handleSelectionLimit = function(type, selectifySelect, nativeSelect, maxSelections, itemSelector) {
     if (!Number.isInteger(maxSelections) || maxSelections <= 0) {
       return;
     }
-
     if (!nativeSelect) {
       return;
     }
-
-    let selectedDisplay = type === 'dual'
-      ? selectifySelect.querySelector('.selectify-selected-display-dual')
-      : selectifySelect.querySelector('.selectify-selected-display');
-
+    let selectedDisplay = type === 'dual' ?
+      selectifySelect.querySelector('.selectify-selected-display-dual') :
+      selectifySelect.querySelector('.selectify-selected-display');
     const clearAllButton = selectifySelect.querySelector('.selectify-clear-all');
     const maxSelectionMessage = selectifySelect.querySelector('.selectify-max-selection-message');
     const items = selectifySelect.querySelectorAll(itemSelector);
@@ -42,97 +39,81 @@
       if (maxSelectionMessage) {
         maxSelectionMessage.classList.remove('hide');
         maxSelectionMessage.classList.add('show');
-
         setTimeout(() => {
           maxSelectionMessage.classList.remove('show');
           maxSelectionMessage.classList.add('hide');
         }, 3000);
       }
     }
-
     if (type === 'checkbox') {
       const items = selectifySelect.querySelectorAll('.selectify-available-one-option input[type="checkbox"]');
-
       items.forEach((item) => {
-        item.addEventListener('change', function () {
+        item.addEventListener('change', function() {
           let selectedItems = [...items].filter(i => i.checked);
           let selectedCount = selectedItems.length;
-
           // Prevent selection if max is reached
           if (this.checked && selectedCount > maxSelections) {
             this.checked = false;
             selectedCount--;
             return;
           }
-
           const selectedValues = selectedItems.map(i => i.value);
-
           // **Ensure unchecked checkboxes get disabled when max selection is reached**
           items.forEach(i => {
             if (!i.checked) {
               i.disabled = selectedCount >= maxSelections;
             }
           });
-
           if (selectedCount === maxSelections) {
             showMaxSelectionMessage();
           }
           // Toggle "Clear All" button visibility
           clearAllButton.classList.toggle('hidden', selectedValues.length === 0);
-
           // Sync hidden select field & update display
           Drupal.selectify.syncHiddenSelect(nativeSelect, selectedValues);
           Drupal.selectify.updateSelectedDisplay(type, nativeSelect, selectedDisplay, clearAllButton);
         });
       });
-    }
-    else {
+    } else {
       items.forEach((item) => {
-        item.addEventListener('click', function (event) {
+        item.addEventListener('click', function(event) {
           event.preventDefault();
           event.stopPropagation();
-
           let selectedItems = [...items].filter(i => i.classList.contains('selected'));
           selectedCount = selectedItems.length;
-
-          if (!item.classList.contains('selected')) {
-            if (selectedCount >= maxSelections) {
-              showMaxSelectionMessage();
-              return; // Stop if max selection limit reached.
-            }
-            item.classList.add('selected', 'hidden');
-          } else {
-            item.classList.remove('selected', 'hidden');
+          if (!item.classList.contains('selected') && selectedCount >= maxSelections) {
+            showMaxSelectionMessage();
+            return; // Stop if max selection limit reached.
           }
-
-          // Update selected items list.
-          selectedItems = [...items].filter(i => i.classList.contains('selected'));
-          selectedCount = selectedItems.length;
-          const selectedValues = selectedItems.map(i => i.getAttribute('data-value') || i.textContent.trim());
-
-          // Sync hidden select field.
-          nativeSelect.querySelectorAll('option').forEach(option => {
-            option.selected = selectedValues.includes(option.value);
-          });
-
+          // Determine the value and toggle the hidden select's state directly.
+          const value = item.getAttribute('data-value') || item.textContent.trim();
+          const option = nativeSelect.querySelector(`option[value="${value}"]`);
+          if (option) {
+            option.selected = !option.selected;
+          }
+          // After toggling, recalculate selected values (fresh from native select).
+          const selectedValues = Array.from(nativeSelect.options)
+            .filter(opt => opt.selected)
+            .map(opt => opt.value);
           if (clearAllButton) {
             clearAllButton.classList.toggle('hidden', selectedValues.length === 0);
           }
-
           Drupal.selectify.syncHiddenSelect(nativeSelect, selectedValues);
           Drupal.selectify.updateSelectedDisplay(type, nativeSelect, selectedDisplay, clearAllButton);
-
           // Ensure the select field updates before dispatching the event.
           setTimeout(() => {
-            nativeSelect.dispatchEvent(new Event('change', { bubbles: true }));
-            nativeSelect.dispatchEvent(new Event('input', { bubbles: true }));
+            nativeSelect.dispatchEvent(new Event('change', {
+              bubbles: true
+            }));
+            nativeSelect.dispatchEvent(new Event('input', {
+              bubbles: true
+            }));
           }, 0);
         });
       });
     }
   };
-
-   /**
+  /**
    * Opens the dropdown while closing other open dropdowns.
    *
    * @param {HTMLElement} dropdown - The dropdown menu to open.
@@ -145,16 +126,17 @@
         Drupal.selectify.closeDropdown(otherDropdown);
       }
     });
-
     Drupal.selectify.slideDown(dropdown);
-
+    const trigger = triggerElement || dropdown.previousElementSibling;
+    if (trigger) {
+      trigger.setAttribute('aria-expanded', 'true');
+    }
     // Add "selectify-opened" class to the parent select element.
     const parentSelect = triggerElement?.closest('.selectify-select');
     if (parentSelect) {
       parentSelect.classList.add('selectify-opened');
     }
   };
-
   /**
    * Closes the dropdown using the existing `slideUp` function.
    *
@@ -163,55 +145,50 @@
    */
   Drupal.selectify.closeDropdown = (dropdown, triggerElement = null) => {
     Drupal.selectify.slideUp(dropdown);
-
+    const trigger = triggerElement || dropdown.previousElementSibling;
+    if (trigger) {
+      trigger.setAttribute('aria-expanded', 'false');
+      trigger.focus();
+    }
     // Remove "selectify-opened" class from the parent select element.
     const parentSelect = triggerElement?.closest('.selectify-select');
     if (parentSelect) {
       parentSelect.classList.remove('selectify-opened');
     }
   };
-
   /**
    * Synchronizes the hidden <select> field with the selected values.
    *
    * @param {HTMLElement} nativeSelect - The hidden select element.
    * @param {string[]} selectedValues - The selected option values.
    */
-Drupal.selectify.syncHiddenSelect = (nativeSelect, selectedValues) => {
+  Drupal.selectify.syncHiddenSelect = (nativeSelect, selectedValues) => {
     if (!nativeSelect) return;
-
-    // console.log("Syncing hidden select:", selectedValues);
-
+    const noneOption = nativeSelect.querySelector('option[value="_none"]');
     nativeSelect.querySelectorAll("option").forEach(option => {
-        if (option.value === "_none") {
-            option.selected = false;
-            option.removeAttribute("selected");
-            option.classList.remove("selected");
-        } else {
-            if (selectedValues.includes(option.value)) {
-                option.selected = true;
-                option.setAttribute("selected", "selected");
-                option.classList.add("selected");
-            } else {
-                option.selected = false;
-                option.removeAttribute("selected");
-                option.classList.remove("selected");
-
-                // Fully remove the `class` attribute if it's empty
-                if (!option.classList.length) {
-                    option.removeAttribute("class");
-                }
-            }
+      if (option.value === '_none') {
+        // Only handle _none if it exists (don't invent it).
+        if (noneOption) {
+          option.selected = (selectedValues.length === 0);
+          option.toggleAttribute("selected", option.selected);
+          option.classList.toggle("selected", option.selected);
         }
+      } else {
+        option.selected = selectedValues.includes(option.value);
+        option.toggleAttribute("selected", option.selected);
+        option.classList.toggle("selected", option.selected);
+      }
+      if (!option.classList.length) {
+        option.removeAttribute("class");
+      }
     });
-
-    // Ensure the field updates properly
-    nativeSelect.dispatchEvent(new Event("change", { bubbles: true }));
-    nativeSelect.dispatchEvent(new Event("input", { bubbles: true }));
-};
-
-
-
+    nativeSelect.dispatchEvent(new Event("change", {
+      bubbles: true
+    }));
+    nativeSelect.dispatchEvent(new Event("input", {
+      bubbles: true
+    }));
+  };
   /**
    * Adjusts dropdown height dynamically based on available space.
    *
@@ -223,9 +200,7 @@ Drupal.selectify.syncHiddenSelect = (nativeSelect, selectedValues) => {
     const dropdownRect = selectifySelect.getBoundingClientRect();
     const spaceBelow = windowHeight - dropdownRect.bottom;
     const spaceAbove = dropdownRect.top;
-
     let maxHeight = Math.min(spaceBelow - 20, 300);
-
     if (maxHeight < 150 && spaceAbove > spaceBelow) {
       maxHeight = Math.min(spaceAbove - 20, 300);
       dropdownMenu.style.top = 'auto';
@@ -234,14 +209,12 @@ Drupal.selectify.syncHiddenSelect = (nativeSelect, selectedValues) => {
       dropdownMenu.style.top = '100%';
       dropdownMenu.style.bottom = 'auto';
     }
-
     dropdownMenu.style.maxHeight = `${maxHeight}px`;
     dropdownMenu.style.overflowY = 'auto';
   };
-
-    /**
-     * Updates the displayed selected options.
-     */
+  /**
+   * Updates the displayed selected options.
+   */
   /**
    * Updates the displayed selected options.
    *
@@ -255,7 +228,6 @@ Drupal.selectify.syncHiddenSelect = (nativeSelect, selectedValues) => {
     if (!clearAllButton || !clearAllButton.closest('.selectify-select')) {
       return;
     }
-
     if (type !== 'dual') {
       // Remove existing .selectify-selected-options while keeping the arrow.
       const existingWrapper = selectedDisplay.querySelector('.selectify-selected-options');
@@ -263,48 +235,50 @@ Drupal.selectify.syncHiddenSelect = (nativeSelect, selectedValues) => {
         existingWrapper.remove();
       }
     }
-
     // Handle tags & searchable types.
     if (type === 'tags' || type === 'searchable') {
       const placeholder = selectedDisplay.querySelector('.placeholder-text');
       const arrowIcon = selectedDisplay.querySelector('.selectify-dorpdown-arrow');
       Drupal.selectify.renderSelectifySearchTags(nativeSelect, selectedDisplay, placeholder, arrowIcon, selectedValues);
     }
-
     // Handle tags & searchable types.
     if (type === 'dropdown') {
       const placeholder = selectedDisplay.querySelector('.placeholder-text');
       const arrowIcon = selectedDisplay.querySelector('.selectify-dorpdown-arrow');
       Drupal.selectify.renderSelectifyDropdown(nativeSelect, selectedDisplay, placeholder, arrowIcon, selectedValues);
     }
-
     // Handle checkbox-based multi-select.
     if (type === 'checkbox') {
       const placeholder = selectedDisplay.querySelector('.placeholder-text');
       const arrowIcon = selectedDisplay.querySelector('.selectify-dorpdown-arrow');
       Drupal.selectify.renderSelectifyDropdownCheckbox(nativeSelect, selectedDisplay, arrowIcon, selectedValues);
     }
-
     // Handle dual-list multi-select.
     if (type === 'dual') {
       const dualSelectedArrow = selectedDisplay.querySelector('.dual-selected-arrow');
       Drupal.selectify.renderSelectifyDual(nativeSelect, selectedDisplay, dualSelectedArrow, selectedValues);
     }
-
+    const wrapper = selectedDisplay.closest('.selectify-select');
+    if (wrapper) {
+      const availableOptions = wrapper.querySelectorAll('.selectify-available-one-option');
+      availableOptions.forEach(option => {
+        const value = option.dataset.value;
+        const isSelected = selectedValues.includes(value);
+        Drupal.selectify.updateOptionState(option, isSelected, type);
+      });
+    }
     // Ensure "Clear All" button visibility.
     clearAllButton.classList.toggle('hidden', selectedValues.length === 0);
-
     // Reattach event listeners for tag removal.
     selectedDisplay.querySelectorAll('.remove-tag').forEach(button => {
-      button.addEventListener('click', function (event) {
+      button.addEventListener('click', function(event) {
         event.preventDefault();
         event.stopPropagation();
         Drupal.selectify.removeTag(type, nativeSelect, this.parentElement, selectedDisplay, clearAllButton);
       });
     });
   };
-
-   /**
+  /**
    * Renders the selected values inside the multi-select header (for tags & searchable).
    *
    * @param {HTMLElement} nativeSelect - The hidden <select> element.
@@ -316,7 +290,6 @@ Drupal.selectify.syncHiddenSelect = (nativeSelect, selectedValues) => {
   Drupal.selectify.renderSelectifyDropdown = (nativeSelect, selectedDisplay, placeholder, arrowIcon, selectedValues) => {
     if (selectedValues.length > 0) {
       let selectedItemsHTML = '';
-
       selectedValues.forEach(value => {
         const option = nativeSelect.querySelector(`option[value="${value}"]`);
         if (option) {
@@ -326,17 +299,13 @@ Drupal.selectify.syncHiddenSelect = (nativeSelect, selectedValues) => {
             </div>`;
         }
       });
-
       // Create the .selectify-selected-options wrapper
       const wrapperHTML = `<div class="selectify-selected-options">${selectedItemsHTML}</div>`;
-
       // Insert the wrapper before the arrow
       arrowIcon.insertAdjacentHTML('beforebegin', wrapperHTML);
-
     }
   };
-
-   /**
+  /**
    * Renders the selected values inside the multi-select header (for tags & searchable).
    *
    * @param {HTMLElement} nativeSelect - The hidden <select> element.
@@ -348,7 +317,6 @@ Drupal.selectify.syncHiddenSelect = (nativeSelect, selectedValues) => {
   Drupal.selectify.renderSelectifySearchTags = (nativeSelect, selectedDisplay, placeholder, arrowIcon, selectedValues) => {
     if (selectedValues.length > 0) {
       let selectedItemsHTML = '';
-
       selectedValues.forEach(value => {
         const option = nativeSelect.querySelector(`option[value="${value}"]`);
         if (option) {
@@ -363,16 +331,12 @@ Drupal.selectify.syncHiddenSelect = (nativeSelect, selectedValues) => {
             </div>`;
         }
       });
-
       // Create the .selectify-selected-options wrapper
       const wrapperHTML = `<div class="selectify-selected-options">${selectedItemsHTML}</div>`;
-
       // Insert the wrapper before the arrow
       arrowIcon.insertAdjacentHTML('beforebegin', wrapperHTML);
-
     }
   };
-
   /**
    * Renders the selected values inside the multi-select header (for checkbox-based selects).
    *
@@ -383,27 +347,21 @@ Drupal.selectify.syncHiddenSelect = (nativeSelect, selectedValues) => {
    */
   Drupal.selectify.renderSelectifyDropdownCheckbox = (nativeSelect, selectedDisplay, arrowIcon, selectedValues) => {
     let dropdownHTML = '';
-
     if (selectedValues.length > 0) {
       dropdownHTML += `<div class="selectify-selected-options">`;
-
       selectedValues.forEach(value => {
         const option = nativeSelect.querySelector(`option[value="${value}"]`);
         if (option) {
           dropdownHTML += `<span class="selectify-selected-one-option" data-value="${value}">${option.textContent}</span>`;
         }
       });
-
       dropdownHTML += `</div>`; // Close .selectify-selected-options div
     }
-
     // Append the dropdown arrow (expansion icon)
     dropdownHTML += `<span class="selectify-dorpdown-arrow">${arrowIcon.innerHTML}</span>`;
-
     // Apply the new HTML inside `selectedDisplay`
     selectedDisplay.innerHTML = dropdownHTML;
   };
-
   /**
    * Renders the selected values inside the multi-select header (for dual-list selects).
    *
@@ -414,10 +372,8 @@ Drupal.selectify.syncHiddenSelect = (nativeSelect, selectedValues) => {
    */
   Drupal.selectify.renderSelectifyDual = (nativeSelect, selectedDisplay, dualSelectedArrow, selectedValues) => {
     selectedDisplay.innerHTML = ''; // Clear previous content before re-rendering.
-
     if (selectedValues.length > 0) {
       let dropdownHTML = `<div class="selectify-selected-options dual-inner">`;
-
       selectedValues.forEach(value => {
         const option = nativeSelect.querySelector(`option[value="${value}"]`);
         if (option) {
@@ -432,12 +388,10 @@ Drupal.selectify.syncHiddenSelect = (nativeSelect, selectedValues) => {
             </div>`;
         }
       });
-
       dropdownHTML += `</div>`; // Close .selectify-selected-options
       selectedDisplay.innerHTML = dropdownHTML;
     }
   };
-
   /**
    * Toggles option selection.
    *
@@ -450,38 +404,37 @@ Drupal.selectify.syncHiddenSelect = (nativeSelect, selectedValues) => {
   Drupal.selectify.toggleMultiSelectOption = function(type, nativeSelect, optionElement, selectedDisplay, clearAllButton) {
     const targetElement = optionElement.closest('.selectify-available-one-option');
     if (!targetElement) return;
-
     const value = targetElement.dataset.value;
     const option = nativeSelect.querySelector(`option[value="${value}"]`);
-
-    if (option) {
-      // Toggle selection in the hidden <select> field.
-      option.selected = !option.selected;
-
-      // Apply or remove classes based on selection state.
-      if (option.selected) {
-        targetElement.classList.add("selected", "hidden");
-      } else {
-        targetElement.classList.remove("selected", "hidden");
-      }
-
-      // Apply selected class to the native select option.
-      if (option.selected) {
-        option.classList.add("selected");
-      } else {
-        option.classList.remove("selected");
-      }
+    const isExposedFilter = nativeSelect.closest('.views-exposed-form') !== null;
+    if (!option) {
+      return; // Safety check — invalid option should do nothing.
     }
-
-    // Sync the UI
+    const noneOption = nativeSelect.querySelector('option[value="_none"]');
+    if (value === '_none' && noneOption) {
+      if (isExposedFilter) {
+        // Views filters should ignore _none entirely.
+        return;
+      }
+      // Regular fields — treat _none like "clear all."
+      nativeSelect.querySelectorAll('option').forEach(opt => opt.selected = (opt.value === '_none'));
+      Drupal.selectify.syncHiddenSelect(nativeSelect, ['_none']);
+      Drupal.selectify.updateSelectedDisplay(type, nativeSelect, selectedDisplay, clearAllButton);
+      clearAllButton.classList.add('hidden');
+      return;
+    }
+    // Normal option toggle.
+    option.selected = !option.selected;
+    // If regular option is selected, unselect _none (if present).
+    if (option.selected && noneOption) {
+      noneOption.selected = false;
+    }
     const selectedValues = Array.from(nativeSelect.options)
       .filter(opt => opt.selected)
       .map(opt => opt.value);
-
     Drupal.selectify.syncHiddenSelect(nativeSelect, selectedValues);
     Drupal.selectify.updateSelectedDisplay(type, nativeSelect, selectedDisplay, clearAllButton);
   };
-
   /**
    * Removes a selected tag.
    *
@@ -493,17 +446,13 @@ Drupal.selectify.syncHiddenSelect = (nativeSelect, selectedValues) => {
    */
   Drupal.selectify.removeTag = (type, nativeSelect, tagElement, selectedDisplay, clearAllButton) => {
     if (!tagElement) return;
-
     const value = tagElement.dataset.value;
     const option = nativeSelect.querySelector(`option[value="${value}"]`);
-
     if (option) {
       option.selected = false;
     }
-
     const dropdownMenu = selectedDisplay.closest('.selectify-select').querySelector('.selectify-available-display');
     const optionElement = dropdownMenu.querySelector(`.selectify-available-one-option[data-value="${value}"]`);
-
     if (optionElement) {
       optionElement.classList.remove('selected', 'hidden'); // Remove both classes correctly
     }
@@ -511,7 +460,6 @@ Drupal.selectify.syncHiddenSelect = (nativeSelect, selectedValues) => {
     const selectedValues = Array.from(nativeSelect.options)
       .filter(opt => opt.selected)
       .map(opt => opt.value);
-
     // **Reinsert _none if no selections are left (only if field is not required)**
     if (selectedValues.length === 0 && nativeSelect.hasAttribute("data-has-none")) {
       const noneOption = nativeSelect.querySelector('option[value="_none"]');
@@ -519,13 +467,10 @@ Drupal.selectify.syncHiddenSelect = (nativeSelect, selectedValues) => {
         noneOption.selected = true;
       }
     }
-
     Drupal.selectify.syncHiddenSelect(nativeSelect, selectedValues);
     Drupal.selectify.updateSelectedDisplay(type, nativeSelect, selectedDisplay, clearAllButton);
     tagElement.remove();
   };
-
-
   /**
    * Retrieves selected values from a hidden `<select>`.
    *
@@ -537,7 +482,6 @@ Drupal.selectify.syncHiddenSelect = (nativeSelect, selectedValues) => {
       .filter(option => option.selected)
       .map(option => option.value)
       .filter(value => value !== '_none');
-
     // **Ensure _none is reinserted when no other values are selected**
     if (selectedValues.length === 0 && nativeSelect.dataset.hasNone === "true") {
       const noneOption = nativeSelect.querySelector('option[value="_none"]');
@@ -546,11 +490,8 @@ Drupal.selectify.syncHiddenSelect = (nativeSelect, selectedValues) => {
         selectedValues = ['_none']; // Return _none so the field isn't completely empty.
       }
     }
-
     return selectedValues;
   };
-
-
   /**
    * Handles keyboard navigation for multi-select components.
    *
@@ -558,42 +499,80 @@ Drupal.selectify.syncHiddenSelect = (nativeSelect, selectedValues) => {
    * @param {HTMLElement} dropdownMenu - The dropdown menu element.
    * @param {HTMLElement} selectedDisplay - The display area for selected options.
    */
-  Drupal.selectify.handleKeyboardNavigation = (selectifySelect, dropdownMenu, selectedDisplay) => {
+  Drupal.selectify.handleKeyboardNavigation = (selectifySelect, dropdownMenu, selectedDisplay, type) => {
     // Ensure keyboard navigation event is only bound once per dropdown.
     once('selectifyMultiSelectKeyboard', selectifySelect).forEach(() => {
       selectifySelect.addEventListener('keydown', (event) => {
         const key = event.key;
         const isOpen = dropdownMenu.classList.contains('toggled');
-
+        const options = dropdownMenu.querySelectorAll('.selectify-available-one-option');
         if ((key === 'Enter' || key === ' ') && !isOpen) {
           event.preventDefault();
           Drupal.selectify.openDropdown(dropdownMenu, selectedDisplay);
+          // Focus the first selectable option when opening.
+          const firstOption = options[0];
+          if (firstOption) {
+            firstOption.focus();
+            selectifySelect.setAttribute('aria-activedescendant', firstOption.id);
+            Drupal.selectify.updateOptionState(firstOption, true, type);
+          }
         } else if (key === 'Escape' && isOpen) {
           Drupal.selectify.closeDropdown(dropdownMenu, selectedDisplay);
         } else if (key === 'ArrowDown' || key === 'ArrowUp') {
           event.preventDefault();
-          const options = dropdownMenu.querySelectorAll('.selectify-available-one-option');
-          const selected = dropdownMenu.querySelector('.selected');
-          let newIndex;
-
-          if (!selected) {
-            // Start at first enabled option
+          const currentFocused = document.activeElement.closest('.selectify-available-one-option');
+          let newIndex = -1;
+          if (!currentFocused) {
+            // Start at first/last option if nothing is currently focused.
             newIndex = key === 'ArrowDown' ? 0 : options.length - 1;
           } else {
-            let currentIndex = Array.from(options).indexOf(selected);
-            do {
-              newIndex = key === 'ArrowDown' ? currentIndex + 1 : currentIndex - 1;
-            } while (options[newIndex] && options[newIndex].classList.contains('disabled'));
+            const currentIndex = Array.from(options).indexOf(currentFocused);
+            newIndex = key === 'ArrowDown' ? currentIndex + 1 : currentIndex - 1;
           }
-
           if (newIndex >= 0 && newIndex < options.length) {
-            options[newIndex].focus();
+            const newFocusedOption = options[newIndex];
+            newFocusedOption.focus();
+            // Update activedescendant and aria-selected
+            selectifySelect.setAttribute('aria-activedescendant', newFocusedOption.id);
+            options.forEach((option, index) => {
+              Drupal.selectify.updateOptionState(option, index === newIndex, type);
+            });
           }
         }
       });
     });
   };
-
+  /**
+   * Updates selected state and applies "hidden" (for types like tags that remove selected items).
+   */
+  Drupal.selectify.updateOptionState = (optionElement, isSelected, type) => {
+    if (!optionElement) {
+      return;
+    }
+    const value = optionElement.dataset.value;
+    const isNoneOrAll = (value === '_none' || value === 'All');
+    const isExposedFilter = optionElement.closest('.views-exposed-form') !== null;
+    if (type === 'checkbox') {
+      const checkbox = optionElement.querySelector('input[type="checkbox"]');
+      if (checkbox) {
+        checkbox.setAttribute('aria-checked', isSelected ? 'true' : 'false');
+        checkbox.checked = isSelected;
+      }
+      optionElement.classList.toggle('selected', isSelected);
+    } else {
+      if (!(isExposedFilter && isNoneOrAll)) {
+        if (isSelected) {
+          optionElement.setAttribute('aria-selected', 'true');
+        } else {
+          optionElement.removeAttribute('aria-selected');
+        }
+        optionElement.classList.toggle('selected', isSelected);
+      }
+      if (type === 'searchable' || type === 'tags' || type === 'dual') {
+        optionElement.classList.toggle('hidden', isSelected);
+      }
+    }
+  };
   /**
    * Ensures dropdown close event is only bound once.
    */
@@ -606,6 +585,4 @@ Drupal.selectify.syncHiddenSelect = (nativeSelect, selectedValues) => {
       }
     });
   });
-
-
 })(Drupal);
