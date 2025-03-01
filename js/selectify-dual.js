@@ -102,7 +102,9 @@
 
         // Unhide the corresponding option in the dropdown.
         const correspondingOption = dropdownMenu.querySelector(`.selectify-available-one-option[data-value="${valueToRemove}"]`);
-          Drupal.selectify.updateOptionState(correspondingOption, false, 'dual');
+        if (correspondingOption) {
+          correspondingOption.classList.remove('hidden', 'selected');
+        }
 
         // Update hidden <select> field.
         const selectOption = nativeSelect.querySelector(`option[value="${valueToRemove}"]`);
@@ -145,7 +147,7 @@
     });
 
     // Enable keyboard navigation.
-    Drupal.selectify.handleKeyboardNavigation(selectifySelect, dropdownMenu, selectedDisplay, type);
+    Drupal.selectify.handleKeyboardNavigation(selectifySelect, dropdownMenu, selectedDisplay);
 
     // Ensure UI syncs with hidden select field on load.
     syncUIWithHiddenSelect(nativeSelect, options, selectedDisplay, clearAllButton);

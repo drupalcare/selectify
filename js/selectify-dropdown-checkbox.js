@@ -150,7 +150,7 @@
     });
 
     // Enable keyboard navigation.
-    Drupal.selectify.handleKeyboardNavigation(selectifySelect, dropdownMenu, selectedDisplay, type);
+    Drupal.selectify.handleKeyboardNavigation(selectifySelect, dropdownMenu, selectedDisplay);
 
     // Sync UI state with the hidden <select> element.
     syncUIWithHiddenSelect(nativeSelect, options);
