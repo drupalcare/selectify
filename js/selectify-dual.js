@@ -82,21 +82,24 @@
         event.stopPropagation();
         const selectedItem = event.target;
         const valueToRemove = selectedItem.getAttribute('data-value');
-        // Remove the selected tag from display.
         selectedItem.remove();
-        // Unhide the corresponding option in the dropdown.
         const correspondingOption = dropdownMenu.querySelector(`.selectify-available-one-option[data-value="${valueToRemove}"]`);
         if (correspondingOption) {
           correspondingOption.classList.remove('hidden', 'selected');
         }
-        // Update hidden <select> field.
         const selectOption = nativeSelect.querySelector(`option[value="${valueToRemove}"]`);
         if (selectOption) {
           selectOption.selected = false;
         }
-        // Sync display & state.
-        Drupal.selectify.syncHiddenSelect(nativeSelect, selectedDisplay);
+        // Collect all current selected values after the removal.
+        const selectedValues = [...selectedDisplay.querySelectorAll('.selectify-selected-one-option')].map(item => item.getAttribute('data-value'));
+        Drupal.selectify.syncHiddenSelect(nativeSelect, selectedValues);
         Drupal.selectify.updateSelectedDisplay(type, nativeSelect, selectedDisplay, clearAllButton);
+        // Check if anything is left.
+        const dualInner = selectedDisplay.querySelector('.selectify-selected-options.dual-inner');
+        if (!dualInner || dualInner.children.length === 0) {
+          clearAllButton.classList.add('hidden');
+        }
         nativeSelect.dispatchEvent(new Event('change'));
       }
     });
