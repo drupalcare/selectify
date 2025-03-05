@@ -17,7 +17,7 @@
   box-sizing: border-box;
 }
 
-.hidden {
+.s-hidden {
   display: none !important;
 }
 
@@ -108,7 +108,7 @@
   background: var(--selectify-select-bg);
 }
 
-.selectify-select-footer button.hidden {
+.selectify-select-footer button.s-hidden {
   margin: 0;
 }
 

@@ -87,12 +87,12 @@
         if (correspondingOption) {
           correspondingOption.selected = event.target.checked;
         }
-        // **Add or remove .selected and .hidden on the parent div**
+        // **Add or remove .selected and .s-hidden on the parent div**
         if (parentOption) {
           if (event.target.checked) {
-            parentOption.classList.add('selected');
+            parentOption.classList.add('s-selected');
           } else {
-            parentOption.classList.remove('selected');
+            parentOption.classList.remove('s-selected');
           }
         }
         Drupal.selectify.syncHiddenSelect(nativeSelect, Drupal.selectify.getSelectedValues(nativeSelect));
@@ -110,11 +110,11 @@
           opt.checked = false;
           opt.disabled = false;
         });
-        // Remove .selected and .hidden from parent elements
+        // Remove .selected and .s-hidden from parent elements
         options.forEach(opt => {
           const parentOption = opt.closest('.selectify-available-one-option');
           if (parentOption) {
-            parentOption.classList.remove('selected');
+            parentOption.classList.remove('s-selected');
           }
         });
         // Sync hidden select and update UI

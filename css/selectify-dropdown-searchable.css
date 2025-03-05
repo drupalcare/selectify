@@ -1,4 +1,4 @@
-body .selectify-available-one-option.selected,
-body .selectify-available-one-option.selected * {
+body .selectify-available-one-option.s-selected,
+body .selectify-available-one-option.s-selected * {
   font-weight: bold;
 }

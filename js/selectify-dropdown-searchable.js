@@ -115,10 +115,10 @@
         // Sort only text alphabetically.
         textOptions.sort((a, b) => a.textContent.trim().localeCompare(b.textContent.trim()));
         // Hide all options before displaying the filtered ones.
-        optionsArray.forEach(option => option.classList.add('hidden'));
+        optionsArray.forEach(option => option.classList.add('s-hidden'));
         // Append sorted text, then original order for other types.
         [...textOptions, ...numberOptions, ...dateOptions, ...emailOptions, ...entityOptions, ...otherOptions].forEach(option => {
-          option.classList.remove('hidden');
+          option.classList.remove('s-hidden');
         });
       });
     }
@@ -144,7 +144,7 @@
         }
         // Ensure dropdown items are fully reset
         dropdownMenu.querySelectorAll('.selectify-available-one-option').forEach(option => {
-          option.classList.remove('selected', 'hidden'); // Unhide and unselect
+          option.classList.remove('s-selected', 's-hidden'); // Unhide and unselect
         });
         // Sync the hidden select field.
         Drupal.selectify.syncHiddenSelect(nativeSelect, []);

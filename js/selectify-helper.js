@@ -68,7 +68,7 @@
             showMaxSelectionMessage();
           }
           // Toggle "Clear All" button visibility
-          clearAllButton.classList.toggle('hidden', selectedValues.length === 0);
+          clearAllButton.classList.toggle('s-hidden', selectedValues.length === 0);
           // Sync hidden select field & update display
           Drupal.selectify.syncHiddenSelect(nativeSelect, selectedValues);
           Drupal.selectify.updateSelectedDisplay(type, nativeSelect, selectedDisplay, clearAllButton);
@@ -79,9 +79,9 @@
         item.addEventListener('click', function(event) {
           event.preventDefault();
           event.stopPropagation();
-          let selectedItems = [...items].filter(i => i.classList.contains('selected'));
+          let selectedItems = [...items].filter(i => i.classList.contains('s-selected'));
           selectedCount = selectedItems.length;
-          if (!item.classList.contains('selected') && selectedCount >= maxSelections) {
+          if (!item.classList.contains('s-selected') && selectedCount >= maxSelections) {
             showMaxSelectionMessage();
             return; // Stop if max selection limit reached.
           }
@@ -96,7 +96,7 @@
             .filter(opt => opt.selected)
             .map(opt => opt.value);
           if (clearAllButton) {
-            clearAllButton.classList.toggle('hidden', selectedValues.length === 0);
+            clearAllButton.classList.toggle('s-hidden', selectedValues.length === 0);
           }
           Drupal.selectify.syncHiddenSelect(nativeSelect, selectedValues);
           Drupal.selectify.updateSelectedDisplay(type, nativeSelect, selectedDisplay, clearAllButton);
@@ -171,12 +171,12 @@
         if (noneOption) {
           option.selected = (selectedValues.length === 0);
           option.toggleAttribute("selected", option.selected);
-          option.classList.toggle("selected", option.selected);
+          option.classList.toggle("s-selected", option.selected);
         }
       } else {
         option.selected = selectedValues.includes(option.value);
         option.toggleAttribute("selected", option.selected);
-        option.classList.toggle("selected", option.selected);
+        option.classList.toggle("s-selected", option.selected);
       }
       if (!option.classList.length) {
         option.removeAttribute("class");
@@ -268,7 +268,7 @@
       });
     }
     // Ensure "Clear All" button visibility.
-    clearAllButton.classList.toggle('hidden', selectedValues.length === 0);
+    clearAllButton.classList.toggle('s-hidden', selectedValues.length === 0);
     // Reattach event listeners for tag removal.
     selectedDisplay.querySelectorAll('.remove-tag').forEach(button => {
       button.addEventListener('click', function(event) {
@@ -420,7 +420,7 @@
       nativeSelect.querySelectorAll('option').forEach(opt => opt.selected = (opt.value === '_none'));
       Drupal.selectify.syncHiddenSelect(nativeSelect, ['_none']);
       Drupal.selectify.updateSelectedDisplay(type, nativeSelect, selectedDisplay, clearAllButton);
-      clearAllButton.classList.add('hidden');
+      clearAllButton.classList.add('s-hidden');
       return;
     }
     // Normal option toggle.
@@ -454,7 +454,7 @@
     const dropdownMenu = selectedDisplay.closest('.selectify-select').querySelector('.selectify-available-display');
     const optionElement = dropdownMenu.querySelector(`.selectify-available-one-option[data-value="${value}"]`);
     if (optionElement) {
-      optionElement.classList.remove('selected', 'hidden'); // Remove both classes correctly
+      optionElement.classList.remove('s-selected', 's-hidden'); // Remove both classes correctly
     }
     // Sync the hidden select field.
     const selectedValues = Array.from(nativeSelect.options)
@@ -562,7 +562,7 @@
         checkbox.setAttribute('aria-checked', isSelected ? 'true' : 'false');
         checkbox.checked = isSelected;
       }
-      optionElement.classList.toggle('selected', isSelected);
+      optionElement.classList.toggle('s-selected', isSelected);
     } else {
       if (!(isExposedFilter && isNoneOrAll)) {
         if (isSelected) {
@@ -570,10 +570,10 @@
         } else {
           optionElement.removeAttribute('aria-selected');
         }
-        optionElement.classList.toggle('selected', isSelected);
+        optionElement.classList.toggle('s-selected', isSelected);
       }
       if (type === 'searchable' || type === 'tags' || type === 'dual') {
-        optionElement.classList.toggle('hidden', isSelected);
+        optionElement.classList.toggle('s-hidden', isSelected);
       }
     }
   };

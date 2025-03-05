@@ -105,7 +105,7 @@ body .dual-item {
   border-bottom: 1px solid var(--selectify-select-border-color, var(--r-br));
 }
 
-body .selectify-available-one-option.selected,
-body .selectify-available-one-option.selected * {
+body .selectify-available-one-option.s-selected,
+body .selectify-available-one-option.s-selected * {
   font-weight: bold;
 }

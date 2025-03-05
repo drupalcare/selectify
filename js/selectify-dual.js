@@ -85,7 +85,7 @@
         selectedItem.remove();
         const correspondingOption = dropdownMenu.querySelector(`.selectify-available-one-option[data-value="${valueToRemove}"]`);
         if (correspondingOption) {
-          correspondingOption.classList.remove('hidden', 'selected');
+          correspondingOption.classList.remove('s-hidden', 's-selected');
         }
         const selectOption = nativeSelect.querySelector(`option[value="${valueToRemove}"]`);
         if (selectOption) {
@@ -98,7 +98,7 @@
         // Check if anything is left.
         const dualInner = selectedDisplay.querySelector('.selectify-selected-options.dual-inner');
         if (!dualInner || dualInner.children.length === 0) {
-          clearAllButton.classList.add('hidden');
+          clearAllButton.classList.add('s-hidden');
         }
         nativeSelect.dispatchEvent(new Event('change'));
       }
@@ -111,10 +111,10 @@
         });
         selectedDisplay.querySelectorAll('.selectify-selected-one-option').forEach(item => item.remove());
         dropdownMenu.querySelectorAll('.selectify-available-one-option.selected').forEach(option => {
-          option.classList.remove('selected');
+          option.classList.remove('s-selected');
         });
-        dropdownMenu.querySelectorAll('.selectify-available-one-option.hidden').forEach(option => {
-          option.classList.remove('hidden');
+        dropdownMenu.querySelectorAll('.selectify-available-one-option.s-hidden').forEach(option => {
+          option.classList.remove('s-hidden');
         });
         Drupal.selectify.syncHiddenSelect(nativeSelect, []);
         Drupal.selectify.updateSelectedDisplay(type, nativeSelect, selectedDisplay, clearAllButton);

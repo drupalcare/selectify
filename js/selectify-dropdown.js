@@ -100,7 +100,7 @@
         }
         // Ensure dropdown items are fully reset
         dropdownMenu.querySelectorAll('.selectify-available-one-option').forEach(option => {
-          option.classList.remove('selected', 'hidden'); // Unhide and unselect
+          option.classList.remove('s-selected', 's-hidden'); // Unhide and unselect
         });
         // Sync the hidden select field.
         Drupal.selectify.syncHiddenSelect(nativeSelect, []);
