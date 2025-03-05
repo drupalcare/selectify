@@ -94,7 +94,7 @@
       {% for option in options %}
         {% if option.value != '_none' or show_none %}
           <div class="selectify-available-one-option" role="option" id="option-{{ option.value }}" data-value="{{ option.value }}">
-            <span>{{ option.label }}</span>
+            <span class="option-label">{{ option.label }}</span>
           </div>
         {% endif %}
       {% endfor %}
@@ -105,7 +105,7 @@
             <span class="icon">
               {% include '@selectify/partials/svg/_clear_all.html.twig' %}
             </span>
-            <span>{{ 'Clear All'|t }}</span>
+            <span class="clear-label">{{ 'Clear All'|t }}</span>
           </button>
         </div>
       </div>

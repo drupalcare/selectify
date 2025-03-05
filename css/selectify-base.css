@@ -75,6 +75,9 @@
 
 .dual-list-option button,
 .dual-list-option label,
+.dual-list-option span,
+.selectify-available-one-option button,
+.selectify-available-one-option span,
 .selectify-available-one-option label {
   pointer-events: none;
 }
