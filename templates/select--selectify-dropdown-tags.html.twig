@@ -13,14 +13,12 @@
 {% apply spaceless %}
 {% set wrapper_id = "wrapper-" ~ attributes.id %}
 {% set clean_field_name = field_name|replace({'_': '-', '[]': ''}) %}
-
 {% set show_none = true %}
 {% if not is_views %}
   {% if (max_selected > 1) and (not is_required) %}
     {% set show_none = false %}
   {% endif %}
 {% endif %}
-
 {# Combine default Drupal classes with Selectify classes #}
 {% set all_classes = [
   'wrapper-selectify',
@@ -31,7 +29,6 @@
   'js-form-type-select',
   'form-type--select'
 ] %}
-
 {# Add extra Views-specific classes if this is an exposed filter #}
 {% if is_views %}
   {% set all_classes = all_classes|merge([
@@ -40,12 +37,9 @@
     'form-item--status'
   ]) %}
 {% endif %}
-
 {# Merge with existing Drupal classes from `attributes.class` #}
 {% set all_classes = all_classes|merge(attributes.class|default([])) %}
-
 <div id="{{ wrapper_id }}" class="{{ all_classes|join(' ') }}">
-
   <div class="selectify selectify-select selectify-select-dropdowns selectify-dropdown-tags-widget"
      tabindex="0"
      role="combobox"
@@ -88,7 +82,6 @@
         {% include '@selectify/partials/svg/_expand_circle_down.html.twig' %}
       </span>
     </div>
-
     <div class="selectify-available-display"  role="listbox" aria-hidden="true">
       <div class="options-inner">
 
@@ -99,7 +92,6 @@
           </div>
         {% endif %}
       {% endfor %}
-
         <div class="selectify-select-footer">
           <button type="button" class="selectify-clear-all">
             <span class="icon">
@@ -116,7 +108,6 @@
     </div>
     {% endif %}
   </div>
-
   <!-- Hidden select for form submission -->
   <select {{ attributes.addClass('selectify-visually-hidden') }} aria-hidden="true">
     {% for option in options %}
@@ -127,4 +118,3 @@
   </select>
 </div>
 {% endapply %}
-

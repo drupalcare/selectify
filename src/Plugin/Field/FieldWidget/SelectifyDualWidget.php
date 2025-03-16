@@ -29,7 +29,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class SelectifyDualWidget extends OptionsSelectWidget {
 
-
   /**
    * The config factory service.
    *

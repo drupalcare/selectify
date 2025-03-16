@@ -13,14 +13,12 @@
 {% apply spaceless %}
 {% set wrapper_id = "wrapper-" ~ attributes.id %}
 {% set clean_field_name = field_name|replace({'_': '-', '[]': ''}) %}
-
 {% set show_none = true %}
 {% if not is_views %}
   {% if (max_selected > 1) and (not is_required) %}
     {% set show_none = false %}
   {% endif %}
 {% endif %}
-
 {# Combine default Drupal classes with Selectify classes #}
 {% set all_classes = [
   'wrapper-selectify',
@@ -31,7 +29,6 @@
   'js-form-type-select',
   'form-type--select'
 ] %}
-
 {# Add extra Views-specific classes if this is an exposed filter #}
 {% if is_views %}
   {% set all_classes = all_classes|merge([
@@ -40,12 +37,9 @@
     'form-item--status'
   ]) %}
 {% endif %}
-
 {# Merge with existing Drupal classes from `attributes.class` #}
 {% set all_classes = all_classes|merge(attributes.class|default([])) %}
-
 <div id="{{ wrapper_id }}" class="{{ all_classes|join(' ') }}">
-
   <div class="selectify selectify-select selectify-select-dual-list selectify-dual-widget"
      tabindex="0"
      role="combobox"
@@ -69,12 +63,9 @@
      aria-required="{{ is_required ? 'true' : 'false' }}"
      {% endif %}
      >
-
     <div class="dual-container">
-
     <div class="selectify-available-display-dual dual-available"  role="listbox" aria-hidden="true">
       <div class="options-inner">
-
       {% for option in options %}
         {% if option.value != '_none' or show_none %}
           <div class="selectify-available-one-option dual-available-option dual-item" role="option" id="option-{{ option.value }}" data-value="{{ option.value }}">
@@ -87,7 +78,6 @@
       {% endfor %}
       </div>
     </div>
-
     <div class="selectify-selected-display-dual dual-selected">
       {% set selected_options = (options is iterable ? options|filter(o => o.selected) : []) %}
       {% if selected_options|length > 0 %}
@@ -100,12 +90,10 @@
           {% include '@selectify/partials/svg/_arrow_circle_left.html.twig' %}
           </span>
         </div>
-
        {% endfor %}
       </div>
       {% endif %}
     </div>
-
   </div>
   <div class="selectify-select-footer dual-footer">
     <button type="button" class="selectify-clear-all dual-clear-all">
@@ -121,7 +109,6 @@
   </div>
   {% endif %}
   </div>
-
   <!-- Hidden select for form submission -->
   <select {{ attributes.addClass('selectify-visually-hidden') }} aria-hidden="true">
     {% for option in options %}
@@ -132,4 +119,3 @@
   </select>
 </div>
 {% endapply %}
-

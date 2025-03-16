@@ -21,7 +21,6 @@
     {% set show_none = false %}
   {% endif %}
 {% endif %}
-
 {# Combine default Drupal classes with Selectify classes #}
 {% set all_classes = [
   'wrapper-selectify',
@@ -32,7 +31,6 @@
   'js-form-type-select',
   'form-type--select'
 ] %}
-
 {# Add extra Views-specific classes if this is an exposed filter #}
 {% if is_views %}
   {% set all_classes = all_classes|merge([
@@ -41,12 +39,9 @@
     'form-item--status'
   ]) %}
 {% endif %}
-
 {# Merge with existing Drupal classes from `attributes.class` #}
 {% set all_classes = all_classes|merge(attributes.class|default([])) %}
-
 <div id="{{ wrapper_id }}" class="{{ all_classes|join(' ') }}">
-
   <div class="selectify selectify-select selectify-select-dropdowns selectify-dropdown-widget"
      tabindex="0"
      role="combobox"
@@ -71,7 +66,6 @@
      aria-required="{{ is_required ? 'true' : 'false' }}"
      {% endif %}
      >
-
     <div class="selectify-selected-display">
       {% set selected_options = (options is iterable ? options|filter(o => o.selected) : []) %}
       {% if selected_options|length > 0 %}
@@ -87,8 +81,6 @@
         {% include '@selectify/partials/svg/_expand_circle_down.html.twig' %}
       </span>
     </div>
-
-
     <div class="selectify-available-display"  role="listbox" aria-hidden="true">
       <div class="options-inner">
       {% for option in options %}
@@ -98,7 +90,6 @@
           </div>
         {% endif %}
       {% endfor %}
-
         <!-- Clear All Button -->
         <div class="selectify-select-footer">
           <button type="button" class="selectify-clear-all">
@@ -110,15 +101,12 @@
         </div>
       </div>
     </div>
-
     {% if max_selected is not null and max_selected is defined and max_selected is not empty %}
     <div class="selectify-max-selection-message hide" role="alert">
       {{ 'You can only select up to @count options.'|t({'@count': max_selected}) }}
     </div>
     {% endif %}
   </div>
-
-
   <!-- Hidden select for form submission -->
   <select {{ attributes.addClass('selectify-visually-hidden') }} aria-hidden="true">
     {% for option in options %}
@@ -129,5 +117,3 @@
   </select>
 </div>
 {% endapply %}
-
-

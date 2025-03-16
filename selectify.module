@@ -522,7 +522,7 @@ function selectify_global_widget(array &$form, $global_widget, array $widget_lib
  */
 function selectify_single_widget(array &$form, array $widget_map, $clean_form_id, array $widget_libraries, array $widget_classes) {
 
-  foreach ($widget_map as $view_display_key => $widget_data) {
+  foreach ($widget_map as $widget_data) {
     $stored_exposed_form_id = $widget_data['exposed_form_id'] ?? '';
     $normalized_stored_form_id = str_replace('_', '-', $stored_exposed_form_id);
 

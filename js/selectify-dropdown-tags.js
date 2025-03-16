@@ -1,8 +1,8 @@
 /**
  * @file
- * Contains utility functions for Solo module multi-select searchable dropdowns.
+ * Contains utility functions for Selectify module multi-select searchable dropdowns.
  *
- * Filename: selectify-multi-select.js
+ * Filename: selectify-dropdown-tags.js
  * Website: https://www.flashwebcenter.com
  * Developer: Alaa Haddad https://www.alaahaddad.com.
  */

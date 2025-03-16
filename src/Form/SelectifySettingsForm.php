@@ -3,14 +3,63 @@
 namespace Drupal\selectify\Form;
 
 use Drupal\Core\Config\Config;
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Config\TypedConfigManagerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Messenger\MessengerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\views\Views;
 
 /**
  * Configure settings for Selectify Radio/Checkbox & Views Filters.
  */
 class SelectifySettingsForm extends ConfigFormBase {
+
+  /**
+   * The messenger service.
+   *
+   * @var \Drupal\Core\Messenger\MessengerInterface
+   */
+  protected $messenger;
+
+  /**
+   * The config factory.
+   *
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   */
+  protected $configFactory;
+
+  /**
+   * Constructs a new SelectifySettingsForm object.
+   *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The config factory service.
+   * @param \Drupal\Core\Config\TypedConfigManagerInterface $typed_config_manager
+   *   The typed config manager service.
+   * @param \Drupal\Core\Messenger\MessengerInterface $messenger
+   *   The messenger service.
+   */
+  public function __construct(
+    ConfigFactoryInterface $config_factory,
+    TypedConfigManagerInterface $typed_config_manager,
+    MessengerInterface $messenger,
+  ) {
+    parent::__construct($config_factory, $typed_config_manager);
+    $this->messenger = $messenger;
+    $this->configFactory = $config_factory;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container): self {
+    return new static(
+      $container->get('config.factory'),
+      $container->get('config.typed'),
+      $container->get('messenger')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -237,7 +286,7 @@ class SelectifySettingsForm extends ConfigFormBase {
         ->clear('global_selectify_widget')
         ->clear('widget_for_filters');
 
-      \Drupal::messenger()->addMessage($this->t('Selectify has been disabled. All related settings have been cleared.'), 'warning');
+      $this->messenger->addMessage($this->t('Selectify has been disabled. All related settings have been cleared.'), 'warning');
     }
     // If applying site-wide Views Select, store global settings/clear widgets.
     elseif ($apply_site_wide) {
@@ -246,7 +295,7 @@ class SelectifySettingsForm extends ConfigFormBase {
         ->set('global_selectify_widget', $global_widget)
         ->clear('widget_for_filters');
 
-      \Drupal::messenger()->addMessage($this->t('Global Selectify widget applied site-wide.'), 'status');
+      $this->messenger->addMessage($this->t('Global Selectify widget applied site-wide.'), 'status');
     }
     // If specific widgets are selected, store them & clear global settings.
     elseif (!empty($views_widgets)) {
@@ -257,7 +306,7 @@ class SelectifySettingsForm extends ConfigFormBase {
         ->set('widget_for_filters', $stored_widgets)
         ->clear('global_selectify_widget');
 
-      \Drupal::messenger()->addMessage($this->t('Custom Selectify widgets applied to specific Views filters.'), 'status');
+      $this->messenger->addMessage($this->t('Custom Selectify widgets applied to specific Views filters.'), 'status');
     }
 
     $config->save();
@@ -329,10 +378,9 @@ class SelectifySettingsForm extends ConfigFormBase {
 
         // Check if this display has an exposed filter.
         if (!empty($display['display_options']['filters'])) {
-          foreach ($display['display_options']['filters'] as $filter_id => $filter) {
+          foreach ($display['display_options']['filters'] as $filter) {
             if (!empty($filter['expose']['identifier'])) {
               $has_exposed_filter = TRUE;
-              // No need to check further once we find an exposed filter.
               break;
             }
           }

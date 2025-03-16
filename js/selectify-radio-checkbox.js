@@ -1,8 +1,8 @@
 /**
  * @file
- * Contains utility functions for Solo module.
+ * Contains utility functions for Selectify module.
  *
- * Filename: selectify-toggleable-radios.js
+ * Filename: selectify-radio-checkbox.js
  * Website: https://www.flashwebcenter.com
  * Developer: Alaa Haddad https://www.alaahaddad.com.
  */

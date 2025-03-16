@@ -7,4 +7,3 @@ selectify.settings_form:
     _permission: 'administer selectify settings'
   options:
     _admin_route: true
-    theme: 'gin'

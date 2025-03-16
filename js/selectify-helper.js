@@ -1,8 +1,8 @@
 /**
  * @file
- * Contains utility functions for Solo module multi-select.
+ * Contains utility functions for Selectify module multi-select.
  *
- * Filename: selectify-multi-select.js
+ * Filename: selectify-helper.js
  * Website: https://www.flashwebcenter.com
  * Developer: Alaa Haddad https://www.alaahaddad.com.
  */
