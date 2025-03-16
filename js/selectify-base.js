@@ -1,8 +1,8 @@
 /**
  * @file
- * Contains utility functions for Solo module.
+ * Contains utility functions for Selectify module.
  *
- * Filename: selectify-utils.js
+ * Filename: selectify-base.js
  * Website: https://www.flashwebcenter.com
  * Developer: Alaa Haddad https://www.alaahaddad.com.
  */
@@ -15,24 +15,18 @@
    */
   Drupal.selectify = Drupal.selectify || {};
   const cssStyles = {
-    overflow: 'hidden'
-    , height: '0'
-    , paddingTop: '0'
-    , paddingBottom: '0'
-    , marginTop: '0'
-    , marginBottom: '0'
+    overflow: 'hidden',
+    height: '0',
+    paddingTop: '0',
+    paddingBottom: '0',
+    marginTop: '0',
+    marginBottom: '0'
   };
   const removeStyles = (target) => {
     const stylesToRemove = ['height', 'paddingTop', 'paddingBottom', 'marginTop', 'marginBottom', 'overflow', 'transitionDuration', 'transitionProperty'];
     stylesToRemove.forEach(st => target.style.removeProperty(st));
   }
   Drupal.selectify.removeStyles = removeStyles;
-  const updateTabindex = (target, isOpen) => {
-    const firstLevelItems = target.querySelectorAll(':scope > li > a, :scope > li > button');
-    firstLevelItems.forEach(item => {
-      item.setAttribute('tabindex', isOpen ? '0' : '-1');
-    });
-  };
   const slideUp = (target, duration = 600) => {
     const trigger = target.previousElementSibling;
     target.style.transitionProperty = 'height, margin, padding';
@@ -47,7 +41,6 @@
       trigger.setAttribute('aria-expanded', 'false');
       setTimeout(() => trigger.focus(), duration);
     }
-    updateTabindex(target, false);
     Object.keys(cssStyles).forEach(style => {
       target.style[style] = cssStyles[style];
     });
@@ -62,9 +55,8 @@
     target.style.removeProperty('display');
     let currentDisplay = window.getComputedStyle(target).display;
     if (currentDisplay === 'none') {
-      currentDisplay = menuDisplay;
+      target.style.display = menuDisplay;
     }
-    target.style.display = menuDisplay;
     let height = target.offsetHeight;
     height = Math.round(height);
     Object.keys(cssStyles).forEach(style => {
@@ -81,7 +73,6 @@
     if (trigger) {
       trigger.setAttribute('aria-expanded', 'true');
     }
-    updateTabindex(target, true);
     ['paddingTop', 'paddingBottom', 'marginTop', 'marginBottom'].forEach(property => {
       target.style.removeProperty(property);
     });
@@ -92,110 +83,4 @@
     }, duration);
   };
   Drupal.selectify.slideDown = slideDown;
-  const slideToggle = (target, duration = 500) => {
-    if (!target.classList.contains('toggled')) {
-      return slideDown(target, duration);
-    } else {
-      return slideUp(target, duration);
-    }
-  }
-  Drupal.selectify.slideToggle = slideToggle;
-  // Get current width
-  const getCurrentWidth = () => window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-  const calculateDepth = (element) => {
-    let depth = 1;
-    let parent = element.parentElement;
-    while (parent) {
-      if (parent.tagName.toLowerCase() === 'ul') {
-        depth++;
-      }
-      parent = parent.parentElement;
-    }
-    return depth;
-  };
-  const addClassAccordingToDepth = (element, depth) => {
-    element.classList.add(`ul-${depth}`);
-    Array.from(element.children).forEach(child => child.classList.add(`li-${depth}`));
-  };
-  Drupal.selectify.calculateDepth = calculateDepth;
-  const getMyBreakpoints = (element, mn) => {
-    const classes = [`${mn}-576`, `${mn}-768`, `${mn}-992`, `${mn}-1200`, `${mn}-1400`];
-    const classList = Array.from(element.classList);
-    const foundClass = classList.find(c => classes.includes(c));
-    return foundClass ? parseInt(foundClass.split('-')[1]) : 992;
-  }
-  Drupal.selectify.getMyBreakpoints = getMyBreakpoints;
-  /**
-   * Get breakpoint number based on the specified class and breakpoint prefix.
-   *
-   * @param {string} breakpointPrefix - The prefix for the breakpoint (e.g., 'mn').
-   * @returns {number} - The numeric breakpoint value.
-   */
-  Drupal.selectify.getBreakpointNumber = (breakpointPrefix = 'mn') => {
-    const pageClass = document.querySelector('.page-wrapper');
-    return Drupal.selectify.getMyBreakpoints(pageClass, breakpointPrefix);
-  };
-  /**
-   * Determines the current layout based on breakpoints.
-   *
-   * @returns {string} 'large' if layout is large, 'small' otherwise.
-   */
-  const getLayout = () => {
-    const pageClass = document.querySelector('.page-wrapper');
-    const brNum = Drupal.selectify.getMyBreakpoints(pageClass, 'mn');
-    const currentWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-    return currentWidth > brNum ? 'large' : 'small';
-  };
-  Drupal.selectify.getLayout = getLayout;
-  /**
-   * Drupal behavior to add classes based on depth.
-   */
-  Drupal.behaviors.selectifyMenuDepth = {
-    attach: (context, settings) => {
-      const menus = once('selectifyMenuDepth', '.selectify-inner nav ul:not(.field ul)', context);
-      menus.forEach((element) => {
-        const depth = calculateDepth(element);
-        addClassAccordingToDepth(element, depth);
-      });
-    }
-  };
-  Drupal.behaviors.selectifySearchAnimation = {
-    attach: (context, settings) => {
-      // Adding behavior for animating details-wrapper
-      const detailsElements = once('selectifyDetailsAnimation', '.search-form details.search-advanced', context);
-      detailsElements?.forEach((detail) => {
-        const wrapper = detail.querySelector('.details-wrapper');
-        if (wrapper) {
-          if (!detail.open) {
-            wrapper.style.height = 0;
-            wrapper.style.opacity = 0;
-            wrapper.style.overflow = 'hidden';
-          }
-          detail.addEventListener('toggle', () => {
-            if (detail.open) {
-              const contentHeight = wrapper.scrollHeight + 'px';
-              wrapper.style.height = contentHeight;
-              wrapper.style.opacity = 1;
-              wrapper.addEventListener(
-                'transitionend'
-                , () => {
-                  if (detail.open) {
-                    wrapper.style.height = 'auto';
-                  }
-                }, {
-                  once: true
-                }
-              );
-            } else {
-              wrapper.style.height = wrapper.scrollHeight + 'px'
-              requestAnimationFrame(() => {
-                wrapper.style.height = 0;
-                wrapper.style.opacity = 0;
-              });
-            }
-          });
-        }
-      });
-    }
-  , };
 })(Drupal, drupalSettings, once);
