@@ -97,7 +97,7 @@ html[dir="rtl"] .dual-available-option .dual-available-arrow {
 
 }
 
-@media (max-width:48rem) {
+@media (max-width:47.99875rem) {
   .dual-container {
     flex-direction: column;
     gap: 8px;
