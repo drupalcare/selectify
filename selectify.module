@@ -184,43 +184,52 @@ function selectify_get_root_parent_theme($theme_name) {
 /**
  * Common preprocessing logic for all Selectify widgets.
  */
-function _selectify_preprocess_widget(&$variables) {
+function _selectify_preprocess_widget(array &$variables) {
   if (!isset($variables['element'])) {
     return;
   }
 
-  // Extract attributes from the form widget.
-  $attributes = $variables['element']['#attributes'] ?? [];
-  $variables['attributes'] = new Attribute($attributes);
+  $element = $variables['element'];
+  $raw_attributes = $element['#attributes'] ?? [];
+  $variables['attributes'] = new Attribute($raw_attributes);
 
-  // Detect if it's a Views exposed filter.
-  $is_views = !empty($attributes['class']) && is_array($attributes['class']) && in_array('selectify-views', $attributes['class']);
+  // Determine if a visible label exists.
+  $has_label = !empty($element['#title']) && ($element['#label_display'] ?? 'visible') !== 'hidden';
+  $variables['has_label'] = $has_label;
+
+  // Generate fallback aria-label if no label will be printed.
+  if (!$has_label && isset($raw_attributes['id'])) {
+    $id = (string) $raw_attributes['id'];
+    $clean_label = preg_replace('/^edit-/', '', $id);
+    $clean_label = ucwords(str_replace('-', ' ', $clean_label));
+    $variables['aria_label'] = t('Select @label', ['@label' => $clean_label]);
+  }
+
+  // Detect if it's part of a Views exposed form.
+  $is_views = !empty($raw_attributes['class']) && in_array('selectify-views', (array) $raw_attributes['class']);
   $variables['is_views'] = $is_views;
 
   if ($is_views) {
-    $variables['unique_id'] = $attributes['id'] ?? '';
-    $variables['is_multiple'] = (isset($attributes['multiple']) && $attributes['multiple'] === 'multiple') ? TRUE : FALSE;
-    $variables['max_selected'] = (isset($attributes['multiple']) && $attributes['multiple'] === 'multiple') ? NULL : 1;
-    $variables['field_name'] = $attributes['name'] ?? '';
+    $variables['unique_id'] = $raw_attributes['id'] ?? '';
+    $variables['is_multiple'] = ($raw_attributes['multiple'] ?? '') === 'multiple';
+    $variables['max_selected'] = $variables['is_multiple'] ? NULL : 1;
+    $variables['field_name'] = $raw_attributes['name'] ?? '';
 
-    // Store Views-related attributes separately.
     $variables['views_attributes'] = [
-      'data-drupal-selector' => $attributes['data-drupal-selector'] ?? '',
-      'class' => !empty($attributes['class']) ? implode(' ', (array) $attributes['class']) : '',
-      'size' => $attributes['size'] ?? '',
-      'aria-invalid' => $attributes['aria-invalid'] ?? '',
+      'data-drupal-selector' => $raw_attributes['data-drupal-selector'] ?? '',
+      'class' => implode(' ', (array) $raw_attributes['class'] ?? []),
+      'size' => $raw_attributes['size'] ?? '',
+      'aria-invalid' => $raw_attributes['aria-invalid'] ?? '',
     ];
   }
   else {
-    // Assign field widget-specific attributes.
-    $variables['unique_id'] = $attributes['id'] ?? 'selectify-default-id';
-    $variables['field_name'] = $attributes['data-field-name'] ?? 'unknown';
-    $variables['max_selected'] = $attributes['data-max-selections'] ?? NULL;
-    $variables['is_multiple'] = filter_var($attributes['data-multiple'] ?? FALSE, FILTER_VALIDATE_BOOLEAN);
-    $variables['placeholder'] = $attributes['data-placeholder'] ?? '';
-    $variables['is_required'] = filter_var($attributes['aria-required'] ?? FALSE, FILTER_VALIDATE_BOOLEAN);
+    $variables['unique_id'] = $raw_attributes['id'] ?? 'selectify-default-id';
+    $variables['field_name'] = $raw_attributes['data-field-name'] ?? 'unknown';
+    $variables['max_selected'] = $raw_attributes['data-max-selections'] ?? NULL;
+    $variables['is_multiple'] = filter_var($raw_attributes['data-multiple'] ?? FALSE, FILTER_VALIDATE_BOOLEAN);
+    $variables['placeholder'] = $raw_attributes['data-placeholder'] ?? '';
+    $variables['is_required'] = filter_var($raw_attributes['aria-required'] ?? FALSE, FILTER_VALIDATE_BOOLEAN);
 
-    // No Views attributes in field widgets.
     $variables['views_attributes'] = [];
   }
 

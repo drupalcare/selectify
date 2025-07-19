@@ -12,6 +12,7 @@
 #}
 {% apply spaceless %}
 {% set wrapper_id = "wrapper-" ~ attributes.id %}
+
 {% set clean_field_name = field_name|replace({'_': '-', '[]': ''}) %}
 {% set show_none = true %}
 {% if not is_views %}
@@ -43,10 +44,9 @@
   <div class="selectify selectify-select selectify-select-dropdowns selectify-dropdown-tags-widget"
      tabindex="0"
      role="combobox"
+     aria-controls="edit-{{ clean_field_name }}-dropdown"
      aria-haspopup="listbox"
      aria-expanded="false"
-     aria-activedescendant=""
-     aria-multiselectable="{{ is_multiple ? 'true' : 'false' }}"
      data-target-id="{{ unique_id }}"
      data-max-selections="{{ max_selected }}"
      data-drupal-selector="edit-{{ clean_field_name }}"
@@ -54,16 +54,23 @@
      data-multiple="{{ is_multiple ? 'true' : 'false' }}"
      data-tracking="selectify-widget"
      aria-describedby="edit-{{ clean_field_name }}--description"
+    {% if has_label %}
+      aria-labelledby="{{ unique_id }}"
+    {% else %}
+      aria-label="{{ aria_label }}"
+    {% endif %}
+
      {% if is_views %}
        data-drupal-selector="{{ views_attributes['data-drupal-selector'] }}"
        class="{{ views_attributes['class'] }}"
-       size="{{ views_attributes['size'] }}"
-       aria-invalid="{{ views_attributes['aria-invalid'] }}"
+       {% if views_attributes['aria-invalid'] in ['true', 'false', 'grammar', 'spelling'] %}
+         aria-invalid="{{ views_attributes['aria-invalid'] }}"
+       {% endif %}
      {% else %}
-     data-placeholder="{{ placeholder|default('') }}"
-     aria-required="{{ is_required ? 'true' : 'false' }}"
-     {% endif %}
-     >
+       data-placeholder="{{ placeholder|default('') }}"
+       aria-required="{{ is_required ? 'true' : 'false' }}"
+     {% endif %}>
+
     <div class="selectify-selected-display">
       {% set selected_options = (options is iterable ? options|filter(o => o.selected) : []) %}
       {% if selected_options|length > 0 %}
@@ -71,7 +78,7 @@
         {% for selected in selected_options %}
         <div class="selectify-selected-one-option" data-value="{{ selected.value }}">
           <span>{{ selected.label }}</span>
-          <button class="remove-tag">
+          <button class="remove-tag" type="button" aria-label="{{ 'Remove @label'|t({'@label': selected.label}) }}">
             {% include '@selectify/partials/svg/_delete.html.twig' %}
           </button>
         </div>
@@ -82,7 +89,7 @@
         {% include '@selectify/partials/svg/_expand_circle_down.html.twig' %}
       </span>
     </div>
-    <div class="selectify-available-display"  role="listbox" aria-hidden="true">
+    <div id="edit-{{ clean_field_name }}-dropdown" class="selectify-available-display" role="listbox" aria-hidden="true"{% if is_multiple %} aria-multiselectable="true"{% endif %}>
       <div class="options-inner">
 
       {% for option in options %}
@@ -109,7 +116,7 @@
     {% endif %}
   </div>
   <!-- Hidden select for form submission -->
-  <select {{ attributes.addClass('selectify-visually-hidden') }} aria-hidden="true">
+  <select {{ attributes.addClass('selectify-visually-hidden') }} tabindex="-1"{% if is_multiple %} size="{{ views_attributes['size'] }}"{% endif %}>
     {% for option in options %}
       {% if option.value != '_none' or show_none %}
         <option value="{{ option.value }}" {{ option.selected ? 'selected="selected"' }}>{{ option.label }}</option>

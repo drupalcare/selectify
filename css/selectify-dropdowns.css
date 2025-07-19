@@ -9,6 +9,10 @@
   width: 100%;
 }
 
+.views-exposed-form label+.wrapper-selectify {
+  margin-top: 0;
+}
+
 .selectify-select-dropdowns {
   position: relative;
   display: flex;
