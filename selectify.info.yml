@@ -1,7 +1,7 @@
 name: 'Selectify'
 type: module
 description: 'Provides advanced dropdowns and toggleable radios.'
-package: 'Custom'
+package: 'User interface'
 core_version_requirement: ^10 || ^11
 dependencies:
   - drupal:views
