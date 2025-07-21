@@ -46,6 +46,7 @@
             // Set aria-controls on selectifySelect
             selectifySelect.setAttribute('aria-controls', dropdownId);
           }
+          Drupal.selectify.injectAriaLabelledBy();
         }, 10);
       });
     }

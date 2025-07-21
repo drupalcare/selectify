@@ -48,14 +48,14 @@
      aria-expanded="false"
      aria-multiselectable="{{ is_multiple ? 'true' : 'false' }}"
      data-target-id="{{ unique_id }}"
-     data-max-selections="{{ max_selected }}"
+     {% if max_selected %}data-max-selections="{{ max_selected }}"{% endif %}
      data-drupal-selector="edit-{{ clean_field_name }}"
      data-field-name="{{ clean_field_name }}"
      data-multiple="{{ is_multiple ? 'true' : 'false' }}"
      data-tracking="selectify-widget"
      aria-describedby="edit-{{ clean_field_name }}--description"
     {% if has_label %}
-      aria-labelledby="{{ unique_id }}"
+      aria-labelledby="{{ unique_id }}-label"
     {% else %}
       aria-label="{{ aria_label }}"
     {% endif %}
@@ -120,7 +120,7 @@
     {% endif %}
   </div>
   <!-- Hidden select for form submission -->
-  <select {{ attributes.addClass('selectify-visually-hidden') }} tabindex="-1"{% if is_multiple %} size="{{ views_attributes['size'] }}"{% endif %}>
+  <select {{ attributes.addClass('selectify-visually-hidden') }} aria-hidden="true" tabindex="-1"{% if is_multiple %} size="{{ views_attributes['size'] }}"{% endif %}>
     {% for option in options %}
       {% if option.value != '_none' or show_none %}
         <option value="{{ option.value }}" {{ option.selected ? 'selected="selected"' }}>{{ option.label }}</option>

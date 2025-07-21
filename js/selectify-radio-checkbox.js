@@ -36,6 +36,7 @@
         addFocusAndHoverListeners(radio);
         enableToggleableRadio(radio); // Optional: Allow deselecting radios
       });
+      Drupal.selectify.injectAriaLabelledBy();
     }
   };
   /**

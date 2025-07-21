@@ -110,7 +110,7 @@
   min-width: 100%;
   width: auto;
   max-width: none;
-  z-index: 600;
+  z-index: 6000;
   overflow-y: auto;
   overflow-x: hidden;
 }

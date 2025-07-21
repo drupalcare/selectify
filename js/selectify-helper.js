@@ -577,6 +577,31 @@
       }
     }
   };
+
+  /**
+   * Ensures aria-labelledby is added when a <label> exists before .wrapper-selectify.
+   */
+  Drupal.selectify.injectAriaLabelledBy = function () {
+    document.querySelectorAll('.wrapper-selectify').forEach(wrapper => {
+      const label = wrapper.previousElementSibling;
+      if (!label || label.tagName.toLowerCase() !== 'label') return;
+
+      // Ensure label has an id
+      let labelId = label.getAttribute('id');
+      if (!labelId) {
+        const forAttr = label.getAttribute('for') || 'selectify-' + Math.random().toString(36).substring(2, 10);
+        labelId = `${forAttr}-label`;
+        label.setAttribute('id', labelId);
+      }
+
+      // Apply aria-labelledby to the selectify container
+      const widget = wrapper.querySelector('.selectify');
+      if (widget && !widget.hasAttribute('aria-labelledby')) {
+        widget.setAttribute('aria-labelledby', labelId);
+      }
+    });
+  };
+
   /**
    * Ensures dropdown close event is only bound once.
    */

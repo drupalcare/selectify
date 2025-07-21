@@ -174,7 +174,7 @@
 
 /* Show animation */
 .selectify-max-selection-message.show {
-  z-index: 1000;
+  z-index: 7000;
   opacity: 1;
   visibility: visible;
   transform: translateX(-50%) translateY(0);
