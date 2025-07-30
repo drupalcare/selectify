@@ -106,6 +106,8 @@ selectify-radio-checkbox:
     - core/drupal.ajax
     - core/drupalSettings
     - core/once
+    - selectify/selectify-base
+    - selectify/selectify-helper
 
 selectify-settings-style:
   css:
