@@ -27,7 +27,7 @@
     stylesToRemove.forEach(st => target.style.removeProperty(st));
   }
   Drupal.selectify.removeStyles = removeStyles;
-  const slideUp = (target, duration = 600) => {
+  const slideUp = (target, duration = 300) => {
     const trigger = target.previousElementSibling;
     target.style.transitionProperty = 'height, margin, padding';
     target.style.transitionDuration = `${duration}ms`;
@@ -50,7 +50,7 @@
     }, duration);
   };
   Drupal.selectify.slideUp = slideUp;
-  const slideDown = (target, menuDisplay = 'block', duration = 600) => {
+  const slideDown = (target, menuDisplay = 'block', duration = 300) => {
     const trigger = target.previousElementSibling;
     target.style.removeProperty('display');
     let currentDisplay = window.getComputedStyle(target).display;

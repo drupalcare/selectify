@@ -10,11 +10,11 @@
   --selectify-checkbox-disabled-circle: radial-gradient(circle at 40% 40%, #e8eaf6 0%, #c5cae9 40%, #9fa8da 100%);
 }
 
-
 .selectify-select,
 .selectify-select * {
   --selectify-select-bg: linear-gradient(180deg, #ffffff 0%, #dde0f2 100%);
   --selectify-select-border-color: #c0c7f0;
+  --selectify-select-focus-border: #4f46e5;
   --selectify-select-color: #283593;
   --selectify-select-hover-bg: linear-gradient(180deg, #ffffff 0%, #cbd0ec 100%);
   --selectify-select-focus-border-color: #3f51b5;

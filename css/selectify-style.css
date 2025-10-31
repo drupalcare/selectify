@@ -109,3 +109,21 @@ body .selectify-available-one-option.s-selected,
 body .selectify-available-one-option.s-selected * {
   font-weight: bold;
 }
+
+.selectify-select:focus,
+.selectify-select:focus-visible {
+  outline: 2px solid var(--selectify-select-focus-border);
+  outline-offset: 2px;
+}
+
+.selectify-available-one-option:focus,
+.selectify-available-one-option:focus-visible {
+  outline: 2px solid var(--selectify-select-focus-border);
+  outline-offset: -2px;
+  background-color: var(--selectify-option-hover-bg);
+}
+
+.selectify-selected-display:focus {
+  outline: 2px solid var(--selectify-select-focus-border);
+  outline-offset: 2px;
+}

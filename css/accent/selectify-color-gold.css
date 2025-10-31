@@ -14,6 +14,7 @@
 .selectify-select * {
   --selectify-select-bg: linear-gradient(180deg, #ffffff 0%, #fdf0c9 100%);
   --selectify-select-border-color: #ffc861;
+  --selectify-select-focus-border: #f59e0b;
   --selectify-select-color: #b34d00;
   --selectify-select-hover-bg: linear-gradient(180deg, #ffffff 0%, #fbf3da 100%);
   --selectify-select-focus-border-color: #ff9800;
