@@ -1,0 +1,5 @@
+services:
+  selectify.twig_extension:
+    class: Drupal\selectify\TwigExtension\SelectifyTwigExtension
+    tags:
+      - { name: twig.extension }

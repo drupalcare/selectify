@@ -83,7 +83,13 @@
       if (event.target.matches('.selectify-available-one-option input[type="checkbox"]')) {
         const optionValue = event.target.value;
         const correspondingOption = nativeSelect.querySelector(`option[value="${optionValue}"]`);
-        const parentOption = event.target.closest('.selectify-available-one-option'); // Get parent div
+        const parentOption = event.target.closest('.selectify-available-one-option');
+
+        // Update aria-activedescendant
+        if (parentOption && parentOption.id) {
+          selectifySelect.setAttribute('aria-activedescendant', parentOption.id);
+        }
+
         if (correspondingOption) {
           correspondingOption.selected = event.target.checked;
         }

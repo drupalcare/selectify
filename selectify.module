@@ -188,7 +188,6 @@ function _selectify_preprocess_widget(array &$variables) {
   if (!isset($variables['element'])) {
     return;
   }
-
   $element = $variables['element'];
   $raw_attributes = $element['#attributes'] ?? [];
   $variables['attributes'] = new Attribute($raw_attributes);
@@ -196,6 +195,13 @@ function _selectify_preprocess_widget(array &$variables) {
   // Determine if a visible label exists.
   $has_label = !empty($element['#title']) && ($element['#label_display'] ?? 'visible') !== 'hidden';
   $variables['has_label'] = $has_label;
+
+  if ($has_label) {
+    $label_id = $raw_attributes['id'] . '-label';
+    $variables['label_id'] = $label_id;
+  }
+
+  $variables['has_description'] = !empty($element['#description']);
 
   // Generate fallback aria-label if no label will be printed.
   if (!$has_label && isset($raw_attributes['id'])) {
@@ -214,7 +220,6 @@ function _selectify_preprocess_widget(array &$variables) {
     $variables['is_multiple'] = ($raw_attributes['multiple'] ?? '') === 'multiple';
     $variables['max_selected'] = $variables['is_multiple'] ? NULL : 1;
     $variables['field_name'] = $raw_attributes['name'] ?? '';
-
     $variables['views_attributes'] = [
       'data-drupal-selector' => $raw_attributes['data-drupal-selector'] ?? '',
       'class' => implode(' ', (array) $raw_attributes['class'] ?? []),
@@ -229,19 +234,20 @@ function _selectify_preprocess_widget(array &$variables) {
     $variables['is_multiple'] = filter_var($raw_attributes['data-multiple'] ?? FALSE, FILTER_VALIDATE_BOOLEAN);
     $variables['placeholder'] = $raw_attributes['data-placeholder'] ?? '';
     $variables['is_required'] = filter_var($raw_attributes['aria-required'] ?? FALSE, FILTER_VALIDATE_BOOLEAN);
-
     $variables['views_attributes'] = [];
   }
+
+  // Generate clean field name for use in IDs
+  $clean_field_name = str_replace(['_', '[]'], ['-', ''], $variables['field_name']);
+  $variables['clean_field_name'] = $clean_field_name;
 
   // background:Get the actual active theme for the request.
   $theme_manager = \Drupal::service('theme.manager');
   $active_theme = $theme_manager->getActiveTheme();
   // The theme currently in use.
   $theme_name = $active_theme->getName();
-
   // background:Get the root parent theme.
   $parent_theme = selectify_get_root_parent_theme($theme_name);
-
   // Add the theme classes, ensuring the real parent is first.
   $theme_classes = [];
   if (!empty($parent_theme) && $parent_theme !== $theme_name) {
@@ -250,11 +256,9 @@ function _selectify_preprocess_widget(array &$variables) {
   }
   // background:Print the currently active theme.
   $theme_classes[] = 'theme-' . selectify_clean_theme_name($theme_name);
-
   // Get the Selectify checkbox configuration.
   $config = selectify_get_radio_checkbox_config();
   $variables['enable_checkbox'] = !empty($config['enable_checkbox']);
-
   // Merge theme classes.
   $variables['attributes']->addClass($theme_classes);
 }

@@ -162,6 +162,32 @@
         }, 0);
       });
     });
+    // Add keyboard support for remove tag buttons
+    selectedDisplay.querySelectorAll('.remove-tag').forEach(btn => {
+      btn.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          btn.click();
+        }
+      });
+    });
+
+    // Re-add keyboard support when tags are dynamically added
+    const observer = new MutationObserver(() => {
+      selectedDisplay.querySelectorAll('.remove-tag').forEach(btn => {
+        if (!btn.hasAttribute('data-keyboard-enabled')) {
+          btn.setAttribute('data-keyboard-enabled', 'true');
+          btn.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              btn.click();
+            }
+          });
+        }
+      });
+    });
+    observer.observe(selectedDisplay, { childList: true, subtree: true });
+
     // Close dropdown when clicking outside.
     document.addEventListener('click', (event) => {
       if (!selectifySelect.contains(event.target)) {

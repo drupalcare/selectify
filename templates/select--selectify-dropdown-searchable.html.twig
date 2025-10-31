@@ -46,16 +46,15 @@
      aria-controls="edit-{{ clean_field_name }}-dropdown"
      aria-haspopup="listbox"
      aria-expanded="false"
+     aria-autocomplete="list"
      data-target-id="{{ unique_id }}"
      {% if max_selected %}data-max-selections="{{ max_selected }}"{% endif %}
      data-drupal-selector="edit-{{ clean_field_name }}"
      data-field-name="{{ clean_field_name }}"
      data-multiple="{{ is_multiple ? 'true' : 'false' }}"
      data-tracking="selectify-widget"
-     aria-describedby="edit-{{ clean_field_name }}--description"
-    {% if has_label %}
-      aria-labelledby="{{ unique_id }}-label"
-    {% else %}
+     {% if has_description %}aria-describedby="edit-{{ clean_field_name }}--description"{% endif %}
+    {% if not has_label %}
       aria-label="{{ aria_label }}"
     {% endif %}
 
@@ -91,12 +90,22 @@
     <div id="edit-{{ clean_field_name }}-dropdown" class="selectify-available-display" role="listbox" aria-hidden="true"{% if is_multiple %} aria-multiselectable="true"{% endif %}>
       <div class="options-inner">
         <div class="search-input">
+          <label for="search-{{ clean_field_name }}" class="visually-hidden">
+            {{ 'Search options'|t }}
+          </label>
           {% include '@selectify/partials/svg/_manage_search.html.twig' %}
-          <input type="text" class="multi-search-input" placeholder="Search..." />
+          <input type="text"
+                 class="multi-search-input"
+                 id="search-{{ clean_field_name }}"
+                 placeholder="{{ 'Search options'|t }}"
+                 aria-label="{{ 'Search options'|t }}"
+                 aria-autocomplete="list"
+                 aria-controls="edit-{{ clean_field_name }}-dropdown"
+                 role="searchbox" />
         </div>
         {% for option in options %}
           {% if option.value != '_none' or show_none %}
-          <div class="selectify-available-one-option" role="option" id="option-{{ option.value }}" data-value="{{ option.value }}">
+          <div class="selectify-available-one-option" role="option"  id="option-{{ clean_field_name }}-{{ option.value|selectify_clean_id }}" data-value="{{ option.value }}" tabindex="-1">
               <span class="option-label">{{ option.label }}</span>
             </div>
           {% endif %}
@@ -116,6 +125,9 @@
       {{ 'You can only select up to @count options.'|t({'@count': max_selected}) }}
     </div>
     {% endif %}
+    <div class="visually-hidden" role="status" aria-live="polite" aria-atomic="true">
+      <!-- JavaScript will update this with selection count -->
+    </div>
   </div>
   <!-- Hidden select for form submission -->
   <select {{ attributes.addClass('selectify-visually-hidden') }} aria-hidden="true" tabindex="-1"{% if is_multiple %} size="{{ views_attributes['size'] }}"{% endif %}>

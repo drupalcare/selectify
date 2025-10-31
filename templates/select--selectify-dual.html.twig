@@ -51,10 +51,8 @@
      data-field-name="{{ clean_field_name }}"
      data-multiple="{{ is_multiple ? 'true' : 'false' }}"
      data-tracking="selectify-widget"
-     aria-describedby="edit-{{ clean_field_name }}--description"
-    {% if has_label %}
-      aria-labelledby="{{ unique_id }}-label"
-    {% else %}
+     {% if has_description %}aria-describedby="edit-{{ clean_field_name }}--description"{% endif %}
+    {% if not has_label %}
       aria-label="{{ aria_label }}"
     {% endif %}
 
@@ -70,11 +68,15 @@
      {% endif %}>
 
     <div class="dual-container">
-    <div id="edit-{{ clean_field_name }}-dual" class="selectify-available-display-dual dual-available" role="listbox" aria-hidden="true"{% if is_multiple %} aria-multiselectable="true"{% endif %}>
+    <div id="edit-{{ clean_field_name }}-available"
+         class="selectify-available-display-dual dual-available"
+         role="listbox"
+         aria-label="{{ 'Available options'|t }}"
+         {% if is_multiple %}aria-multiselectable="true"{% endif %}>
       <div class="options-inner">
       {% for option in options %}
         {% if option.value != '_none' or show_none %}
-          <div class="selectify-available-one-option dual-available-option dual-item" role="option" id="option-{{ option.value }}" data-value="{{ option.value }}">
+          <div class="selectify-available-one-option dual-available-option dual-item" role="option"  id="option-{{ clean_field_name }}-{{ option.value|selectify_clean_id }}" data-value="{{ option.value }}" tabindex="-1">
             <span class="option-label">{{ option.label }}</span>
             <span class="dual-available-arrow">
             {% include '@selectify/partials/svg/_arrow_circle_right.html.twig' %}
@@ -84,7 +86,11 @@
       {% endfor %}
       </div>
     </div>
-    <div class="selectify-selected-display-dual dual-selected">
+    <div id="edit-{{ clean_field_name }}-selected"
+         class="selectify-selected-display-dual dual-selected"
+         role="listbox"
+         aria-label="{{ 'Selected options'|t }}"
+         {% if is_multiple %}aria-multiselectable="true"{% endif %}>
       {% set selected_options = (options is iterable ? options|filter(o => o.selected) : []) %}
       {% if selected_options|length > 0 %}
       <div class="selectify-selected-options dual-inner">
@@ -100,20 +106,23 @@
       </div>
       {% endif %}
     </div>
-  </div>
-  <div class="selectify-select-footer dual-footer">
-    <button type="button" class="selectify-clear-all dual-clear-all">
-      <span class="icon">
-        {% include '@selectify/partials/svg/_clear_all.html.twig' %}
-      </span>
-      <span class="clear-label">{{ 'Clear All'|t }}</span>
-    </button>
-  </div>
-  {% if max_selected is not null and max_selected is defined and max_selected is not empty %}
-  <div class="selectify-max-selection-message hide" role="alert">
-    {{ 'You can only select up to @count options.'|t({'@count': max_selected}) }}
-  </div>
-  {% endif %}
+    </div>
+    <div class="selectify-select-footer dual-footer">
+      <button type="button" class="selectify-clear-all dual-clear-all">
+        <span class="icon">
+          {% include '@selectify/partials/svg/_clear_all.html.twig' %}
+        </span>
+        <span class="clear-label">{{ 'Clear All'|t }}</span>
+      </button>
+    </div>
+    {% if max_selected is not null and max_selected is defined and max_selected is not empty %}
+    <div class="selectify-max-selection-message hide" role="alert">
+      {{ 'You can only select up to @count options.'|t({'@count': max_selected}) }}
+    </div>
+    {% endif %}
+    <div class="visually-hidden" role="status" aria-live="polite" aria-atomic="true">
+      <!-- JavaScript will update this with selection count -->
+    </div>
   </div>
   <!-- Hidden select for form submission -->
   <select {{ attributes.addClass('selectify-visually-hidden') }} aria-hidden="true" tabindex="-1"{% if is_multiple %} size="{{ views_attributes['size'] }}"{% endif %}>
