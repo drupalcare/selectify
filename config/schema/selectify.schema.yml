@@ -14,6 +14,9 @@ selectify.settings:
     accent_color:
       type: string
       label: 'Selected accent color'
+    accent_color_mode:
+      type: string
+      label: 'Accent color mode (light or dark)'
     apply_site_wide:
       type: boolean
       label: 'Apply Selectify to all exposed filters'

@@ -147,9 +147,10 @@ class SelectifyDropdownSearchableWidget extends OptionsSelectWidget {
       'selectify/selectify-dropdown-searchable',
     ];
 
-    // Conditionally add the color library.
-    if (!empty($selected_accent)) {
-      $element['#attached']['library'][] = "selectify/selectify-color-{$selected_accent}";
+    // Conditionally add the color library with mode.
+    if (!empty($selected_accent) && $selected_accent !== 'none') {
+      $accent_color_mode = $this->configFactory->get('selectify.settings')->get('accent_color_mode') ?: 'light';
+      $element['#attached']['library'][] = "selectify/selectify-color-{$selected_accent}-{$accent_color_mode}";
     }
 
     // Attach JavaScript settings specific to this widget.

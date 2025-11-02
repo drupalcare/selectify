@@ -93,7 +93,7 @@ class SelectifyDualWidget extends OptionsSelectWidget {
     // Determine the maximum number of selections allowed.
     $max_selected = $this->fieldDefinition->getFieldStorageDefinition()->getCardinality();
     $max_selected = $max_selected === -1 ? 'null' : (string) $max_selected;
-
+    $element['#wrapper_attributes']['class'][] = $max_selected === 1 ? 'selectify-single' : 'selectify-multi';
     // Ensure #attributes is initialized.
     $element['#attributes'] = $element['#attributes'] ?? [];
 
@@ -113,7 +113,6 @@ class SelectifyDualWidget extends OptionsSelectWidget {
     if (!empty($element['#required'])) {
       $element['#title_attributes']->addClass('form-required');
     }
-
     // Merge required attributes for JavaScript and accessibility.
     $element['#attributes'] += [
       'id' => $unique_id,
@@ -145,9 +144,10 @@ class SelectifyDualWidget extends OptionsSelectWidget {
       'selectify/selectify-helper',
       'selectify/selectify-dual',
     ];
-    // Conditionally add the color library.
-    if (!empty($selected_accent)) {
-      $element['#attached']['library'][] = "selectify/selectify-color-{$selected_accent}";
+    // Conditionally add the color library with mode.
+    if (!empty($selected_accent) && $selected_accent !== 'none') {
+      $accent_color_mode = $this->configFactory->get('selectify.settings')->get('accent_color_mode') ?: 'light';
+      $element['#attached']['library'][] = "selectify/selectify-color-{$selected_accent}-{$accent_color_mode}";
     }
     // Attach JavaScript settings specific to this widget.
     $element['#attached']['drupalSettings']['selectify']['maxSelections'][$this->fieldDefinition->getName()] = $max_selected;

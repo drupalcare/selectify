@@ -1,7 +1,6 @@
 :root {
-  /* Text Alignment */
   --selectify-text-align-start: left;
-  --selectify-text-align-end: right;  /* Checkbox Styles */
+  --selectify-text-align-end: right;
   --selectify-radio-border-radius: 12px;
   --selectify-radio-padding: 10px 14px;
   --selectify-checkbox-bg: linear-gradient(180deg, #d1d1d1 0%, #a8a8a8 50%, #7f7f7f 100%);
@@ -52,11 +51,6 @@
 
 .selectify-select {
   all: unset;
-  background: var(--selectify-select-bg, inherit);
-  border-color: var(--selectify-select-border-color, unset);
-  border-radius: var(--selectify-select-border-radius, inherit);
-  padding: var(--selectify-select-padding, inherit);
-  color: var(--selectify-select-color, inherit);
   box-shadow: none;
   cursor: pointer;
   line-height: 1.6;
@@ -71,6 +65,17 @@
   border-radius: var(--selectify-radio-border-radius, inherit);
   padding: var(--selectify-radio-padding, inherit);
   box-shadow: none;
+}
+
+.dual-available,
+.dual-selected,
+.selectify-available-display,
+.selectify-selected-display {
+  background: #f1f1f1;
+  color: currentColor;
+  border: none;
+  transition: all 0.2s ease;
+  border-radius: 8px;
 }
 
 .dual-list-option button,
@@ -102,10 +107,10 @@
   border: none;
 }
 
-.selectify-select-footer .selectify-clear-all {
+.selectify-clear-all {
   margin: 8px 0;
-  border: 1px solid var(--selectify-select-border-color);
-  background: var(--selectify-select-bg);
+  border: none;
+  background: #f1f1f1;
 }
 
 .selectify-select-footer button.s-hidden {
@@ -132,7 +137,7 @@
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .selectify-clear-all span {
@@ -178,10 +183,6 @@
   opacity: 1;
   visibility: visible;
   transform: translateX(-50%) translateY(0);
-}
-
-.selectify-available-display {
-  background: inherit;
 }
 
 /* Hide animation */
@@ -230,11 +231,7 @@ body .selectify-clear-all span.icon {
   justify-content: center;
   gap: 6px;
   padding: 8px 12px;
-  transition: background 0.3s ease-in-out;
-}
-
-.selectify-select .selectify-select-footer button:hover {
-  opacity: 0.8;
+  transition: all 0.3s ease-in-out;
 }
 
 @media (min-width:36rem) {
@@ -243,4 +240,52 @@ body .selectify-clear-all span.icon {
     white-space: nowrap;
   }
 
+}
+
+/* Skip link for dual list accessibility */
+.skip-to-selected.visually-hidden-focusable {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.skip-to-selected.visually-hidden-focusable:focus {
+  position: static;
+  left: auto;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  padding: 0.5rem 1rem;
+  background: #666;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  z-index: 1000;
+  display: inline-block;
+  margin-bottom: 0.5rem;
+}
+
+.selectify-placeholder-option {
+  cursor: default;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.selectify-placeholder-option .selectify-placeholder-label {
+  font-style: italic;
+  color: #666;
+  padding: 4px 8px;
+  display: block;
+}
+
+.selectify-placeholder-option input[type="checkbox"] {
+  display: none;
+}
+
+.selectify-placeholder-option .dual-available-arrow,
+.selectify-placeholder-option .dual-selected-arrow {
+  display: none;
 }

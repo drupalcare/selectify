@@ -1,0 +1,60 @@
+/**
+ * Selectify styles specific to Gin admin theme
+ */
+body .selectify-select.selectify-select-dropdowns .search-input input {
+  width: calc(100% - 10px);
+  margin: 0 5px;
+  padding: 8px 12px 8px 38px;
+  line-height: 1.5;
+}
+
+body .dual-available,
+body .dual-selected,
+body .selectify-available-display,
+body .selectify-selected-display {
+  border-radius: var(--gin-border-m, var(--selectify-select-border-radius));
+}
+
+.dual-available,
+.dual-selected,
+input.selectify-radio[type="radio"],
+input.selectify-checkbox[type="checkbox"] {
+  border-color: var(--selectify-select-border-color, var(--gin-border-color-form-element));
+  color: var(--selectify-select-color, var(--gin-color-text));
+}
+
+.wrapper-selectify > .selectify-select {
+  padding: 0 !important;
+  border: none !important;
+}
+
+..selectify-selected-display {
+  color: var(--selectify-select-color, var(--gin-color-text));
+  line-height: var(--input-line-height);
+  min-height: calc(var(--input-padding-vertical) * 2 + var(--input-line-height));
+  border-radius: var(--gin-border-m);
+}
+
+.selectify-select-dropdowns .selectify-selected-display {
+  padding-block: 5px;
+  padding-inline: 12px;
+}
+
+.selectify-select-dropdowns .options-inner .selectify-select-footer {
+  background: var(--selectify-select-bg, var(--gin-bg-input));
+}
+
+.dual-available,
+.dual-selected,
+.selectify-available-display,
+.selectify-selected-display,
+.selectify-select-dropdowns .options-inner .selectify-select-footer {
+  background: var(--selectify-select-bg, var(--gin-bg-input));
+  color: var(--selectify-select-color, var(--gin-color-text));
+  border-color: var(--selectify-select-border-color, var(--gin-border-color-form-element));
+}
+
+body .selectify-clear-all,
+body .selectify-select .selectify-selected-display {
+  border: 1px solid var(--selectify-select-border-color, var(--gin-border-color-form-element));
+}

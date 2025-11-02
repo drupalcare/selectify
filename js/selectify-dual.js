@@ -81,6 +81,17 @@
       if (event.target.classList.contains('selectify-selected-one-option')) {
         event.preventDefault();
         event.stopPropagation();
+
+        // Check if field is required and single-value
+        const isRequired = nativeSelect.hasAttribute('required');
+        const isMultiple = nativeSelect.getAttribute('data-multiple') === 'true';
+        const selectedCount = selectedDisplay.querySelectorAll('.selectify-selected-one-option').length;
+
+        // For required single-value fields, prevent removing the only selected item
+        if (isRequired && !isMultiple && selectedCount === 1) {
+          return; // Don't allow removal
+        }
+
         const selectedItem = event.target;
         const valueToRemove = selectedItem.getAttribute('data-value');
         selectedItem.remove();
@@ -120,13 +131,15 @@
         Drupal.selectify.syncHiddenSelect(nativeSelect, []);
         Drupal.selectify.updateSelectedDisplay(type, nativeSelect, selectedDisplay, clearAllButton);
         setTimeout(() => {
-          nativeSelect.dispatchEvent(new Event('change', {
-            bubbles: true
-          }));
-          nativeSelect.dispatchEvent(new Event('input', {
-            bubbles: true
-          }));
+          nativeSelect.dispatchEvent(new Event('change', { bubbles: true }));
+          nativeSelect.dispatchEvent(new Event('input', { bubbles: true }));
         }, 0);
+
+        // Return focus to the dual available list
+        const availableList = selectifySelect.querySelector('.dual-available');
+        if (availableList && typeof availableList.focus === 'function') {
+          setTimeout(() => availableList.focus(), 100);
+        }
       });
     });
     // Enable keyboard navigation.

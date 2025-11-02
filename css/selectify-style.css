@@ -14,8 +14,10 @@
   --selectify-option-active-bg: #bbdefb;
 }
 
+body .selectify-select,
 body .wrapper-selectify {
   background: transparent;
+  border: none;
 }
 
 body .selectify-select,
@@ -24,20 +26,24 @@ body .selectify-select * {
   border-color: var(--selectify-select-border-color, var(--r-br));
 }
 
-body .selectify-select,
-body .selectify-select .selectify-available-display,
-body .selectify-select .selectify-selected-display,
 body .selectify-select .selectify-selected-one-option {
-  background: var(--selectify-select-bg, var(--r-bg));
+  background: transparent;
 }
 
-body .selectify-select {
-  border: 1px solid var(--selectify-select-border-color, var(--r-br));
+body .selectify-clear-all,
+body .selectify-select .selectify-available-display,
+body .selectify-select .selectify-selected-display{
+  background: var(--selectify-select-bg, var(--r-bg));
 }
 
 body .selectify-select .selectify-selected-display,
 body .selectify-select .selectify-available-display {
   cursor: pointer;
+}
+
+body .selectify-clear-all,
+body .selectify-select .selectify-selected-display {
+  border: 2px solid var(--selectify-select-border-color, var(--r-br));
 }
 
 body .selectify-select .search-input input {
@@ -48,6 +54,12 @@ body .selectify-select .search-input input {
   box-shadow: none!important;
 }
 
+body .dual-available,
+body .dual-selected {
+  background: var(--selectify-select-bg, var(--r-bg));
+  border: 2px solid var(--selectify-select-border-color, var(--r-br));
+}
+
 body .selectify-select .selectify-available-display {
   border: 1px solid var(--selectify-select-border-color, var(--r-br));
   box-shadow: var(--selectify-dropdown-shadow, unset);
@@ -55,11 +67,6 @@ body .selectify-select .selectify-available-display {
 
 body .selectify-select .search-input+.selectify-selected-one-option {
   border-top: 1px dashed var(--selectify-select-border-color, var(--r-br));
-}
-
-body .selectify-select:hover {
-  background: var(--selectify-select-hover-bg, var(--r-bg));
-  border-color: var(--selectify-select-focus-border-color, var(--r-br));
 }
 
 body .selectify-select *:focus {
@@ -80,24 +87,21 @@ body .selectify-available-one-option {
   border-bottom: 1px solid var(--selectify-select-border-color, var(--r-br));
 }
 
+body .selectify-selected-display:hover {
+  background: var(--selectify-select-hover-bg, var(--r-bg));
+  border-color: var(--selectify-select-focus-border-color, var(--r-br));
+}
+
 body .selectify-clear-all:hover,
 body .selectify-selected-one-option.dual-item:hover,
 body .selectify-available-one-option:hover {
   background: var(--selectify-select-hover-bg, var(--r-bg));
+  border-color: var(--selectify-select-focus-border);
   transform: translateY(2px);
 }
 
 body .selectify-available-one-option:active {
   background: var(--selectify-option-active-bg, var(--r-bg));
-}
-
-body .selectify-clear-all {
-  background: var(--selectify-select-hover-bg, var(--r-bg));
-}
-
-body .dual-available,
-body .dual-selected {
-  border-color: var(--selectify-select-border-color, var(--r-br));
 }
 
 /* Option Items Styling */
@@ -120,10 +124,21 @@ body .selectify-available-one-option.s-selected * {
 .selectify-available-one-option:focus-visible {
   outline: 2px solid var(--selectify-select-focus-border);
   outline-offset: -2px;
-  background-color: var(--selectify-option-hover-bg);
+  background: var(--selectify-option-hover-bg);
 }
 
 .selectify-selected-display:focus {
   outline: 2px solid var(--selectify-select-focus-border);
   outline-offset: 2px;
+}
+
+body .dual-available,
+body .dual-selected,
+body .selectify-available-display,
+body .selectify-selected-display {
+  border-radius: var(--selectify-select-border-radius);
+}
+
+body .selectify svg {
+  fill: var(--selectify-select-arrow-color);
 }

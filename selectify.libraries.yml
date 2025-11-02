@@ -114,45 +114,134 @@ selectify-settings-style:
     component:
       css/selectify-settings-style.css: {}
 
-# Color-specific libraries
-selectify-color-blue:
+# Color-specific libraries - Light mode
+selectify-color-blue-light:
   css:
     theme:
       css/selectify-style.css: {}
-      css/accent/selectify-color-blue.css: {}
+      css/accent/light/selectify-color-blue-light.css: {}
 
-selectify-color-coral:
+selectify-color-coral-light:
   css:
     theme:
       css/selectify-style.css: {}
-      css/accent/selectify-color-coral.css: {}
+      css/accent/light/selectify-color-coral-light.css: {}
 
-selectify-color-gold:
+selectify-color-gold-light:
   css:
     theme:
       css/selectify-style.css: {}
-      css/accent/selectify-color-gold.css: {}
+      css/accent/light/selectify-color-gold-light.css: {}
 
-selectify-color-indigo:
+selectify-color-indigo-light:
   css:
     theme:
       css/selectify-style.css: {}
-      css/accent/selectify-color-indigo.css: {}
+      css/accent/light/selectify-color-indigo-light.css: {}
 
-selectify-color-neutral:
+selectify-color-neutral-light:
   css:
     theme:
       css/selectify-style.css: {}
-      css/accent/selectify-color-neutral.css: {}
+      css/accent/light/selectify-color-neutral-light.css: {}
 
-selectify-color-slate:
+selectify-color-slate-light:
   css:
     theme:
       css/selectify-style.css: {}
-      css/accent/selectify-color-slate.css: {}
+      css/accent/light/selectify-color-slate-light.css: {}
 
-selectify-color-teal:
+selectify-color-teal-light:
   css:
     theme:
       css/selectify-style.css: {}
-      css/accent/selectify-color-teal.css: {}
+      css/accent/light/selectify-color-teal-light.css: {}
+
+# Color-specific libraries - Dark mode
+selectify-color-blue-dark:
+  css:
+    theme:
+      css/selectify-style.css: {}
+      css/accent/dark/selectify-color-blue-dark.css: {}
+
+selectify-color-coral-dark:
+  css:
+    theme:
+      css/selectify-style.css: {}
+      css/accent/dark/selectify-color-coral-dark.css: {}
+
+selectify-color-gold-dark:
+  css:
+    theme:
+      css/selectify-style.css: {}
+      css/accent/dark/selectify-color-gold-dark.css: {}
+
+selectify-color-indigo-dark:
+  css:
+    theme:
+      css/selectify-style.css: {}
+      css/accent/dark/selectify-color-indigo-dark.css: {}
+
+selectify-color-neutral-dark:
+  css:
+    theme:
+      css/selectify-style.css: {}
+      css/accent/dark/selectify-color-neutral-dark.css: {}
+
+selectify-color-slate-dark:
+  css:
+    theme:
+      css/selectify-style.css: {}
+      css/accent/dark/selectify-color-slate-dark.css: {}
+
+selectify-color-teal-dark:
+  css:
+    theme:
+      css/selectify-style.css: {}
+      css/accent/dark/selectify-color-teal-dark.css: {}
+
+selectify-gin-base:
+  css:
+    theme:
+      css/gin/selectify-gin-base.css: {}
+  js:
+    js/gin/selectify-gin-base.js: {}
+  dependencies:
+    - selectify/selectify-base
+
+selectify-gin-dark:
+  css:
+    theme:
+      css/gin/selectify-gin-dark.css: { preprocess: false }
+  dependencies:
+    - selectify/selectify-gin-base
+
+selectify-gin-light:
+  css:
+    theme:
+      css/gin/selectify-gin-light.css: { preprocess: false }
+  dependencies:
+    - selectify/selectify-gin-base
+
+selectify-gin-auto:
+  css:
+    theme:
+      css/gin/selectify-gin-auto.css: { preprocess: false }
+  dependencies:
+    - selectify/selectify-gin-base
+
+# Add to selectify_libraries.yml
+
+selectify-claro:
+  css:
+    theme:
+      css/claro/selectify-claro.css: {}
+  dependencies:
+    - selectify/selectify-base
+
+selectify-olivero:
+  css:
+    theme:
+      css/olivero/selectify-olivero.css: {}
+  dependencies:
+    - selectify/selectify-base

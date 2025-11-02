@@ -105,6 +105,15 @@ class SelectifySettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('disable_on_admin_routes'),
     ];
 
+    // Section: Custom Disabled Pages.
+    $form['disabled_pages'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('Disable Selectify on specific pages'),
+      '#description' => $this->t('Enter one URL path per line where Selectify should be completely disabled. You can use wildcards (*) for pattern matching. Examples:<br>- <code>admin/appearance/settings/gin</code> (exact match)<br>- <code>admin/appearance/settings/*</code> (all theme settings)<br>- <code>*/node/*/edit</code> (all node edit pages)<br>- <code>admin/config/*</code> (all config pages)'),
+      '#default_value' => $config->get('disabled_pages') ?? "admin/appearance/settings/gin",
+      '#rows' => 6,
+    ];
+
     // Section: Accent Color Selection.
     $form['accent_color'] = [
       '#type' => 'radios',
@@ -121,6 +130,23 @@ class SelectifySettingsForm extends ConfigFormBase {
         'teal' => $this->t('Teal'),
       ],
       '#attributes' => ['class' => ['selectify-color-options']],
+    ];
+
+    // Section: Accent Color Mode only visible when a color is selected.
+    $form['accent_color_mode'] = [
+      '#type' => 'radios',
+      '#title' => $this->t('Accent Color Mode'),
+      '#description' => $this->t('Choose whether to use light or dark mode for the selected accent color.'),
+      '#default_value' => $config->get('accent_color_mode') ?? 'light',
+      '#options' => [
+        'light' => $this->t('Light'),
+        'dark' => $this->t('Dark'),
+      ],
+      '#states' => [
+        'visible' => [
+          ':input[name="accent_color"]' => ['!value' => 'none'],
+        ],
+      ],
     ];
 
     $form['disable_views_widgets'] = [
@@ -213,6 +239,8 @@ class SelectifySettingsForm extends ConfigFormBase {
         $form['selectify_widgets'][$view_machine_name]['filters_table'] = [
           '#type' => 'table',
           '#header' => [
+            $this->t('Display Title'),
+            $this->t('Display Type'),
             $this->t('Display ID'),
             $this->t('Exposed Form ID'),
             $this->t('Selectify Widget'),
@@ -230,15 +258,21 @@ class SelectifySettingsForm extends ConfigFormBase {
           $form['selectify_widgets'][$view_machine_name]['filters_table'][$unique_key] = [
           // Add class dynamically.
             '#attributes' => ['class' => [$row_class]],
+            'display_title' => [
+              '#markup' => '<strong>' . $display_data['display_title'] . '</strong>',
+            ],
+            'display_type' => [
+              '#markup' => ucfirst(str_replace('_', ' ', $display_data['display_type'])),
+            ],
             'display_id' => [
-              '#markup' => $display_data['display_id'],
+              '#markup' => '<code>' . $display_data['display_id'] . '</code>',
             ],
             'exposed_form_id' => [
               '#markup' => "<code>{$display_data['exposed_form_id']}</code>",
             ],
             'widget' => [
               '#type' => 'select',
-              '#title' => $this->t('Widget for %label', ['%label' => $display_data['display_id']]),
+              '#title' => $this->t('Widget for %label', ['%label' => $display_data['display_title']]),
               '#options' => [
                 'none' => $this->t('None'),
                 'selectify_dropdown' => $this->t('Dropdown'),
@@ -271,7 +305,9 @@ class SelectifySettingsForm extends ConfigFormBase {
     $config->set('enable_radio', (bool) $form_state->getValue('enable_radio', FALSE))
       ->set('enable_checkbox', (bool) $form_state->getValue('enable_checkbox', FALSE))
       ->set('disable_on_admin_routes', (bool) $form_state->getValue('disable_on_admin_routes', FALSE))
-      ->set('accent_color', $form_state->getValue('accent_color', $config->get('accent_color', 'neutral')));
+      ->set('disabled_pages', $form_state->getValue('disabled_pages', ''))
+      ->set('accent_color', $form_state->getValue('accent_color', $config->get('accent_color', 'neutral')))
+      ->set('accent_color_mode', $form_state->getValue('accent_color_mode', $config->get('accent_color_mode', 'light')));
 
     // Retrieve values from form.
     $apply_site_wide = (bool) $form_state->getValue('apply_site_wide', FALSE);
@@ -358,10 +394,11 @@ class SelectifySettingsForm extends ConfigFormBase {
   }
 
   /**
-   * Retrieves all Views displays that have an exposed form with at least one.
+   * Retrieves all Views displays with exposed select filters.
    *
    * @return array
-   *   An array of exposed forms grouped by View & Display.
+   *   An array of exposed forms grouped by View & Display, only including
+   *   displays that have at least one exposed select/dropdown filter.
    */
   protected function getExposedFilters() {
     $filters = [];
@@ -370,24 +407,37 @@ class SelectifySettingsForm extends ConfigFormBase {
     foreach ($views as $view) {
       $view_machine_name = $view->id();
       $view_human_name = $view->label();
-      $has_exposed_filter = FALSE;
 
       foreach ($view->get('display') as $display_id => $display) {
         $display_type = $display['display_plugin'];
         $exposed_form_id = "views-exposed-form-{$view_machine_name}-{$display_id}";
+        $has_select_filter = FALSE;
 
-        // Check if this display has an exposed filter.
+        // Get display title.
+        $display_title = $display['display_title'] ?? $this->t('Untitled Display');
+
+        // Check if this display has an exposed SELECT filter.
         if (!empty($display['display_options']['filters'])) {
           foreach ($display['display_options']['filters'] as $filter) {
-            if (!empty($filter['expose']['identifier'])) {
-              $has_exposed_filter = TRUE;
-              break;
+            // Check if filter is exposed AND is a select/dropdown widget.
+            if (!empty($filter['exposed']) &&
+                !empty($filter['expose']['identifier'])) {
+
+              // Check if the widget is a select-based type.
+              $widget = $filter['expose']['widget'] ?? 'select';
+
+              // Include filters that use select, dropdown, or haven't specified
+              // a widget. (default widget for most filters is select).
+              if (in_array($widget, ['select', 'radios'], TRUE) || empty($filter['expose']['widget'])) {
+                $has_select_filter = TRUE;
+                break;
+              }
             }
           }
         }
 
-        // Only add this display if it has an exposed filter.
-        if ($has_exposed_filter) {
+        // Only add this display if it has an exposed SELECT filter.
+        if ($has_select_filter) {
           $unique_key = "{$view_machine_name}:{$display_id}";
 
           // Store display information.
@@ -395,6 +445,7 @@ class SelectifySettingsForm extends ConfigFormBase {
             'view_machine_name' => $view_machine_name,
             'view_human_name' => $view_human_name,
             'display_id' => $display_id,
+            'display_title' => $display_title,
             'display_type' => $display_type,
             'exposed_form_id' => $exposed_form_id,
           ];

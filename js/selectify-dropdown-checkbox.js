@@ -127,6 +127,11 @@
         Drupal.selectify.syncHiddenSelect(nativeSelect, []);
         Drupal.selectify.updateSelectedDisplay(type, nativeSelect, selectedDisplay, clearAllButton);
         nativeSelect.dispatchEvent(new Event('change'));
+
+        // Return focus to the main trigger
+        if (selectedDisplay && typeof selectedDisplay.focus === 'function') {
+          setTimeout(() => selectedDisplay.focus(), 100);
+        }
       });
     }
     // Close dropdown when clicking outside.

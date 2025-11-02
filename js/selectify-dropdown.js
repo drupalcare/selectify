@@ -109,13 +109,14 @@
         Drupal.selectify.updateSelectedDisplay(type, nativeSelect, selectedDisplay, clearAllButton);
         // Ensure changes are registered.
         setTimeout(() => {
-          nativeSelect.dispatchEvent(new Event('change', {
-            bubbles: true
-          }));
-          nativeSelect.dispatchEvent(new Event('input', {
-            bubbles: true
-          }));
+          nativeSelect.dispatchEvent(new Event('change', { bubbles: true }));
+          nativeSelect.dispatchEvent(new Event('input', { bubbles: true }));
         }, 0);
+
+        // Return focus to the main trigger
+        if (selectedDisplay && typeof selectedDisplay.focus === 'function') {
+          setTimeout(() => selectedDisplay.focus(), 100);
+        }
       });
     });
     // Close dropdown when clicking outside.

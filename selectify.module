@@ -237,7 +237,7 @@ function _selectify_preprocess_widget(array &$variables) {
     $variables['views_attributes'] = [];
   }
 
-  // Generate clean field name for use in IDs
+  // Generate clean field name for use in IDs.
   $clean_field_name = str_replace(['_', '[]'], ['-', ''], $variables['field_name']);
   $variables['clean_field_name'] = $clean_field_name;
 
@@ -354,9 +354,11 @@ function selectify_page_attachments(array &$attachments) {
   if (($config['enable_checkbox'] === TRUE) || ($config['enable_radio'] === TRUE)) {
     $attachments['#attached']['library'][] = 'selectify/selectify-base';
     $attachments['#attached']['library'][] = 'selectify/selectify-radio-checkbox';
-    if (!empty($config['accent_color'])) {
-      $color_library = 'selectify/selectify-color-' . $config['accent_color'];
-      $attachments['#attached']['library'][] = $color_library;
+
+    $selected_accent = $config['accent_color'];
+    if (!empty($selected_accent) && $selected_accent !== 'none') {
+      $accent_color_mode = \Drupal::config('selectify.settings')->get('accent_color_mode') ?: 'light';
+      $attachments['#attached']['library'][] = "selectify/selectify-color-{$selected_accent}-{$accent_color_mode}";
     }
   }
 
@@ -563,28 +565,262 @@ function selectify_single_widget(array &$form, array $widget_map, $clean_form_id
 }
 
 /**
+ * Check if the current page matches any disabled page pattern.
+ *
+ * @return bool
+ *   TRUE if the current page should have Selectify disabled, FALSE otherwise.
+ */
+function selectify_is_page_disabled(): bool {
+  // Use static caching to avoid multiple checks per request.
+  static $is_disabled = NULL;
+
+  if ($is_disabled !== NULL) {
+    return $is_disabled;
+  }
+
+  $config = \Drupal::config('selectify.settings');
+  $disabled_pages = $config->get('disabled_pages') ?? '';
+
+  // If no disabled pages configured, return FALSE.
+  if (empty(trim($disabled_pages))) {
+    $is_disabled = FALSE;
+    return $is_disabled;
+  }
+
+  /** @var \Drupal\Core\Path\PathMatcherInterface $path_matcher */
+  $path_matcher = \Drupal::service('path.matcher');
+
+  /** @var \Drupal\Core\Path\CurrentPathStack $current_path_service */
+  $current_path_service = \Drupal::service('path.current');
+  $current_path = ltrim($current_path_service->getPath(), '/');
+
+  /** @var \Drupal\path_alias\AliasManagerInterface $alias_manager */
+  $alias_manager = \Drupal::service('path_alias.manager');
+  $path_alias = ltrim($alias_manager->getAliasByPath('/' . $current_path), '/');
+
+  // Check both system path and alias.
+  $is_disabled = $path_matcher->matchPath($current_path, $disabled_pages)
+    || ($path_alias !== $current_path && $path_matcher->matchPath($path_alias, $disabled_pages));
+
+  return $is_disabled;
+}
+
+/**
+ * Implements hook_page_attachments_alter().
+ */
+function selectify_page_attachments_alter(array &$attachments): void {
+  // Check if current page is in the disabled pages list.
+  if (selectify_is_page_disabled()) {
+    // Remove all Selectify libraries.
+    if (isset($attachments['#attached']['library'])) {
+      foreach ($attachments['#attached']['library'] as $key => $library) {
+        if (is_string($library) && strpos($library, 'selectify/') === 0) {
+          unset($attachments['#attached']['library'][$key]);
+        }
+      }
+    }
+    // Remove any Selectify drupalSettings.
+    if (isset($attachments['#attached']['drupalSettings']['selectify'])) {
+      unset($attachments['#attached']['drupalSettings']['selectify']);
+    }
+    return;
+  }
+
+  // Normal Selectify library attachment for non-disabled pages.
+  $gin_info = selectify_detect_gin_theme();
+
+  if ($gin_info && $gin_info['is_gin']) {
+    // Attach base Gin library.
+    $attachments['#attached']['library'][] = 'selectify/selectify-gin-base';
+
+    // Attach mode-specific library based on color scheme.
+    $color_scheme = $gin_info['color_scheme'];
+    if ($color_scheme === 'dark') {
+      $attachments['#attached']['library'][] = 'selectify/selectify-gin-dark';
+    }
+    elseif ($color_scheme === 'light') {
+      $attachments['#attached']['library'][] = 'selectify/selectify-gin-light';
+    }
+    elseif ($color_scheme === 'auto') {
+      $attachments['#attached']['library'][] = 'selectify/selectify-gin-auto';
+    }
+
+    // Pass color scheme and accent color to JavaScript.
+    $attachments['#attached']['drupalSettings']['selectify']['gin'] = [
+      'colorScheme' => $color_scheme,
+      'accentColor' => $gin_info['accent_color'],
+    ];
+  }
+
+  // Detect Claro theme.
+  $theme_manager = \Drupal::service('theme.manager');
+  $active_theme = $theme_manager->getActiveTheme();
+  $active_theme_name = $active_theme->getName();
+
+  // Check if Claro theme or Claro sub-theme.
+  $is_claro = FALSE;
+  if ($active_theme_name === 'claro') {
+    $is_claro = TRUE;
+  }
+  else {
+    $base_themes = $active_theme->getBaseThemeExtensions();
+    foreach ($base_themes as $base_theme) {
+      if ($base_theme->getName() === 'claro') {
+        $is_claro = TRUE;
+        break;
+      }
+    }
+  }
+
+  if ($is_claro) {
+    $attachments['#attached']['library'][] = 'selectify/selectify-claro';
+  }
+
+  // Check if Olivero theme or Olivero sub-theme.
+  $is_olivero = FALSE;
+  if ($active_theme_name === 'olivero') {
+    $is_olivero = TRUE;
+  }
+  else {
+    $base_themes = $active_theme->getBaseThemeExtensions();
+    foreach ($base_themes as $base_theme) {
+      if ($base_theme->getName() === 'olivero') {
+        $is_olivero = TRUE;
+        break;
+      }
+    }
+  }
+
+  if ($is_olivero) {
+    $attachments['#attached']['library'][] = 'selectify/selectify-olivero';
+  }
+}
+
+/**
+ * Better Gin color scheme detection using DOM attribute.
+ */
+function selectify_get_gin_color_scheme() {
+  // Gin sets data-gin-color-scheme on the HTML element
+  // Values: 'dark', 'light', or 'auto'.
+  $gin_config = \Drupal::config('gin.settings');
+  $enable_darkmode = (int) ($gin_config->get('enable_darkmode') ?? 0);
+
+  // Gin darkmode values:
+  // 0 = Light mode
+  // 1 = Dark mode
+  // 2 = Auto (system preference)
+  if ($enable_darkmode === 1) {
+    return 'dark';
+  }
+  elseif ($enable_darkmode === 2) {
+    return 'auto';
+  }
+  else {
+    return 'light';
+  }
+}
+
+/**
+ * Detects if Gin theme is active and returns color scheme.
+ *
+ * @return array|false
+ *   Array with 'is_gin', 'color_scheme', and 'accent_color' keys, or FALSE.
+ */
+function selectify_detect_gin_theme() {
+  $theme_manager = \Drupal::service('theme.manager');
+  $active_theme = $theme_manager->getActiveTheme();
+  $active_theme_name = $active_theme->getName();
+
+  // Check if the active theme is Gin or a Gin sub-theme.
+  $is_gin = FALSE;
+  if ($active_theme_name === 'gin') {
+    $is_gin = TRUE;
+  }
+  else {
+    // Check if any base theme is Gin.
+    $base_themes = $active_theme->getBaseThemeExtensions();
+    foreach ($base_themes as $base_theme) {
+      if ($base_theme->getName() === 'gin') {
+        $is_gin = TRUE;
+        break;
+      }
+    }
+  }
+
+  // If not Gin or Gin sub-theme, return FALSE.
+  if (!$is_gin) {
+    return FALSE;
+  }
+
+  // Get Gin configuration.
+  $gin_config = \Drupal::config('gin.settings');
+
+  // Get accent color.
+  $accent_color = $gin_config->get('preset_accent_color') ?? 'blue';
+
+  // Get dark mode setting (cast to int since config stores as string)
+  $dark_mode = (int) ($gin_config->get('enable_darkmode') ?? 0);
+
+  // Determine color scheme
+  // 0 = Light mode
+  // 1 = Dark mode
+  // 2 = Auto (system preference)
+  $color_scheme = 'light';
+  if ($dark_mode === 2) {
+    $color_scheme = 'auto';
+  }
+  elseif ($dark_mode === 1) {
+    $color_scheme = 'dark';
+  }
+
+  return [
+    'is_gin' => TRUE,
+    'color_scheme' => $color_scheme,
+    'accent_color' => $accent_color,
+  ];
+}
+
+/**
+ * Implements hook_preprocess_container().
+ */
+function selectify_preprocess_container(&$variables) {
+  if (!isset($variables['attributes']['class'])) {
+    return;
+  }
+
+  // Check if this is a selectify field container.
+  foreach ($variables['attributes']['class'] as $class) {
+    if (strpos($class, 'field--widget-selectify-') === 0) {
+      // Get max selections from widget.
+      $max_selections = $variables['element']['widget'][0]['#attributes']['data-max-selections'] ?? NULL;
+
+      $variables['attributes']['class'][] = ($max_selections === '1') ? 'selectify-single' : 'selectify-multi';
+      break;
+    }
+  }
+}
+
+/**
  * Implements hook_preprocess_views_exposed_form() for Selectify.
  */
 function selectify_preprocess_views_exposed_form(&$variables) {
   $form = &$variables['form'];
-
+  if (selectify_is_page_disabled()) {
+    return;
+  }
   // Check if Selectify is disabled on admin routes.
   if (selectify_disabled_on_admin_routes()) {
     return;
   }
-
   // Add the 'selectify-views' class to all selects.
   selectify_add_views_class($form);
-
   // Retrieve the Selectify configuration.
   $config = selectify_load_config();
   $apply_site_wide = $config['apply_site_wide'];
   $global_widget = $config['global_widget'];
   $widget_map = $config['widget_map'];
-
   // Extract and normalize the form ID (convert underscores to dashes).
   $clean_form_id = selectify_normalize_form_id($form);
-
   // These css classes must match the css classes in field widget and in
   // selectify_theme_suggestions_alter()
   $widget_libraries = selectify_get_widget_libraries();
@@ -595,7 +831,6 @@ function selectify_preprocess_views_exposed_form(&$variables) {
     'selectify_checkbox' => 'selectify-apply-checkbox',
     'selectify_dual' => 'selectify-apply-dual',
   ];
-
   // Apply global widget if site-wide setting is enabled,
   // otherwise process specific widgets.
   if ($apply_site_wide) {
@@ -603,5 +838,11 @@ function selectify_preprocess_views_exposed_form(&$variables) {
   }
   else {
     selectify_single_widget($form, $widget_map, $clean_form_id, $widget_libraries, $widget_classes);
+  }
+  foreach ($form as &$element) {
+    if (is_array($element) && isset($element['#type']) && $element['#type'] === 'select') {
+      $is_multiple = isset($element['#multiple']) && $element['#multiple'] === TRUE;
+      $element['#wrapper_attributes']['class'][] = $is_multiple ? 'selectify-multi' : 'selectify-single';
+    }
   }
 }

@@ -1,0 +1,54 @@
+/**
+ * Selectify styles for Olivero theme
+ */
+.wrapper-selectify {
+  color: var(--olivero-text);
+  border: var(--details-border-size) solid var(--selectify-select-border-color, var(--color--gray-60));
+  border-radius: var(--details-border-size-radius);
+  background-color: whitesmoke;
+}
+
+.field--widget-selectify-dual .wrapper-selectify {
+  width: 100%;
+}
+
+.field--widget-selectify-dual .selectify-select-dual-list {
+  width: auto;
+  border-radius: 0;
+}
+
+.selectify-available-display {
+  border-radius: var(--border-radius);
+}
+
+.dual-available,
+.dual-selected,
+input.selectify-radio[type="radio"],
+input.selectify-checkbox[type="checkbox"] {
+  border-color: var(--selectify-select-border-color, var(--color--gray-60));
+  color: var(--selectify-select-color, var(--color--gray-60));
+}
+
+.selectify-select-dropdowns .selectify-selected-display {
+  max-width: 100%;
+  height: var(--sp3);
+  color: var(--selectify-select-color, var(--color--gray-60));
+  border-color: var(--selectify-select-border-color, var(--color--gray-60));
+  border-radius: var(--border-radius);
+  background-color: var(--color--white);
+  background-image: none;
+  font-family: inherit;
+  font-size: inherit;
+  appearance: none;
+}
+
+body .selectify-select.selectify-select-dropdowns .search-input input {
+  width: calc(100% - 10px);
+  margin: 0 5px;
+  padding: 8px 12px 8px 38px;
+  line-height: 1.5;
+}
+
+.selectify-select-dropdowns .options-inner .selectify-select-footer {
+  background: var(--selectify-select-bg, var(--color--white));
+}

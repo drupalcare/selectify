@@ -2,7 +2,6 @@
 
 namespace Drupal\selectify\TwigExtension;
 
-use Drupal\Component\Utility\Html;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
@@ -31,7 +30,7 @@ class SelectifyTwigExtension extends AbstractExtension {
    */
   public function cleanId(string $string): string {
     // Simply replace invalid characters, don't use Html::cleanCssIdentifier
-    // because it adds underscores to numbers which we don't want
+    // because it adds underscores to numbers which we don't want.
     return preg_replace('/[^a-zA-Z0-9_-]/', '-', $string);
   }
 

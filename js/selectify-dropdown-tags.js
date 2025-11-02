@@ -112,13 +112,14 @@
         Drupal.selectify.updateSelectedDisplay(type, nativeSelect, selectedDisplay, clearAllButton);
         // Ensure changes are registered.
         setTimeout(() => {
-          nativeSelect.dispatchEvent(new Event('change', {
-            bubbles: true
-          }));
-          nativeSelect.dispatchEvent(new Event('input', {
-            bubbles: true
-          }));
+          nativeSelect.dispatchEvent(new Event('change', { bubbles: true }));
+          nativeSelect.dispatchEvent(new Event('input', { bubbles: true }));
         }, 0);
+
+        // Return focus to the main trigger
+        if (selectedDisplay && typeof selectedDisplay.focus === 'function') {
+          setTimeout(() => selectedDisplay.focus(), 100);
+        }
       });
     });
     // Add keyboard support for remove tag buttons
@@ -152,6 +153,17 @@
       if (!selectifySelect.contains(event.target)) {
         Drupal.selectify.closeDropdown(dropdownMenu, selectedDisplay);
       }
+    });
+    // Add event delegation for remove tag buttons
+    once('selectifyRemoveTagDelegation', selectedDisplay).forEach(() => {
+      selectedDisplay.addEventListener('click', function(event) {
+        const removeButton = event.target.closest('.remove-tag');
+        if (removeButton) {
+          event.preventDefault();
+          event.stopPropagation();
+          Drupal.selectify.removeTag(type, nativeSelect, removeButton.parentElement, selectedDisplay, clearAllButton);
+        }
+      });
     });
     // Enable keyboard navigation.
     Drupal.selectify.handleKeyboardNavigation(selectifySelect, dropdownMenu, selectedDisplay, type);

@@ -1,0 +1,85 @@
+/**
+ * Selectify styles for Claro admin theme
+ */
+
+/* Claro theme adjustments */
+.wrapper-selectify {
+  color: var(--olivero-text);
+  border: none;
+  border-radius: var(--details-border-size-radius);
+}
+
+.wrapper-selectify > * {
+  background-color: transparent;
+}
+
+.field--widget-selectify-dual .wrapper-selectify {
+  width: 100%;
+}
+
+.field--widget-selectify-dual .selectify-select-dual-list {
+  width: auto;
+}
+
+body .dual-available,
+body .dual-selected,
+body .selectify-available-display,
+body .selectify-selected-display {
+  border-radius: var(--input-border-radius-size, var(--selectify-select-border-radius));
+}
+
+body .selectify-select.selectify-select-dropdowns .search-input input {
+  width: calc(100% - 10px);
+  margin: 0 5px;
+  padding: 8px 12px 8px 38px;
+  line-height: 1.5;
+}
+
+.dual-available,
+.dual-selected,
+.selectify-available-display,
+.selectify-selected-display,
+.selectify-select-dropdowns .options-inner .selectify-select-footer {
+  background: var(--selectify-select-bg, var(--color-gray-050));
+  color: var(--selectify-select-color, var(--input-fg-color));
+  border-color: var(--selectify-select-border-color, var(--input-border-color));
+}
+
+input.selectify-radio[type="radio"],
+input.selectify-checkbox[type="checkbox"] {
+  border-color: var(--selectify-select-border-color, var(--input-border-color));
+  color: var(--selectify-select-color, var(--input-fg-color));
+}
+
+.selectify-select-dropdowns .selectify-selected-display {
+  max-width: 100%;
+  min-height: calc(((var(--input-padding-vertical) + var(--input-border-size)) * 2) + var(--input-line-height));
+  height: var(--sp3);
+  border: 1px solid var(--selectify-select-border-color, var(--input-border-color));
+  font-size: var(--input-font-size);
+  line-height: var(--input-line-height);
+  appearance: none;
+}
+
+.selectify-settings-form {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.selectify-settings-form td .form-type--select {
+  display: grid;
+}
+
+.selectify-color-options+fieldset .form-radios,
+.selectify-color-options .form-radios {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 24px;
+}
+.selectify-clear-all:hover,
+.selectify-selected-one-option.dual-item:hover,
+.selectify-available-one-option:hover,
+.selectify-selected-display:hover {
+  background: var(--selectify-select-hover-bg, var(--color-bgblue-hover));
+  border-color: var(--selectify-select-focus-border-color, var(--input--hover-border-color));
+}
