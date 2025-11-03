@@ -668,7 +668,7 @@ function selectify_page_attachments_alter(array &$attachments): void {
     // Generate and attach inline CSS variables.
     /** @var \Drupal\selectify\Service\SelectifyStyleService $styleService */
     $styleService = \Drupal::service('selectify.style_service');
-    $inlineCSS = $styleService->getConfiguredInlineCSS();
+    $inlineCSS = $styleService->getConfiguredInlineCss();
 
     if (!empty($inlineCSS)) {
       $attachments['#attached']['html_head'][] = [

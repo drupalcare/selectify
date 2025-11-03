@@ -1,15 +1,39 @@
+/* ============================================
+   Light · Gold Accent — Organized by Theme
+   ============================================ */
 .selectify-radio,
 .selectify-checkbox,
 .selectify-radio *,
 .selectify-checkbox * {
+  /* Base */
   --selectify-checkbox-border-color: #feeeb9;
-  --selectify-checkbox-bg: linear-gradient(180deg, #ffffff 0%, #f8fafc 50%, #fefce8 100%);
-  --selectify-checkbox-checked-bg: linear-gradient(180deg, #fef9c3 0%, #fef08a 50%, #fde68a 100%);
-  --selectify-checkbox-check-circle: radial-gradient(circle at 40% 40%, #fef3c7 0%, #fbbf24 100%);
-  --selectify-checkbox-checked-circle: radial-gradient(circle at 40% 40%, #fef9c3 0%, #f59e0b 100%);
-  --selectify-checkbox-disabled-bg: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 50%, #cbd5e1 100%);
-  --selectify-checkbox-disabled-circle: radial-gradient(circle at 40% 40%, #cbd5e1 0%, #94a3b8 40%, #64748b 100%);
+  --selectify-checkbox-bg: linear-gradient(180deg, #ffffff 0%, #fdfcf7 50%, #fefce8 100%);
+  --selectify-checkbox-check-circle: radial-gradient(circle at 45% 45%, #fffbea 0%, #fbbf24 95%, #f59e0b 100%);
+
+  /* Checked */
+  --selectify-checkbox-checked-border-color: #f59e0b;
+  --selectify-checkbox-checked-bg: linear-gradient(180deg, #fff8db 0%, #fde68a 55%, #fcd34d 100%);
+  --selectify-checkbox-checked-circle: radial-gradient(circle at 45% 45%, #fffbe6 0%, #eab308 90%, #ca8a04 100%);
+
+  /* Disabled (warm-neutral, not gray) */
+  --selectify-checkbox-disabled-border-color: #f5deb3;
+  --selectify-checkbox-disabled-bg: linear-gradient(180deg, #fffdf5 0%, #f8f1da 50%, #efe6c8 100%);
+  --selectify-checkbox-disabled-circle: radial-gradient(circle at 45% 45%, #f8f3e0 0%, #e2d3a2 50%, #bfae79 100%);
+
+  /* ============================================
+     Extended Colors (Hover / Active / States)
+     ============================================ */
+  --selectify-checkbox-hover-border-color: #fcd34d;
+  --selectify-checkbox-hover-bg: linear-gradient(180deg, #fffef9 0%, #fff7e1 60%, #fff1c9 100%);
+  --selectify-checkbox-active-border-color: #eab308;
+  --selectify-checkbox-active-bg: linear-gradient(180deg, #fff6d8 0%, #ffeb99 100%);
+  --selectify-checkbox-indeterminate-border-color: #f59e0b;
+  --selectify-checkbox-indeterminate-bg: linear-gradient(180deg, #fff7d6 0%, #fde68a 100%);
+  --selectify-checkbox-indeterminate-bar: #b45309;
+  --selectify-checkbox-invalid-border-color: #ef4444;
+  --selectify-checkbox-invalid-bg: linear-gradient(180deg, #fff5f5 0%, #ffeaea 100%);
 }
+
 
 .selectify-select,
 .selectify-select * {

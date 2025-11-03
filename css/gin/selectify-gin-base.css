@@ -15,11 +15,9 @@ body .selectify-selected-display {
   border-radius: var(--gin-border-m, var(--selectify-select-border-radius));
 }
 
-.dual-available,
-.dual-selected,
 input.selectify-radio[type="radio"],
 input.selectify-checkbox[type="checkbox"] {
-  border-color: var(--selectify-select-border-color, var(--gin-border-color-form-element));
+  border-color: var(--selectify-checkbox-border-color, var(--gin-border-color-form-element))!important;
   color: var(--selectify-select-color, var(--gin-color-text));
 }
 
@@ -28,7 +26,7 @@ input.selectify-checkbox[type="checkbox"] {
   border: none !important;
 }
 
-..selectify-selected-display {
+.selectify-selected-display {
   color: var(--selectify-select-color, var(--gin-color-text));
   line-height: var(--input-line-height);
   min-height: calc(var(--input-padding-vertical) * 2 + var(--input-line-height));

@@ -84,19 +84,56 @@ class SelectifySettingsForm extends ConfigFormBase {
     // Attach a library for styling the radio buttons.
     $form['#attached']['library'][] = 'selectify/selectify-settings-style';
 
-    // Section: Radio & Checkbox Styles.
-    $form['enable_radio'] = [
+    // =========================================================================
+    // SECTION 1: Page Control Settings
+    // =========================================================================
+    $form['page_control'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Page Control Settings'),
+      '#description' => $this->t('Control where Selectify is enabled or disabled on your site.'),
+      '#open' => TRUE,
+      '#weight' => 0,
+    ];
+
+    $form['page_control']['disable_on_admin_routes'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Disable Selectify on admin routes'),
+      '#description' => $this->t('When enabled, Selectify will be disabled on all administrative pages (paths starting with <code>/admin</code>). This prevents conflicts with admin interfaces.'),
+      '#default_value' => $config->get('disable_on_admin_routes'),
+    ];
+
+    $form['page_control']['disabled_pages'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('Additional pages to disable Selectify'),
+      '#description' => $this->t('Enter one URL path per line where Selectify should be completely disabled. You can use wildcards (*) for pattern matching.<br><strong>Examples:</strong><ul><li><code>admin/appearance/settings/gin</code> - exact match</li><li><code>admin/appearance/settings/*</code> - all theme settings</li><li><code>*/node/*/edit</code> - all node edit pages</li><li><code>admin/config/*</code> - all config pages</li></ul>'),
+      '#default_value' => $config->get('disabled_pages') ?? "admin/appearance/settings/gin",
+      '#rows' => 6,
+    ];
+
+    // =========================================================================
+    // SECTION 2: Radio Button Styling
+    // =========================================================================
+    $form['radio_settings'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Radio Button Styling'),
+      '#description' => $this->t('Customize the appearance of radio buttons throughout your site.'),
+      '#open' => TRUE,
+      '#weight' => 10,
+    ];
+
+    $form['radio_settings']['enable_radio'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Enable custom styles for radio buttons'),
+      '#description' => $this->t('Apply Selectify styling to all radio buttons. Uncheck to use default browser styles.'),
       '#default_value' => $config->get('enable_radio'),
     ];
 
-    $form['radio_style'] = [
+    $form['radio_settings']['radio_style'] = [
       '#type' => 'radios',
-      '#title' => $this->t('Radio Button Style'),
+      '#title' => $this->t('Radio button style'),
       '#options' => [
-        'toggle' => $this->t('Toggle Switch'),
-        'checkbox' => $this->t('Checkbox with X/Checkmark'),
+        'toggle' => $this->t('Toggle Switch - Modern sliding switch design'),
+        'checkbox' => $this->t('Checkbox with X/Checkmark - Traditional style with visual indicator'),
       ],
       '#default_value' => $config->get('radio_style') ?? 'toggle',
       '#states' => [
@@ -106,12 +143,12 @@ class SelectifySettingsForm extends ConfigFormBase {
       ],
     ];
 
-    $form['radio_shape'] = [
+    $form['radio_settings']['radio_shape'] = [
       '#type' => 'radios',
-      '#title' => $this->t('Radio Button Shape'),
+      '#title' => $this->t('Radio button shape'),
       '#options' => [
-        'circle' => $this->t('Circle'),
-        'square' => $this->t('Square'),
+        'circle' => $this->t('Circle - Traditional round shape'),
+        'square' => $this->t('Square - Modern rectangular shape'),
       ],
       '#default_value' => $config->get('radio_shape') ?? 'circle',
       '#states' => [
@@ -121,13 +158,13 @@ class SelectifySettingsForm extends ConfigFormBase {
       ],
     ];
 
-    $form['radio_size'] = [
+    $form['radio_settings']['radio_size'] = [
       '#type' => 'radios',
-      '#title' => $this->t('Radio Button Size'),
+      '#title' => $this->t('Radio button size'),
       '#options' => [
-        'small' => $this->t('Small'),
-        'medium' => $this->t('Medium'),
-        'large' => $this->t('Large'),
+        'small' => $this->t('Small - Compact for dense forms'),
+        'medium' => $this->t('Medium - Recommended for most use cases'),
+        'large' => $this->t('Large - Better for accessibility and touch interfaces'),
       ],
       '#default_value' => $config->get('radio_size') ?? 'medium',
       '#states' => [
@@ -137,18 +174,30 @@ class SelectifySettingsForm extends ConfigFormBase {
       ],
     ];
 
-    $form['enable_checkbox'] = [
+    // =========================================================================
+    // SECTION 3: Checkbox Styling
+    // =========================================================================
+    $form['checkbox_settings'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Checkbox Styling'),
+      '#description' => $this->t('Customize the appearance of checkboxes throughout your site.'),
+      '#open' => TRUE,
+      '#weight' => 20,
+    ];
+
+    $form['checkbox_settings']['enable_checkbox'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Enable custom styles for checkboxes'),
+      '#description' => $this->t('Apply Selectify styling to all checkboxes. Uncheck to use default browser styles.'),
       '#default_value' => $config->get('enable_checkbox'),
     ];
 
-    $form['checkbox_style'] = [
+    $form['checkbox_settings']['checkbox_style'] = [
       '#type' => 'radios',
-      '#title' => $this->t('Checkbox Style'),
+      '#title' => $this->t('Checkbox style'),
       '#options' => [
-        'toggle' => $this->t('Toggle Switch'),
-        'checkbox' => $this->t('Checkbox with X/Checkmark'),
+        'toggle' => $this->t('Toggle Switch - Modern sliding switch design'),
+        'checkbox' => $this->t('Checkbox with X/Checkmark - Traditional style with visual indicator'),
       ],
       '#default_value' => $config->get('checkbox_style') ?? 'toggle',
       '#states' => [
@@ -158,12 +207,12 @@ class SelectifySettingsForm extends ConfigFormBase {
       ],
     ];
 
-    $form['checkbox_shape'] = [
+    $form['checkbox_settings']['checkbox_shape'] = [
       '#type' => 'radios',
-      '#title' => $this->t('Checkbox Shape'),
+      '#title' => $this->t('Checkbox shape'),
       '#options' => [
-        'circle' => $this->t('Circle'),
-        'square' => $this->t('Square'),
+        'circle' => $this->t('Circle - Modern rounded style'),
+        'square' => $this->t('Square - Traditional checkbox shape'),
       ],
       '#default_value' => $config->get('checkbox_shape') ?? 'circle',
       '#states' => [
@@ -173,13 +222,13 @@ class SelectifySettingsForm extends ConfigFormBase {
       ],
     ];
 
-    $form['checkbox_size'] = [
+    $form['checkbox_settings']['checkbox_size'] = [
       '#type' => 'radios',
-      '#title' => $this->t('Checkbox Size'),
+      '#title' => $this->t('Checkbox size'),
       '#options' => [
-        'small' => $this->t('Small'),
-        'medium' => $this->t('Medium'),
-        'large' => $this->t('Large'),
+        'small' => $this->t('Small - Compact for dense forms'),
+        'medium' => $this->t('Medium - Recommended for most use cases'),
+        'large' => $this->t('Large - Better for accessibility and touch interfaces'),
       ],
       '#default_value' => $config->get('checkbox_size') ?? 'medium',
       '#states' => [
@@ -189,30 +238,24 @@ class SelectifySettingsForm extends ConfigFormBase {
       ],
     ];
 
-    // Section: Admin Route Control.
-    $form['disable_on_admin_routes'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Disable Selectify on admin routes'),
-      '#description' => $this->t('This action will disable the custom widget for radio buttons and checkboxes, as well as any Views exposed filters on administrative pages.'),
-      '#default_value' => $config->get('disable_on_admin_routes'),
+    // =========================================================================
+    // SECTION 4: Color Theme
+    // =========================================================================
+    $form['color_theme'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Color Theme'),
+      '#description' => $this->t('Choose accent colors for radio buttons and checkboxes when selected.'),
+      '#open' => FALSE,
+      '#weight' => 30,
     ];
 
-    // Section: Custom Disabled Pages.
-    $form['disabled_pages'] = [
-      '#type' => 'textarea',
-      '#title' => $this->t('Disable Selectify on specific pages'),
-      '#description' => $this->t('Enter one URL path per line where Selectify should be completely disabled. You can use wildcards (*) for pattern matching. Examples:<br>- <code>admin/appearance/settings/gin</code> (exact match)<br>- <code>admin/appearance/settings/*</code> (all theme settings)<br>- <code>*/node/*/edit</code> (all node edit pages)<br>- <code>admin/config/*</code> (all config pages)'),
-      '#default_value' => $config->get('disabled_pages') ?? "admin/appearance/settings/gin",
-      '#rows' => 6,
-    ];
-
-    // Section: Accent Color Selection.
-    $form['accent_color'] = [
+    $form['color_theme']['accent_color'] = [
       '#type' => 'radios',
-      '#title' => $this->t('Choose your favorite color'),
+      '#title' => $this->t('Accent color'),
+      '#description' => $this->t('Choose the color that appears when a radio button or checkbox is selected.'),
       '#default_value' => $config->get('accent_color') ?? 'none',
       '#options' => [
-        'none' => $this->t('None'),
+        'none' => $this->t('None - Use default browser colors'),
         'blue' => $this->t('Blue'),
         'coral' => $this->t('Coral'),
         'gold' => $this->t('Gold'),
@@ -221,117 +264,119 @@ class SelectifySettingsForm extends ConfigFormBase {
         'slate' => $this->t('Slate'),
         'teal' => $this->t('Teal'),
       ],
-      '#attributes' => ['class' => ['selectify-color-options']],
     ];
 
-    // Section: Accent Color Mode only visible when a color is selected.
-    $form['accent_color_mode'] = [
+    $form['color_theme']['accent_color_mode'] = [
       '#type' => 'radios',
-      '#title' => $this->t('Accent Color Mode'),
-      '#description' => $this->t('Choose whether to use light or dark mode for the selected accent color.'),
-      '#default_value' => $config->get('accent_color_mode') ?? 'light',
+      '#title' => $this->t('Color mode'),
+      '#description' => $this->t('Choose between light and dark variants of the selected accent color.'),
       '#options' => [
         'light' => $this->t('Light'),
         'dark' => $this->t('Dark'),
       ],
+      '#default_value' => $config->get('accent_color_mode') ?? 'light',
+      '#states' => [
+        'invisible' => [
+          ':input[name="accent_color"]' => ['value' => 'none'],
+        ],
+      ],
+    ];
+
+    // =========================================================================
+    // SECTION 5: Views Select Filters
+    // =========================================================================
+    $form['views_filters'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Views Select Filters'),
+      '#description' => $this->t('Configure custom widgets for Views exposed filters. Choose between site-wide or per-view configuration.'),
+      '#open' => FALSE,
+      '#weight' => 40,
+    ];
+
+    $form['views_filters']['disable_views_widgets'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Disable Selectify for all Views filters'),
+      '#description' => $this->t('When enabled, all Views exposed select filters will use their default widgets.'),
+      '#default_value' => $config->get('disable_views_widgets'),
+    ];
+
+    $form['views_filters']['apply_site_wide'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Apply Selectify to all Views exposed filters site-wide'),
+      '#description' => $this->t('When enabled, all Views exposed select filters will use the widget selected below. This overrides individual view configurations.'),
+      '#default_value' => $config->get('apply_site_wide'),
       '#states' => [
         'visible' => [
-          ':input[name="accent_color"]' => ['!value' => 'none'],
+          ':input[name="disable_views_widgets"]' => ['checked' => FALSE],
         ],
       ],
     ];
 
-    $form['disable_views_widgets'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Disable Select Widgets'),
-      '#description' => $this->t('Checking this will remove all the custom select widgets and settings.'),
-      '#default_value' => $config->get('disable_views_widgets', FALSE),
-    ];
-
-    // Apply Selectify to all exposed filters toggle.
-    $form['apply_site_wide'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Apply Selectify to all exposed filters'),
-      '#description' => $this->t('If checked, all exposed filters will use the same Selectify widget.'),
-      '#default_value' => $config->get('apply_site_wide') ?? TRUE,
-      '#states' => [
-        'disabled' => [
-          ':input[name="disable_views_widgets"]' => ['checked' => TRUE],
-        ],
-      ],
-    ];
-
-    $form['global_selectify_widget'] = [
+    $form['views_filters']['global_selectify_widget'] = [
       '#type' => 'select',
-      '#title' => $this->t('Global Selectify Widget'),
+      '#title' => $this->t('Site-wide widget style'),
+      '#description' => $this->t('This widget will be applied to all Views exposed select filters across your site.'),
       '#options' => [
-        'none' => $this->t('None'),
-        'selectify_dropdown' => $this->t('Dropdown'),
-        'selectify_tags' => $this->t('Tags'),
-        'selectify_searchable' => $this->t('Searchable'),
-        'selectify_checkbox' => $this->t('Checkbox'),
-        'selectify_dual' => $this->t('Dual List'),
+        'none' => $this->t('None - Use default widgets'),
+        'selectify_dropdown' => $this->t('Dropdown - Enhanced dropdown with better styling'),
+        'selectify_tags' => $this->t('Tags - Enhanced dropdown displaying selections as removable tags'),
+        'selectify_searchable' => $this->t('Searchable - Enhanced dropdown with search/filter capability'),
+        'selectify_checkbox' => $this->t('Checkbox - Enhanced dropdown with checkbox-style selections'),
+        'selectify_dual' => $this->t('Dual List - Side-by-side selection (available/selected lists)'),
       ],
       '#default_value' => $config->get('global_selectify_widget') ?? 'none',
       '#states' => [
-        'disabled' => [
-          ':input[name="disable_views_widgets"]' => ['checked' => TRUE],
-        ],
         'visible' => [
-        // Only show when `apply_site_wide` is checked.
+          ':input[name="disable_views_widgets"]' => ['checked' => FALSE],
           ':input[name="apply_site_wide"]' => ['checked' => TRUE],
         ],
-
       ],
     ];
 
-    $views_displays = $this->getExposedFilters();
-    $stored_filters = $config->get('widget_for_filters') ?? [];
-
-    // Step 1: Group by View Machine Name.
-    $grouped_views = [];
-    foreach ($views_displays as $display_data) {
-      $view_name = $display_data['view_machine_name'];
-      $grouped_views[$view_name][] = $display_data;
-    }
-
-    // Step 2: Build the accordion structure.
-    if (!empty($grouped_views)) {
-      $form['selectify_widgets'] = [
-        '#type' => 'details',
-        '#title' => $this->t('Selectify Select Widgets for Views Exposed Filters'),
-        '#description' => $this->t('Choose the Selectify Select widget for each Views Display with an Exposed Filter.'),
-        '#open' => FALSE,
-        '#states' => [
-          'disabled' => [
-            ':input[name="disable_views_widgets"]' => ['checked' => TRUE],
-          ],
-          'invisible' => [
-            [':input[name="apply_site_wide"]' => ['checked' => TRUE]],
-          ],
+    // Per-view widget configuration.
+    $form['views_filters']['per_view_configuration'] = [
+      '#type' => 'container',
+      '#states' => [
+        'visible' => [
+          ':input[name="disable_views_widgets"]' => ['checked' => FALSE],
+          ':input[name="apply_site_wide"]' => ['checked' => FALSE],
         ],
+      ],
+    ];
+
+    $form['views_filters']['per_view_configuration']['description'] = [
+      '#type' => 'markup',
+      '#markup' => '<div class="messages messages--info">' . $this->t('<strong>Per-View Configuration:</strong> Select individual widgets for each View display below. Only Views with exposed select filters are shown.') . '</div>',
+    ];
+
+    $all_filters = $this->getExposedFilters();
+    if (!empty($all_filters)) {
+      $stored_filters = $config->get('widget_for_filters', []);
+      $grouped_displays = [];
+
+      // Group displays by view.
+      foreach ($all_filters as $display_data) {
+        $view_machine_name = $display_data['view_machine_name'];
+        $grouped_displays[$view_machine_name][] = $display_data;
+      }
+
+      $form['views_filters']['per_view_configuration']['selectify_widgets'] = [
+        '#tree' => TRUE,
       ];
 
-      foreach ($grouped_views as $view_machine_name => $displays) {
-        // Sort displays inside each View (Move selected widgets to the top)
-        usort($displays, function ($a, $b) use ($stored_filters) {
-          $widgetA = $stored_filters[$a['view_machine_name'] . ':' . $a['display_id']]['widget'] ?? 'none';
-          $widgetB = $stored_filters[$b['view_machine_name'] . ':' . $b['display_id']]['widget'] ?? 'none';
-          return ($widgetA === 'none') - ($widgetB === 'none');
-        });
+      foreach ($grouped_displays as $view_machine_name => $displays) {
+        $view_human_name = $displays[0]['view_human_name'];
 
-        // Step 3: Create an accordion section per View.
-        $form['selectify_widgets'][$view_machine_name] = [
+        $form['views_filters']['per_view_configuration']['selectify_widgets'][$view_machine_name] = [
           '#type' => 'details',
-          '#title' => $this->t('@view_name', ['@view_name' => $view_machine_name]),
+          '#title' => $view_human_name,
           '#open' => FALSE,
         ];
 
-        // Step 4: Create the table inside each accordion.
-        $form['selectify_widgets'][$view_machine_name]['filters_table'] = [
+        $form['views_filters']['per_view_configuration']['selectify_widgets'][$view_machine_name]['filters_table'] = [
           '#type' => 'table',
           '#header' => [
-            $this->t('Display Title'),
+            $this->t('Display Name'),
             $this->t('Display Type'),
             $this->t('Display ID'),
             $this->t('Exposed Form ID'),
@@ -343,11 +388,11 @@ class SelectifySettingsForm extends ConfigFormBase {
         foreach ($displays as $display_data) {
           $unique_key = $display_data['view_machine_name'] . ':' . $display_data['display_id'];
 
-          // Check if this row has a selected widget (not 'none')
+          // Check if this row has a selected widget (not 'none').
           $selected_widget = $stored_filters[$unique_key]['widget'] ?? 'none';
           $row_class = ($selected_widget !== 'none') ? 'selected-widget-row' : '';
 
-          $form['selectify_widgets'][$view_machine_name]['filters_table'][$unique_key] = [
+          $form['views_filters']['per_view_configuration']['selectify_widgets'][$view_machine_name]['filters_table'][$unique_key] = [
           // Add class dynamically.
             '#attributes' => ['class' => [$row_class]],
             'display_title' => [
@@ -365,13 +410,14 @@ class SelectifySettingsForm extends ConfigFormBase {
             'widget' => [
               '#type' => 'select',
               '#title' => $this->t('Widget for %label', ['%label' => $display_data['display_title']]),
+              '#title_display' => 'invisible',
               '#options' => [
                 'none' => $this->t('None'),
-                'selectify_dropdown' => $this->t('Dropdown'),
-                'selectify_tags' => $this->t('Tags'),
-                'selectify_searchable' => $this->t('Searchable'),
-                'selectify_dual' => $this->t('Dual List'),
-                'selectify_checkbox' => $this->t('Checkbox'),
+                'selectify_dropdown' => $this->t('Dropdown - Enhanced dropdown with better styling'),
+                'selectify_tags' => $this->t('Tags - Enhanced dropdown displaying selections as removable tags'),
+                'selectify_searchable' => $this->t('Searchable - Enhanced dropdown with search/filter capability'),
+                'selectify_checkbox' => $this->t('Checkbox - Enhanced dropdown with checkbox-style selections'),
+                'selectify_dual' => $this->t('Dual List - Side-by-side selection (available/selected lists)'),
               ],
               '#default_value' => $selected_widget,
               '#parents' => ['selectify_widgets',
@@ -382,6 +428,12 @@ class SelectifySettingsForm extends ConfigFormBase {
           ];
         }
       }
+    }
+    else {
+      $form['views_filters']['per_view_configuration']['no_views'] = [
+        '#type' => 'markup',
+        '#markup' => '<div class="messages messages--warning">' . $this->t('No Views with exposed select filters were found. Create a View with exposed filters to configure Selectify widgets.') . '</div>',
+      ];
     }
 
     return parent::buildForm($form, $form_state);
@@ -420,7 +472,7 @@ class SelectifySettingsForm extends ConfigFormBase {
         ->clear('global_selectify_widget')
         ->clear('widget_for_filters');
 
-      $this->messenger->addMessage($this->t('Selectify has been disabled. All related settings have been cleared.'), 'warning');
+      $this->messenger->addMessage($this->t('Selectify has been disabled for all Views filters. All related settings have been cleared.'), 'warning');
     }
     // If applying site-wide Views Select, store global settings/clear widgets.
     elseif ($apply_site_wide) {
@@ -429,7 +481,7 @@ class SelectifySettingsForm extends ConfigFormBase {
         ->set('global_selectify_widget', $global_widget)
         ->clear('widget_for_filters');
 
-      $this->messenger->addMessage($this->t('Global Selectify widget applied site-wide.'), 'status');
+      $this->messenger->addMessage($this->t('Global Selectify widget applied site-wide to all Views exposed filters.'), 'status');
     }
     // If specific widgets are selected, store them & clear global settings.
     elseif (!empty($views_widgets)) {

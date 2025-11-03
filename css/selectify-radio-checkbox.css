@@ -1,6 +1,6 @@
 /**
  * @file
- * Selectify Radio & Checkbox - Complete Styles
+ * Selectify Radio & Checkbox - Complete Styles with Squash & Stretch Animation
  *
  * All style combinations using data attributes from page preprocess.
  * Supports: 2 styles × 2 shapes × 3 sizes = 12 combinations per input type.
@@ -11,65 +11,51 @@
  */
 
 /* ============================================
-   CSS Custom Properties (Variables)
+   Global Variable Registry (base keys only)
    ============================================ */
-
 input.selectify-radio[type="radio"],
-input.selectify-radio[type="radio"] {
+input.selectify-checkbox[type="checkbox"] {
   all: unset;
   appearance: none !important;
-  -webkit-appearance: none !important;  /* Add - Safari/Chrome */
-  -moz-appearance: none !important;     /* Add - Firefox */
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
   cursor: pointer;
   display: inline-block !important;
   vertical-align: middle;
   position: relative !important;
   overflow: visible !important;
-  border: var(--selectify-radio-border-width, 2px) solid var(--selectify-checkbox-border-color, #555)!important;
   padding: 0 !important;
-  margin: 0 !important;                 /* Add - prevent theme margins */
+  margin: 0 !important;
+  box-sizing: border-box !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+input.selectify-radio[type="radio"] {
+  border: var(--selectify-radio-border-width, 2px) solid var(--selectify-checkbox-border-color, #555)!important;
   block-size: var(--selectify-radio-height) !important;
   inline-size: var(--selectify-radio-width) !important;
-  min-block-size: var(--selectify-radio-height) !important;  /* Add - prevent min-height override */
-  min-inline-size: var(--selectify-radio-width) !important;  /* Add - prevent min-width override */
-  max-block-size: var(--selectify-radio-height) !important;  /* Add - prevent max-height override */
-  max-inline-size: var(--selectify-radio-width) !important;  /* Add - prevent max-width override */
+  min-block-size: var(--selectify-radio-height) !important;
+  min-inline-size: var(--selectify-radio-width) !important;
+  max-block-size: var(--selectify-radio-height) !important;
+  max-inline-size: var(--selectify-radio-width) !important;
   border-radius: var(--selectify-radio-border-radius) !important;
-  box-sizing: border-box !important;
-  background: transparent !important;   /* Add - reset theme backgrounds */
-  box-shadow: none !important;          /* Add - remove theme shadows */
-  outline: none !important;             /* Add - we handle focus ourselves */
   transition:
     background var(--selectify-radio-transition-speed) var(--selectify-radio-transition-easing),
     border var(--selectify-radio-transition-speed) var(--selectify-radio-transition-easing),
     opacity var(--selectify-radio-transition-speed) var(--selectify-radio-transition-easing);
 }
 
-input.selectify-checkbox[type="checkbox"],
 input.selectify-checkbox[type="checkbox"] {
-  all: unset;
-  appearance: none !important;
-  -webkit-appearance: none !important;  /* Add - Safari/Chrome */
-  -moz-appearance: none !important;     /* Add - Firefox */
-  cursor: pointer;
-  display: inline-block !important;
-  vertical-align: middle;
-  position: relative !important;
-  overflow: visible !important;
   border: var(--selectify-radio-border-width, 2px) solid var(--selectify-checkbox-border-color, #555)!important;
-  padding: 0 !important;
-  margin: 0 !important;                 /* Add - prevent theme margins */
   block-size: var(--selectify-checkbox-height) !important;
   inline-size: var(--selectify-checkbox-width) !important;
-  min-block-size: var(--selectify-checkbox-height) !important;  /* Add - prevent min-height override */
-  min-inline-size: var(--selectify-checkbox-width) !important;  /* Add - prevent min-width override */
-  max-block-size: var(--selectify-checkbox-height) !important;  /* Add - prevent max-height override */
-  max-inline-size: var(--selectify-checkbox-width) !important;  /* Add - prevent max-width override */
+  min-block-size: var(--selectify-checkbox-height) !important;
+  min-inline-size: var(--selectify-checkbox-width) !important;
+  max-block-size: var(--selectify-checkbox-height) !important;
+  max-inline-size: var(--selectify-checkbox-width) !important;
   border-radius: var(--selectify-checkbox-border-radius) !important;
-  box-sizing: border-box !important;
-  background: transparent !important;   /* Add - reset theme backgrounds */
-  box-shadow: none !important;          /* Add - remove theme shadows */
-  outline: none !important;             /* Add - we handle focus ourselves */
   transition:
     background var(--selectify-checkbox-transition-speed) var(--selectify-checkbox-transition-easing),
     border var(--selectify-checkbox-transition-speed) var(--selectify-checkbox-transition-easing),
@@ -81,6 +67,10 @@ input.selectify-checkbox[type="checkbox"] {
   margin-inline-end: 8px !important;
 }
 
+/* ============================================
+   Toggle Circle/Square with Squash & Stretch
+   ============================================ */
+
 input.selectify-radio[type="radio"]::before {
   content: "";
   position: absolute;
@@ -91,13 +81,14 @@ input.selectify-radio[type="radio"]::before {
   border-radius: var(--selectify-radio-circle-radius) !important;
   transition:
     translate var(--selectify-radio-transition-speed) var(--selectify-radio-transition-easing),
-    scale 0.2s ease-out,
-    background var(--selectify-radio-transition-speed) var(--selectify-radio-transition-easing),
-    opacity var(--selectify-radio-transition-speed) var(--selectify-radio-transition-easing);
+    scale var(--selectify-radio-transition-speed) var(--selectify-radio-transition-easing),
+    background var(--selectify-radio-transition-speed) ease,
+    opacity var(--selectify-radio-transition-speed) ease !important;
   translate: var(--selectify-radio-circle-translate-unchecked) 0 !important;
   scale: 1 1 !important;
   box-shadow: none !important;
   z-index: 1;
+  will-change: translate, scale;
 }
 
 input.selectify-checkbox[type="checkbox"]::before {
@@ -110,14 +101,32 @@ input.selectify-checkbox[type="checkbox"]::before {
   border-radius: var(--selectify-checkbox-circle-radius) !important;
   transition:
     translate var(--selectify-checkbox-transition-speed) var(--selectify-checkbox-transition-easing),
-    scale 0.2s ease-out,
-    background var(--selectify-checkbox-transition-speed) var(--selectify-checkbox-transition-easing),
-    opacity var(--selectify-checkbox-transition-speed) var(--selectify-checkbox-transition-easing);
+    scale var(--selectify-checkbox-transition-speed) var(--selectify-checkbox-transition-easing),
+    background var(--selectify-checkbox-transition-speed) ease,
+    opacity var(--selectify-checkbox-transition-speed) ease !important;
   translate: var(--selectify-checkbox-circle-translate-unchecked) 0 !important;
   scale: 1 1 !important;
   box-shadow: none !important;
   z-index: 1;
+  will-change: translate, scale;
 }
+
+/* Active state - squash when clicking (gives tactile feedback) */
+input.selectify-radio[type="radio"]:active::before,
+input.selectify-checkbox[type="checkbox"]:active::before {
+  scale: 1.15 0.85 !important;
+  transition-duration: 0.1s !important;
+}
+
+/* Hover state - subtle grow */
+input.selectify-radio[type="radio"]:hover::before,
+input.selectify-checkbox[type="checkbox"]:hover::before {
+  scale: 1.05 1.05 !important;
+}
+
+/* ============================================
+   Icon - Checkmark Only (Toggle Style)
+   ============================================ */
 
 input.selectify-radio[type="radio"]::after {
   content: "";
@@ -126,17 +135,18 @@ input.selectify-radio[type="radio"]::after {
   block-size: var(--selectify-radio-icon-size);
   inset-block-start: 50%;
   translate: 0 -50%;
-  transition:
-    inset-inline-start var(--selectify-radio-transition-speed) ease var(--selectify-radio-icon-delay),
-    inset-inline-end var(--selectify-radio-transition-speed) ease var(--selectify-radio-icon-delay),
-    opacity 0.20s ease,
-    translate var(--selectify-radio-transition-speed) ease,
-    background-image 0s linear var(--selectify-radio-icon-delay);
-  z-index: 2;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 -960 960 960' fill='%2322c55e'%3E%3Cpath d='M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z'/%3E%3C/svg%3E");
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
+  transition:
+    opacity 0.25s ease,
+    scale 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 2;
   pointer-events: none;
+  will-change: opacity, scale;
+  opacity: 0;
+  scale: 0.8;
 }
 
 input.selectify-checkbox[type="checkbox"]::after {
@@ -146,71 +156,59 @@ input.selectify-checkbox[type="checkbox"]::after {
   block-size: var(--selectify-checkbox-icon-size);
   inset-block-start: 50%;
   translate: 0 -50%;
-  transition:
-    inset-inline-start var(--selectify-checkbox-transition-speed) ease var(--selectify-checkbox-icon-delay),
-    inset-inline-end var(--selectify-checkbox-transition-speed) ease var(--selectify-checkbox-icon-delay),
-    opacity 0.20s ease,
-    translate var(--selectify-checkbox-transition-speed) ease,
-    background-image 0s linear var(--selectify-checkbox-icon-delay);
-  z-index: 2;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 -960 960 960' fill='%2322c55e'%3E%3Cpath d='M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z'/%3E%3C/svg%3E");
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
+  transition:
+    opacity 0.25s ease,
+    scale 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 2;
   pointer-events: none;
+  will-change: opacity, scale;
+  opacity: 0;
+  scale: 0.8;
 }
 
+/* Unchecked state - no icon (clean slate) */
 input.selectify-radio[type="radio"]::after {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ef4444' stroke-width='2.5' stroke-linecap='round'%3E%3Cline x1='18' y1='6' x2='6' y2='18'/%3E%3Cline x1='6' y1='6' x2='18' y2='18'/%3E%3C/svg%3E");
   inset-inline-start: var(--selectify-radio-icon-left-unchecked);
   inset-inline-end: auto;
-  opacity: 1;
+  opacity: 0;
+  scale: 0.8;
 }
 
 input.selectify-checkbox[type="checkbox"]::after {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ef4444' stroke-width='2.5' stroke-linecap='round'%3E%3Cline x1='18' y1='6' x2='6' y2='18'/%3E%3Cline x1='6' y1='6' x2='18' y2='18'/%3E%3C/svg%3E");
   inset-inline-start: var(--selectify-checkbox-icon-left-unchecked);
   inset-inline-end: auto;
-  opacity: 1;
+  opacity: 0;
+  scale: 0.8;
 }
 
-input.selectify-radio[type="radio"]:checked::after {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2322c55e' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
-  inset-inline-start: auto;
-  inset-inline-end: var(--selectify-radio-icon-right-checked);
-  opacity: 1;
-}
-
-input.selectify-checkbox[type="checkbox"]:checked::after {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2322c55e' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
-  inset-inline-start: auto;
-  inset-inline-end: var(--selectify-checkbox-icon-right-checked);
-  opacity: 1;
-}
-
+/* Checked state - checkmark fades in and pops with scale */
 input.selectify-radio[type="radio"]:checked::before {
   translate: var(--selectify-radio-circle-translate-checked) 0 !important;
-  transform: none !important;
-  scale: 1 1 !important;
-  box-shadow: none;
-  margin-block-start: 0 !important;
-}
-
-input.selectify-radio[type="radio"]:active::before {
-  scale: 1.15 0.9 !important;
 }
 
 input.selectify-checkbox[type="checkbox"]:checked::before {
   translate: var(--selectify-checkbox-circle-translate-checked) 0 !important;
-  transform: none !important;
-  scale: 1 1 !important;
-  box-shadow: none;
-  margin-block-start: 0 !important;
 }
 
-input.selectify-checkbox[type="checkbox"]:active::before {
-  scale: 1.15 0.9 !important;
+input.selectify-radio[type="radio"]:checked::after {
+  inset-inline-start: auto;
+  inset-inline-end: var(--selectify-radio-icon-right-checked);
+  opacity: 1;
+  scale: 1.05;
 }
 
+input.selectify-checkbox[type="checkbox"]:checked::after {
+  inset-inline-start: auto;
+  inset-inline-end: var(--selectify-checkbox-icon-right-checked);
+  opacity: 1;
+  scale: 1.05;
+}
+
+/* RTL Support */
 html[dir="rtl"] input.selectify-radio[type="radio"]::before {
   translate: calc(-1 * var(--selectify-radio-circle-translate-unchecked)) 0 !important;
 }
@@ -227,6 +225,7 @@ html[dir="rtl"] input.selectify-checkbox[type="checkbox"]:checked::before {
   translate: calc(-1 * var(--selectify-checkbox-circle-translate-checked)) 0 !important;
 }
 
+/* Disabled states */
 input.selectify-radio[type="radio"]:disabled,
 input.selectify-checkbox[type="checkbox"]:disabled {
   cursor: not-allowed;
@@ -234,18 +233,20 @@ input.selectify-checkbox[type="checkbox"]:disabled {
   box-shadow: none;
 }
 
+/* Disabled unchecked - no icon needed */
 input.selectify-radio[type="radio"]:disabled::after,
 input.selectify-checkbox[type="checkbox"]:disabled::after {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2.5' stroke-linecap='round'%3E%3Cline x1='18' y1='6' x2='6' y2='18'/%3E%3Cline x1='6' y1='6' x2='18' y2='18'/%3E%3C/svg%3E");
-  opacity: 0.5;
+  opacity: 0 !important;
 }
 
+/* Disabled checked - show faded checkmark only */
 input.selectify-radio[type="radio"]:disabled:checked::after,
 input.selectify-checkbox[type="checkbox"]:disabled:checked::after {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
-  opacity: 0.5;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 -960 960 960' fill='%239ca3af'%3E%3Cpath d='M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z'/%3E%3C/svg%3E");
+  opacity: 0.4;
 }
 
+/* Focus states */
 input.selectify-radio[type="radio"]:focus,
 input.selectify-checkbox[type="checkbox"]:focus {
   outline: none;
@@ -258,6 +259,7 @@ input.selectify-checkbox[type="checkbox"]:focus-visible {
   outline-offset: 2px;
 }
 
+/* Color variables */
 input.selectify-radio[type="radio"],
 input.selectify-checkbox[type="checkbox"] {
   background: var(--selectify-checkbox-bg) !important;
@@ -289,11 +291,52 @@ input.selectify-checkbox[type="checkbox"]:disabled {
 }
 
 input.selectify-radio[type="radio"]:disabled::before,
-input.selectify-checkbox[type="checkbox"]:disabled::before {
+input.selectify-checkbox[type="checkbox"]::disabled::before {
   background: var(--selectify-checkbox-disabled-circle) !important;
   box-shadow: none;
 }
 
+/* Hover */
+input.selectify-checkbox[type="checkbox"]:hover,
+input.selectify-radio[type="radio"]:hover {
+  background: var(--selectify-checkbox-hover-bg) !important;
+  border-color: var(--selectify-checkbox-hover-border-color) !important;
+}
+
+/* Active / pressed */
+input.selectify-checkbox[type="checkbox"]:active,
+input.selectify-radio[type="radio"]:active {
+  background: var(--selectify-checkbox-active-bg) !important;
+  border-color: var(--selectify-checkbox-active-border-color) !important;
+}
+
+/* Checked (adds explicit border variable for both) */
+input.selectify-checkbox[type="checkbox"]:checked,
+input.selectify-radio[type="radio"]:checked {
+  border-color: var(--selectify-checkbox-checked-border-color) !important;
+}
+
+/* Indeterminate (checkbox only) */
+input.selectify-checkbox[type="checkbox"]:indeterminate {
+  background: var(--selectify-checkbox-indeterminate-bg) !important;
+  border-color: var(--selectify-checkbox-indeterminate-border-color) !important;
+}
+input.selectify-checkbox[type="checkbox"]:indeterminate::after {
+  background: var(--selectify-checkbox-indeterminate-bar) !important;
+}
+
+/* Disabled (adds explicit border variable for both) */
+input.selectify-checkbox[type="checkbox"]:disabled,
+input.selectify-radio[type="radio"]:disabled {
+  border-color: var(--selectify-checkbox-disabled-border-color) !important;
+}
+
+/* Invalid (ARIA) */
+input.selectify-checkbox[type="checkbox"][aria-invalid="true"],
+input.selectify-radio[type="radio"][aria-invalid="true"] {
+  background: var(--selectify-checkbox-invalid-bg) !important;
+  border-color: var(--selectify-checkbox-invalid-border-color) !important;
+}
 
 /* ============================================
    Traditional Checkbox Style - Auto Center Icons
@@ -324,9 +367,23 @@ input.selectify-checkbox[type="checkbox"]:disabled::before {
   top: 50% !important;
   translate: none !important;
   transform: translate(-50%, -50%) !important;
-  transition: opacity 0.2s ease !important;
+  transition:
+    opacity 0.25s ease,
+    scale 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
 }
 
+/* Traditional - unchecked (fade out completely) */
+.selectify-radio-checkbox-circle-small input.selectify-radio[type="radio"]:not(:checked)::after,
+.selectify-radio-checkbox-circle-medium input.selectify-radio[type="radio"]:not(:checked)::after,
+.selectify-radio-checkbox-circle-large input.selectify-radio[type="radio"]:not(:checked)::after,
+.selectify-radio-checkbox-square-small input.selectify-radio[type="radio"]:not(:checked)::after,
+.selectify-radio-checkbox-square-medium input.selectify-radio[type="radio"]:not(:checked)::after,
+.selectify-radio-checkbox-square-large input.selectify-radio[type="radio"]:not(:checked)::after {
+  opacity: 0 !important;
+  scale: 0.8;
+}
+
+/* Traditional - checked (pop in) */
 .selectify-radio-checkbox-circle-small input.selectify-radio[type="radio"]:checked::after,
 .selectify-radio-checkbox-circle-medium input.selectify-radio[type="radio"]:checked::after,
 .selectify-radio-checkbox-circle-large input.selectify-radio[type="radio"]:checked::after,
@@ -340,6 +397,8 @@ input.selectify-checkbox[type="checkbox"]:disabled::before {
   top: 50% !important;
   translate: none !important;
   transform: translate(-50%, -50%) !important;
+  opacity: 1 !important;
+  scale: 1;
 }
 
 /* Hide circle for traditional checkbox style - CHECKBOX */
@@ -366,9 +425,23 @@ input.selectify-checkbox[type="checkbox"]:disabled::before {
   top: 50% !important;
   translate: none !important;
   transform: translate(-50%, -50%) !important;
-  transition: opacity 0.2s ease !important;
+  transition:
+    opacity 0.25s ease,
+    scale 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
 }
 
+/* Traditional - unchecked (fade out completely) */
+.selectify-checkbox-checkbox-circle-small input.selectify-checkbox[type="checkbox"]:not(:checked)::after,
+.selectify-checkbox-checkbox-circle-medium input.selectify-checkbox[type="checkbox"]:not(:checked)::after,
+.selectify-checkbox-checkbox-circle-large input.selectify-checkbox[type="checkbox"]:not(:checked)::after,
+.selectify-checkbox-checkbox-square-small input.selectify-checkbox[type="checkbox"]:not(:checked)::after,
+.selectify-checkbox-checkbox-square-medium input.selectify-checkbox[type="checkbox"]:not(:checked)::after,
+.selectify-checkbox-checkbox-square-large input.selectify-checkbox[type="checkbox"]:not(:checked)::after {
+  opacity: 0 !important;
+  scale: 0.8;
+}
+
+/* Traditional - checked (pop in) */
 .selectify-checkbox-checkbox-circle-small input.selectify-checkbox[type="checkbox"]:checked::after,
 .selectify-checkbox-checkbox-circle-medium input.selectify-checkbox[type="checkbox"]:checked::after,
 .selectify-checkbox-checkbox-circle-large input.selectify-checkbox[type="checkbox"]:checked::after,
@@ -382,4 +455,6 @@ input.selectify-checkbox[type="checkbox"]:disabled::before {
   top: 50% !important;
   translate: none !important;
   transform: translate(-50%, -50%) !important;
+  opacity: 1 !important;
+  scale: 1;
 }

@@ -184,6 +184,7 @@ class SelectifyStyleService {
    * @return array
    *   Associative array of shape variables.
    */
+
   /**
    * Gets shape-related variables.
    *
@@ -269,7 +270,7 @@ class SelectifyStyleService {
       $animations = [
         'small' => [
           "{$prefix}-transition-speed" => '0.25s',
-          "{$prefix}-transition-easing" => 'ease-in-out',
+          "{$prefix}-transition-easing" => 'cubic-bezier(0.34, 1.56, 0.64, 1)',
           "{$prefix}-icon-delay" => '0.15s',
           "{$prefix}-circle-translate-unchecked" => '2px',
           "{$prefix}-circle-translate-checked" => '11px',
@@ -278,7 +279,7 @@ class SelectifyStyleService {
         ],
         'medium' => [
           "{$prefix}-transition-speed" => '0.3s',
-          "{$prefix}-transition-easing" => 'ease-in-out',
+          "{$prefix}-transition-easing" => 'cubic-bezier(0.34, 1.56, 0.64, 1)',
           "{$prefix}-icon-delay" => '0.20s',
           "{$prefix}-circle-translate-unchecked" => '2px',
           "{$prefix}-circle-translate-checked" => '14px',
@@ -287,7 +288,7 @@ class SelectifyStyleService {
         ],
         'large' => [
           "{$prefix}-transition-speed" => '0.35s',
-          "{$prefix}-transition-easing" => 'ease-in-out',
+          "{$prefix}-transition-easing" => 'cubic-bezier(0.34, 1.56, 0.64, 1)',
           "{$prefix}-icon-delay" => '0.22s',
           "{$prefix}-circle-translate-unchecked" => '2px',
           "{$prefix}-circle-translate-checked" => '17px',
@@ -321,10 +322,10 @@ class SelectifyStyleService {
    * @return string
    *   CSS string with :root selector and variables.
    */
-  public function generateInlineCSS(array $radioVars, array $checkboxVars): string {
+  public function generateInlineCss(array $radioVars, array $checkboxVars): string {
     $cssLines = [];
 
-    // Generate scoped radio variables
+    // Generate scoped radio variables.
     if (!empty($radioVars)) {
       $cssLines[] = "input.selectify-radio[type=\"radio\"] {";
       foreach ($radioVars as $varName => $varValue) {
@@ -333,10 +334,11 @@ class SelectifyStyleService {
       $cssLines[] = "}";
     }
 
-    // Generate scoped checkbox variables
+    // Generate scoped checkbox variables.
     if (!empty($checkboxVars)) {
       if (!empty($radioVars)) {
-        $cssLines[] = ""; // Add blank line between selectors
+        // Add blank line between selectors.
+        $cssLines[] = "";
       }
       $cssLines[] = "input.selectify-checkbox[type=\"checkbox\"] {";
       foreach ($checkboxVars as $varName => $varValue) {
@@ -354,7 +356,7 @@ class SelectifyStyleService {
    * @return string
    *   Complete inline CSS string based on current configuration.
    */
-  public function getConfiguredInlineCSS(): string {
+  public function getConfiguredInlineCss(): string {
     $config = $this->configFactory->get('selectify.settings');
 
     $radioEnabled = (bool) $config->get('enable_radio');
@@ -377,7 +379,7 @@ class SelectifyStyleService {
       $checkboxVars = $this->getCheckboxVariables($checkboxStyle, $checkboxShape, $checkboxSize);
     }
 
-    return $this->generateInlineCSS($radioVars, $checkboxVars);
+    return $this->generateInlineCss($radioVars, $checkboxVars);
   }
 
   /**
