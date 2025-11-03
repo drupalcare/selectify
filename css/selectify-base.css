@@ -69,9 +69,9 @@
 .dual-selected,
 .selectify-available-display,
 .selectify-selected-display {
-  background: #f1f1f1;
-  color: currentColor;
-  border: none;
+  background: var(--r-bg, #f1f1f1);
+  color: var(--r-tx, currentColor);
+  border: 2px solid var(--r-br, #999);
   transition: all 0.2s ease;
   border-radius: 8px;
 }
@@ -223,6 +223,9 @@ body .selectify-clear-all span.icon {
 
 /* Clear All Button */
 .selectify-select .selectify-select-footer button {
+  border-color: var(--r-br, var(--r-br-b), #999);
+  color: var(--r-tx-bt, var(--r-tx), currentColor);
+  background-color: var(--r-bg-bt, var(--r-bg), #f8f8f8);
   line-height: 1.4;
   display: flex;
   align-items: center;
