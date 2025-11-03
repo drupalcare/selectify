@@ -7,3 +7,24 @@
   border-color: #28a745 !important;
   font-weight: bold;
 }
+.selectify-settings-form {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.selectify-settings-form td .form-type--select {
+  display: grid;
+}
+
+#edit-radio-style--wrapper .form-radios,
+#edit-radio-shape--wrapper .form-radios,
+#edit-radio-size--wrapper .form-radios,
+#edit-checkbox-style--wrapper .form-radios,
+#edit-checkbox-shape--wrapper .form-radios,
+#edit-checkbox-size--wrapper .form-radios,
+.selectify-color-options+fieldset .form-radios,
+.selectify-color-options .form-radios {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 24px;
+}

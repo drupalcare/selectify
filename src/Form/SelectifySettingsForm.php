@@ -91,10 +91,102 @@ class SelectifySettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('enable_radio'),
     ];
 
+    $form['radio_style'] = [
+      '#type' => 'radios',
+      '#title' => $this->t('Radio Button Style'),
+      '#options' => [
+        'toggle' => $this->t('Toggle Switch'),
+        'checkbox' => $this->t('Checkbox with X/Checkmark'),
+      ],
+      '#default_value' => $config->get('radio_style') ?? 'toggle',
+      '#states' => [
+        'visible' => [
+          ':input[name="enable_radio"]' => ['checked' => TRUE],
+        ],
+      ],
+    ];
+
+    $form['radio_shape'] = [
+      '#type' => 'radios',
+      '#title' => $this->t('Radio Button Shape'),
+      '#options' => [
+        'circle' => $this->t('Circle'),
+        'square' => $this->t('Square'),
+      ],
+      '#default_value' => $config->get('radio_shape') ?? 'circle',
+      '#states' => [
+        'visible' => [
+          ':input[name="enable_radio"]' => ['checked' => TRUE],
+        ],
+      ],
+    ];
+
+    $form['radio_size'] = [
+      '#type' => 'radios',
+      '#title' => $this->t('Radio Button Size'),
+      '#options' => [
+        'small' => $this->t('Small'),
+        'medium' => $this->t('Medium'),
+        'large' => $this->t('Large'),
+      ],
+      '#default_value' => $config->get('radio_size') ?? 'medium',
+      '#states' => [
+        'visible' => [
+          ':input[name="enable_radio"]' => ['checked' => TRUE],
+        ],
+      ],
+    ];
+
     $form['enable_checkbox'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Enable custom styles for checkboxes'),
       '#default_value' => $config->get('enable_checkbox'),
+    ];
+
+    $form['checkbox_style'] = [
+      '#type' => 'radios',
+      '#title' => $this->t('Checkbox Style'),
+      '#options' => [
+        'toggle' => $this->t('Toggle Switch'),
+        'checkbox' => $this->t('Checkbox with X/Checkmark'),
+      ],
+      '#default_value' => $config->get('checkbox_style') ?? 'toggle',
+      '#states' => [
+        'visible' => [
+          ':input[name="enable_checkbox"]' => ['checked' => TRUE],
+        ],
+      ],
+    ];
+
+    $form['checkbox_shape'] = [
+      '#type' => 'radios',
+      '#title' => $this->t('Checkbox Shape'),
+      '#options' => [
+        'circle' => $this->t('Circle'),
+        'square' => $this->t('Square'),
+      ],
+      '#default_value' => $config->get('checkbox_shape') ?? 'circle',
+      '#states' => [
+        'visible' => [
+          ':input[name="enable_checkbox"]' => ['checked' => TRUE],
+        ],
+      ],
+    ];
+
+    $form['checkbox_size'] = [
+      '#type' => 'radios',
+      '#title' => $this->t('Checkbox Size'),
+      '#options' => [
+        'small' => $this->t('Small'),
+        'medium' => $this->t('Medium'),
+        'large' => $this->t('Large'),
+      ],
+      '#default_value' => $config->get('checkbox_size') ?? 'medium',
+      '#states' => [
+        'visible' => [
+          ':input[name="enable_checkbox"]' => ['checked' => TRUE],
+        ],
+      ],
     ];
 
     // Section: Admin Route Control.
@@ -303,7 +395,13 @@ class SelectifySettingsForm extends ConfigFormBase {
 
     // Preserve existing settings while updating necessary ones.
     $config->set('enable_radio', (bool) $form_state->getValue('enable_radio', FALSE))
+      ->set('radio_style', $form_state->getValue('radio_style', 'toggle'))
+      ->set('radio_shape', $form_state->getValue('radio_shape', 'circle'))
+      ->set('radio_size', $form_state->getValue('radio_size', 'medium'))
       ->set('enable_checkbox', (bool) $form_state->getValue('enable_checkbox', FALSE))
+      ->set('checkbox_style', $form_state->getValue('checkbox_style', 'toggle'))
+      ->set('checkbox_shape', $form_state->getValue('checkbox_shape', 'circle'))
+      ->set('checkbox_size', $form_state->getValue('checkbox_size', 'medium'))
       ->set('disable_on_admin_routes', (bool) $form_state->getValue('disable_on_admin_routes', FALSE))
       ->set('disabled_pages', $form_state->getValue('disabled_pages', ''))
       ->set('accent_color', $form_state->getValue('accent_color', $config->get('accent_color', 'neutral')))

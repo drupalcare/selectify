@@ -14,6 +14,34 @@ use Drupal\Core\Template\Attribute;
 use Drupal\Core\Routing\RouteMatchInterface;
 
 /**
+ * Implements hook_preprocess_html().
+ */
+function selectify_preprocess_html(&$variables) {
+  // Get the Selectify configuration to check if radio/checkbox is enabled.
+  $config = \Drupal::config('selectify.settings');
+  $radioEnabled = $config->get('enable_radio');
+  $checkboxEnabled = $config->get('enable_checkbox');
+
+  // Only add classes if at least one is enabled.
+  if (!$radioEnabled && !$checkboxEnabled) {
+    return;
+  }
+
+  // Get CSS classes from the style service.
+  /** @var \Drupal\selectify\Service\SelectifyStyleService $styleService */
+  $styleService = \Drupal::service('selectify.style_service');
+  $bodyClasses = $styleService->getBodyClasses();
+
+  // Add classes to the body tag.
+  if (!empty($bodyClasses)) {
+    $classes = explode(' ', $bodyClasses);
+    foreach ($classes as $class) {
+      $variables['attributes']['class'][] = $class;
+    }
+  }
+}
+
+/**
  * Implements hook_help().
  */
 function selectify_help($route_name, RouteMatchInterface $route_match): ?string {
@@ -624,6 +652,43 @@ function selectify_page_attachments_alter(array &$attachments): void {
       unset($attachments['#attached']['drupalSettings']['selectify']);
     }
     return;
+  }
+
+  // Load configuration.
+  $config = \Drupal::config('selectify.settings');
+
+  // Attach radio-checkbox library and inject CSS variables if enabled.
+  $radioEnabled = (bool) $config->get('enable_radio');
+  $checkboxEnabled = (bool) $config->get('enable_checkbox');
+
+  if ($radioEnabled || $checkboxEnabled) {
+    // Attach the base radio-checkbox library.
+    $attachments['#attached']['library'][] = 'selectify/selectify-radio-checkbox';
+
+    // Generate and attach inline CSS variables.
+    /** @var \Drupal\selectify\Service\SelectifyStyleService $styleService */
+    $styleService = \Drupal::service('selectify.style_service');
+    $inlineCSS = $styleService->getConfiguredInlineCSS();
+
+    if (!empty($inlineCSS)) {
+      $attachments['#attached']['html_head'][] = [
+        [
+          '#tag' => 'style',
+          '#value' => $inlineCSS,
+          '#attributes' => ['id' => 'selectify-inline-variables'],
+        ],
+        'selectify_inline_variables',
+      ];
+    }
+
+    // Attach accent color library if configured.
+    $accentColor = $config->get('accent_color');
+    $accentColorMode = $config->get('accent_color_mode') ?? 'light';
+
+    if (!empty($accentColor) && $accentColor !== 'none') {
+      $colorLibrary = "selectify/selectify-color-{$accentColor}-{$accentColorMode}";
+      $attachments['#attached']['library'][] = $colorLibrary;
+    }
   }
 
   // Normal Selectify library attachment for non-disabled pages.

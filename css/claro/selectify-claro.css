@@ -61,21 +61,6 @@ input.selectify-checkbox[type="checkbox"] {
   appearance: none;
 }
 
-.selectify-settings-form {
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
-.selectify-settings-form td .form-type--select {
-  display: grid;
-}
-
-.selectify-color-options+fieldset .form-radios,
-.selectify-color-options .form-radios {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0 24px;
-}
 .selectify-clear-all:hover,
 .selectify-selected-one-option.dual-item:hover,
 .selectify-available-one-option:hover,

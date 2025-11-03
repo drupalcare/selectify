@@ -1,8 +1,6 @@
 :root {
   --selectify-text-align-start: left;
   --selectify-text-align-end: right;
-  --selectify-radio-border-radius: 12px;
-  --selectify-radio-padding: 10px 14px;
   --selectify-checkbox-bg: linear-gradient(180deg, #d1d1d1 0%, #a8a8a8 50%, #7f7f7f 100%);
   --selectify-checkbox-checked-bg: linear-gradient(180deg, #bebebe 0%, #8c8c8c 50%, #5f5f5f 100%);
   --selectify-checkbox-check-circle: radial-gradient(circle at 35% 35%, #ffffff 0%, #e6e6e6 40%, #bfbfbf 100%);

@@ -3,3 +3,7 @@ services:
     class: Drupal\selectify\TwigExtension\SelectifyTwigExtension
     tags:
       - { name: twig.extension }
+
+  selectify.style_service:
+    class: Drupal\selectify\Service\SelectifyStyleService
+    arguments: ['@config.factory']

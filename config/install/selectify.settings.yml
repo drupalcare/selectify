@@ -1,7 +1,14 @@
 enable_radio: true
+radio_style: toggle
+radio_shape: circle
+radio_size: medium
 enable_checkbox: true
+checkbox_style: toggle
+checkbox_shape: circle
+checkbox_size: medium
 disable_on_admin_routes: true
 accent_color: neutral
+accent_color_mode: light
 apply_site_wide: true
 global_selectify_widget: selectify_dropdown
 disable_views_widgets: false

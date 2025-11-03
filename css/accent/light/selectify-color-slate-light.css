@@ -2,12 +2,12 @@
 .selectify-checkbox,
 .selectify-radio *,
 .selectify-checkbox * {
-  --selectify-select-border-color: #e2e8f0;
+  --selectify-checkbox-border-color: #e2e8f0;
   --selectify-checkbox-bg: linear-gradient(180deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%);
   --selectify-checkbox-checked-bg: linear-gradient(180deg, #e2e8f0 0%, #cbd5e1 50%, #94a3b8 100%);
   --selectify-checkbox-check-circle: radial-gradient(circle at 40% 40%, #e2e8f0 0%, #94a3b8 100%);
   --selectify-checkbox-checked-circle: radial-gradient(circle at 40% 40%, #f1f5f9 0%, #64748b 100%);
-  --selectify-checkbox-disabled-bg: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 50%, #cbd5e1 100%);  /* Disabled circle */
+  --selectify-checkbox-disabled-bg: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 50%, #cbd5e1 100%);
   --selectify-checkbox-disabled-circle: radial-gradient(circle at 40% 40%, #cbd5e1 0%, #94a3b8 40%, #64748b 100%);
 }
 
@@ -24,9 +24,4 @@
   --selectify-dropdown-shadow: 0px 4px 14px rgba(100, 116, 139, 0.06);
   --selectify-option-hover-bg: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
   --selectify-option-active-bg: linear-gradient(180deg, #e2e8f0 0%, #cbd5e1 100%);
-}
-
-input.selectify-radio[type="radio"],
-input.selectify-checkbox[type="checkbox"] {
-  border-color:var(--selectify-select-border-color)!important;
 }

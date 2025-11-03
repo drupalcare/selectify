@@ -2,7 +2,7 @@
 .selectify-checkbox,
 .selectify-radio *,
 .selectify-checkbox * {
-  --selectify-select-border-color: #2a3a57;
+  --selectify-checkbox-border-color: #2a3a57;
   --selectify-checkbox-bg: linear-gradient(180deg, #1a1b1e 0%, #1c1d20 50%, #1d1e22 100%);
   --selectify-checkbox-checked-bg: linear-gradient(180deg, #1c1d20 0%, #1d1e22 50%, #1e1f24 100%);
   --selectify-checkbox-check-circle: radial-gradient(circle at 35% 35%, #3b82f6 0%, #2563eb 40%, #1c1d20 100%);
@@ -24,10 +24,4 @@
   --selectify-dropdown-shadow: 0px 4px 14px rgba(59, 130, 246, 0.25);
   --selectify-option-hover-bg: linear-gradient(180deg, #182033 0%, #1f2a47 100%);
   --selectify-option-active-bg: linear-gradient(180deg, #1c2743 0%, #253355 100%);
-}
-
-
-input.selectify-radio[type="radio"],
-input.selectify-checkbox[type="checkbox"] {
-  border-color:var(--selectify-select-border-color)!important;
 }

@@ -5,9 +5,27 @@ selectify.settings:
     enable_radio:
       type: boolean
       label: 'Enable custom styles for radio buttons'
+    radio_style:
+      type: string
+      label: 'Radio button style (toggle or checkbox)'
+    radio_shape:
+      type: string
+      label: 'Radio button shape (circle or square)'
+    radio_size:
+      type: string
+      label: 'Radio button size (small, medium, or large)'
     enable_checkbox:
       type: boolean
       label: 'Enable custom styles for checkboxes'
+    checkbox_style:
+      type: string
+      label: 'Checkbox style (toggle or checkbox)'
+    checkbox_shape:
+      type: string
+      label: 'Checkbox shape (circle or square)'
+    checkbox_size:
+      type: string
+      label: 'Checkbox size (small, medium, or large)'
     disable_on_admin_routes:
       type: boolean
       label: 'Disable Selectify on admin routes'
