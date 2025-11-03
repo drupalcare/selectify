@@ -197,7 +197,7 @@ class SelectifySettingsForm extends ConfigFormBase {
       '#title' => $this->t('Checkbox style'),
       '#options' => [
         'toggle' => $this->t('Toggle Switch - Modern sliding switch design'),
-        'checkbox' => $this->t('Checkbox with X/Checkmark - Traditional style with visual indicator'),
+        'checkbox' => $this->t('Checkbox with Checkmark - Traditional style with visual indicator'),
       ],
       '#default_value' => $config->get('checkbox_style') ?? 'toggle',
       '#states' => [
