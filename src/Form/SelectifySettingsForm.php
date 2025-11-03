@@ -550,15 +550,19 @@ class SelectifySettingsForm extends ConfigFormBase {
    *   An array of exposed forms grouped by View & Display, only including
    *   displays that have at least one exposed select/dropdown filter.
    */
-  protected function getExposedFilters() {
+  protected function getExposedFilters(): array {
     $filters = [];
     $views = Views::getAllViews();
 
     foreach ($views as $view) {
       $view_machine_name = $view->id();
       $view_human_name = $view->label();
+      $displays = $view->get('display');
 
-      foreach ($view->get('display') as $display_id => $display) {
+      // Get default display filters for inheritance checking.
+      $default_filters = $displays['default']['display_options']['filters'] ?? [];
+
+      foreach ($displays as $display_id => $display) {
         $display_type = $display['display_plugin'];
         $exposed_form_id = "views-exposed-form-{$view_machine_name}-{$display_id}";
         $has_select_filter = FALSE;
@@ -566,19 +570,26 @@ class SelectifySettingsForm extends ConfigFormBase {
         // Get display title.
         $display_title = $display['display_title'] ?? $this->t('Untitled Display');
 
+        // Determine which filters to use for this display.
+        $display_filters = $this->resolveDisplayFilters($display, $default_filters);
+
         // Check if this display has an exposed SELECT filter.
-        if (!empty($display['display_options']['filters'])) {
-          foreach ($display['display_options']['filters'] as $filter) {
+        if (!empty($display_filters)) {
+          foreach ($display_filters as $filter) {
+            // Skip if filter data is invalid.
+            if (!is_array($filter)) {
+              continue;
+            }
+
             // Check if filter is exposed AND is a select/dropdown widget.
             if (!empty($filter['exposed']) &&
                 !empty($filter['expose']['identifier'])) {
 
-              // Check if the widget is a select-based type.
-              $widget = $filter['expose']['widget'] ?? 'select';
+              // Determine the widget type.
+              $widget = $this->getFilterWidget($filter);
 
-              // Include filters that use select, dropdown, or haven't specified
-              // a widget. (default widget for most filters is select).
-              if (in_array($widget, ['select', 'radios'], TRUE) || empty($filter['expose']['widget'])) {
+              // Include filters that use select-based widgets.
+              if (in_array($widget, ['select', 'radios'], TRUE)) {
                 $has_select_filter = TRUE;
                 break;
               }
@@ -604,6 +615,91 @@ class SelectifySettingsForm extends ConfigFormBase {
     }
 
     return $filters;
+  }
+
+  /**
+   * Resolves the actual filters for a display, handling inheritance.
+   *
+   * @param array $display
+   *   The display configuration array.
+   * @param array $default_filters
+   *   The filters from the default display.
+   *
+   * @return array
+   *   The resolved filters for the display.
+   */
+  protected function resolveDisplayFilters(array $display, array $default_filters): array {
+    // Get display options with safe fallback.
+    $display_options = $display['display_options'] ?? [];
+
+    // Check current display filters first.
+    $display_filters = $display_options['filters'] ?? [];
+
+    // Check if display has explicitly configured defaults.
+    $defaults = $display_options['defaults'] ?? [];
+
+    // Determine if this display uses default filters:
+    // 1. If 'defaults' key doesn't exist, display inherits from default.
+    // 2. If 'defaults.filters' is TRUE or not set, display inherits.
+    // 3. If 'defaults.filters' is FALSE, display uses its own filters.
+    if (!isset($defaults['filters'])) {
+      // No defaults configuration means inherit everything.
+      return empty($display_filters) ? $default_filters : $display_filters;
+    }
+
+    if ($defaults['filters'] === TRUE) {
+      // Explicitly set to use defaults.
+      return $default_filters;
+    }
+
+    if ($defaults['filters'] === FALSE) {
+      // Display explicitly overrides filters, use only display filters.
+      return $display_filters;
+    }
+
+    // Fallback: if display has filters, use them; otherwise inherit.
+    return empty($display_filters) ? $default_filters : $display_filters;
+  }
+
+  /**
+   * Determines the widget type for a filter.
+   *
+   * @param array $filter
+   *   The filter configuration array.
+   *
+   * @return string
+   *   The widget type (e.g., 'select', 'radios', 'textfield').
+   */
+  protected function getFilterWidget(array $filter): string {
+    // Check for explicitly set widget in expose configuration.
+    if (isset($filter['expose']['widget'])) {
+      return $filter['expose']['widget'];
+    }
+
+    // Check for widget in expose settings (alternative location).
+    if (isset($filter['expose']['settings']['widget'])) {
+      return $filter['expose']['settings']['widget'];
+    }
+
+    // Check the filter type - some filters default to select.
+    $filter_type = $filter['type'] ?? '';
+
+    // Common filter types that default to select widgets.
+    $select_filter_types = [
+      'select',
+      'taxonomy_index_tid',
+      'bundle',
+      'boolean',
+      'list_field',
+      'entity_reference',
+    ];
+
+    if (in_array($filter_type, $select_filter_types, TRUE)) {
+      return 'select';
+    }
+
+    // Default to 'select' if no widget is specified (most common case).
+    return 'select';
   }
 
 }
