@@ -82,11 +82,7 @@ input.selectify-checkbox[type="checkbox"] {
 /* ============================================
    Toggle Circle/Square with Squash & Stretch
    ============================================ */
-
 input.selectify-radio[type="radio"]::before {
-  content: "";
-  position: absolute;
-  border: none !important;
   margin: var(--selectify-radio-circle-margin) !important;
   inline-size: var(--selectify-radio-circle-size) !important;
   block-size: var(--selectify-radio-circle-size) !important;
@@ -97,16 +93,9 @@ input.selectify-radio[type="radio"]::before {
     background var(--selectify-radio-transition-speed) ease,
     opacity var(--selectify-radio-transition-speed) ease !important;
   translate: var(--selectify-radio-circle-translate-unchecked) 0 !important;
-  scale: 1 1 !important;
-  box-shadow: none !important;
-  z-index: 1;
-  will-change: translate, scale;
 }
 
 input.selectify-checkbox[type="checkbox"]::before {
-  content: "";
-  position: absolute;
-  border: none !important;
   margin: var(--selectify-checkbox-circle-margin) !important;
   inline-size: var(--selectify-checkbox-circle-size) !important;
   block-size: var(--selectify-checkbox-circle-size) !important;
@@ -117,6 +106,13 @@ input.selectify-checkbox[type="checkbox"]::before {
     background var(--selectify-checkbox-transition-speed) ease,
     opacity var(--selectify-checkbox-transition-speed) ease !important;
   translate: var(--selectify-checkbox-circle-translate-unchecked) 0 !important;
+}
+
+input.selectify-radio[type="radio"]::before,
+input.selectify-checkbox[type="checkbox"]::before {
+  content: "";
+  position: absolute;
+  border: none !important;
   scale: 1 1 !important;
   box-shadow: none !important;
   z-index: 1;
@@ -139,33 +135,10 @@ input.selectify-checkbox[type="checkbox"]:hover::before {
 /* ============================================
    Icon - Checkmark Only (Toggle Style)
    ============================================ */
-
-input.selectify-radio[type="radio"]::after {
-  content: "";
-  position: absolute;
-  inline-size: var(--selectify-radio-icon-size);
-  block-size: var(--selectify-radio-icon-size);
-  inset-block-start: 50%;
-  translate: 0 -50%;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 -960 960 960' fill='%2322c55e'%3E%3Cpath d='M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z'/%3E%3C/svg%3E");
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  transition:
-    opacity 0.25s ease,
-    scale 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-  z-index: 2;
-  pointer-events: none;
-  will-change: opacity, scale;
-  opacity: 0;
-  scale: 0.8;
-}
-
+input.selectify-radio[type="radio"]::after,
 input.selectify-checkbox[type="checkbox"]::after {
   content: "";
   position: absolute;
-  inline-size: var(--selectify-checkbox-icon-size);
-  block-size: var(--selectify-checkbox-icon-size);
   inset-block-start: 50%;
   translate: 0 -50%;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 -960 960 960' fill='%2322c55e'%3E%3Cpath d='M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z'/%3E%3C/svg%3E");
@@ -182,19 +155,30 @@ input.selectify-checkbox[type="checkbox"]::after {
   scale: 0.8;
 }
 
-/* Unchecked state - no icon (clean slate) */
 input.selectify-radio[type="radio"]::after {
-  inset-inline-start: var(--selectify-radio-icon-left-unchecked);
+  inline-size: var(--selectify-radio-icon-size);
+  block-size: var(--selectify-radio-icon-size);
+}
+
+input.selectify-checkbox[type="checkbox"]::after {
+  inline-size: var(--selectify-checkbox-icon-size);
+  block-size: var(--selectify-checkbox-icon-size);
+}
+
+/* Unchecked state - no icon (clean slate) */
+input.selectify-radio[type="radio"]::after,
+input.selectify-checkbox[type="checkbox"]::after {
   inset-inline-end: auto;
   opacity: 0;
   scale: 0.8;
+}
+
+input.selectify-radio[type="radio"]::after {
+  inset-inline-start: var(--selectify-radio-icon-left-unchecked);
 }
 
 input.selectify-checkbox[type="checkbox"]::after {
   inset-inline-start: var(--selectify-checkbox-icon-left-unchecked);
-  inset-inline-end: auto;
-  opacity: 0;
-  scale: 0.8;
 }
 
 /* Checked state - checkmark fades in and pops with scale */
@@ -206,18 +190,20 @@ input.selectify-checkbox[type="checkbox"]:checked::before {
   translate: var(--selectify-checkbox-circle-translate-checked) 0 !important;
 }
 
-input.selectify-radio[type="radio"]:checked::after {
+/* Checked state - checkmark fades in and pops with scale */
+input.selectify-radio[type="radio"]:checked::after,
+input.selectify-checkbox[type="checkbox"]:checked::after {
   inset-inline-start: auto;
-  inset-inline-end: var(--selectify-radio-icon-right-checked);
   opacity: 1;
   scale: 1.05;
 }
 
+input.selectify-radio[type="radio"]:checked::after {
+  inset-inline-end: var(--selectify-radio-icon-right-checked);
+}
+
 input.selectify-checkbox[type="checkbox"]:checked::after {
-  inset-inline-start: auto;
   inset-inline-end: var(--selectify-checkbox-icon-right-checked);
-  opacity: 1;
-  scale: 1.05;
 }
 
 /* RTL Support */
