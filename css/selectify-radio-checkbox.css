@@ -10,6 +10,18 @@
  * Developer: Alaa Haddad https://www.alaahaddad.com
  */
 
+/* Force pseudo-elements to work in off-canvas */
+#drupal-off-canvas input.selectify-checkbox[type="checkbox"]::before,
+#drupal-off-canvas input.selectify-checkbox[type="checkbox"]::after,
+#drupal-off-canvas input.selectify-radio[type="radio"]::before,
+#drupal-off-canvas input.selectify-radio[type="radio"]::after {
+  content: '' !important;
+  display: block !important;
+  position: absolute !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
 /* ============================================
    Global Variable Registry (base keys only)
    ============================================ */

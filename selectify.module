@@ -857,7 +857,7 @@ function selectify_preprocess_container(array &$variables): void {
   $classes = [];
 
   // Normalize classes to a clean string[] in all cases.
-  if ($attr instanceof \Drupal\Core\Template\Attribute) {
+  if ($attr instanceof Attribute) {
     $classes = $attr->offsetGet('class') ?? [];
   }
   elseif (is_array($attr) && array_key_exists('class', $attr)) {
@@ -885,7 +885,7 @@ function selectify_preprocess_container(array &$variables): void {
       $max = $variables['element']['widget'][0]['#attributes']['data-max-selections'] ?? NULL;
       $new_class = ($max === '1') ? 'selectify-single' : 'selectify-multi';
 
-      if ($attr instanceof \Drupal\Core\Template\Attribute) {
+      if ($attr instanceof Attribute) {
         $variables['attributes']->addClass($new_class);
       }
       else {
@@ -899,7 +899,6 @@ function selectify_preprocess_container(array &$variables): void {
     }
   }
 }
-
 
 /**
  * Implements hook_preprocess_views_exposed_form() for Selectify.
