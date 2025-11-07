@@ -848,22 +848,58 @@ function selectify_detect_gin_theme() {
 /**
  * Implements hook_preprocess_container().
  */
-function selectify_preprocess_container(&$variables) {
-  if (!isset($variables['attributes']['class'])) {
+function selectify_preprocess_container(array &$variables): void {
+  if (empty($variables['attributes'])) {
     return;
   }
 
-  // Check if this is a selectify field container.
-  foreach ($variables['attributes']['class'] as $class) {
-    if (strpos($class, 'field--widget-selectify-') === 0) {
-      // Get max selections from widget.
-      $max_selections = $variables['element']['widget'][0]['#attributes']['data-max-selections'] ?? NULL;
+  $attr = $variables['attributes'];
+  $classes = [];
 
-      $variables['attributes']['class'][] = ($max_selections === '1') ? 'selectify-single' : 'selectify-multi';
+  // Normalize classes to a clean string[] in all cases.
+  if ($attr instanceof \Drupal\Core\Template\Attribute) {
+    $classes = $attr->offsetGet('class') ?? [];
+  }
+  elseif (is_array($attr) && array_key_exists('class', $attr)) {
+    $classes = $attr['class'];
+  }
+  elseif (isset($attr['class'])) {
+    $classes = $attr['class'];
+  }
+
+  if (is_string($classes)) {
+    // Split on any whitespace, drop empties.
+    $classes = preg_split('/\s+/', trim($classes), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+  }
+  elseif (!is_array($classes)) {
+    $classes = [];
+  }
+
+  if (!$classes) {
+    return;
+  }
+
+  // Detect Selectify widget container and add single/multi class.
+  foreach ($classes as $class) {
+    if (is_string($class) && str_starts_with($class, 'field--widget-selectify-')) {
+      $max = $variables['element']['widget'][0]['#attributes']['data-max-selections'] ?? NULL;
+      $new_class = ($max === '1') ? 'selectify-single' : 'selectify-multi';
+
+      if ($attr instanceof \Drupal\Core\Template\Attribute) {
+        $variables['attributes']->addClass($new_class);
+      }
+      else {
+        // Ensure the destination is an array.
+        if (!isset($variables['attributes']['class']) || !is_array($variables['attributes']['class'])) {
+          $variables['attributes']['class'] = (array) ($variables['attributes']['class'] ?? []);
+        }
+        $variables['attributes']['class'][] = $new_class;
+      }
       break;
     }
   }
 }
+
 
 /**
  * Implements hook_preprocess_views_exposed_form() for Selectify.
