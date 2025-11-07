@@ -249,13 +249,24 @@ class SelectifySettingsForm extends ConfigFormBase {
       '#weight' => 30,
     ];
 
+    $form['color_theme']['accent_color_mode'] = [
+      '#type' => 'radios',
+      '#title' => $this->t('Color mode'),
+      '#description' => $this->t('Choose between light and dark variants of the selected accent color.'),
+      '#options' => [
+        'none' => $this->t('None - Use default browser colors'),
+        'light' => $this->t('Light'),
+        'dark' => $this->t('Dark'),
+      ],
+      '#default_value' => $config->get('accent_color_mode') ?? 'light',
+    ];
+
     $form['color_theme']['accent_color'] = [
       '#type' => 'radios',
       '#title' => $this->t('Accent color'),
       '#description' => $this->t('Choose the color that appears when a radio button or checkbox is selected.'),
-      '#default_value' => $config->get('accent_color') ?? 'none',
+      '#default_value' => $config->get('accent_color') ?? 'blue',
       '#options' => [
-        'none' => $this->t('None - Use default browser colors'),
         'blue' => $this->t('Blue'),
         'coral' => $this->t('Coral'),
         'gold' => $this->t('Gold'),
@@ -264,21 +275,13 @@ class SelectifySettingsForm extends ConfigFormBase {
         'slate' => $this->t('Slate'),
         'teal' => $this->t('Teal'),
       ],
-    ];
-
-    $form['color_theme']['accent_color_mode'] = [
-      '#type' => 'radios',
-      '#title' => $this->t('Color mode'),
-      '#description' => $this->t('Choose between light and dark variants of the selected accent color.'),
-      '#options' => [
-        'light' => $this->t('Light'),
-        'dark' => $this->t('Dark'),
-      ],
-      '#default_value' => $config->get('accent_color_mode') ?? 'light',
       '#states' => [
-        'invisible' => [
-          ':input[name="accent_color"]' => ['value' => 'none'],
+        'disabled' => [
+          ':input[name="accent_color_mode"]' => ['value' => 'none'],
         ],
+      ],
+      '#after_build' => [
+        [get_called_class(), 'addDataAccent'],
       ],
     ];
 
@@ -437,6 +440,25 @@ class SelectifySettingsForm extends ConfigFormBase {
     }
 
     return parent::buildForm($form, $form_state);
+  }
+
+  /**
+   * Adds data-accent attributes to each radio button for visual styling.
+   *
+   * This callback adds data attributes to accent color radio buttons,
+   * allowing CSS to display color circles instead of text labels.
+   *
+   * @param array $element
+   *   The form element being processed.
+   *
+   * @return array
+   *   The modified form element with data attributes added.
+   */
+  public static function addDataAccent(array $element): array {
+    foreach ($element['#options'] as $key => $label) {
+      $element[$key]['#attributes']['data-accent'] = $label;
+    }
+    return $element;
   }
 
   /**

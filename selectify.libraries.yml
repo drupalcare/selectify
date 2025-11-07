@@ -113,7 +113,12 @@ selectify-settings-style:
   css:
     component:
       css/selectify-settings-style.css: {}
-
+  js:
+    js/selectify-settings-script.js: { }
+  dependencies:
+    - core/drupal
+    - core/drupalSettings
+    - core/once
 # Color-specific libraries - Light mode
 selectify-color-blue-light:
   css:

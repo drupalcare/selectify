@@ -1,6 +1,7 @@
 .selected-widget-row {
-  background: #d4edda;
-  border-left: 4px solid #28a745;
+  background: transparent;
+  border-left: 8px solid #28a745;
+  border-radius: 8px;
 }
 
 .selected-widget-row select {
@@ -16,15 +17,183 @@
   display: grid;
 }
 
-#edit-radio-style--wrapper .form-radios,
-#edit-radio-shape--wrapper .form-radios,
-#edit-radio-size--wrapper .form-radios,
-#edit-checkbox-style--wrapper .form-radios,
-#edit-checkbox-shape--wrapper .form-radios,
-#edit-checkbox-size--wrapper .form-radios,
-.selectify-color-options+fieldset .form-radios,
-.selectify-color-options .form-radios {
+.selectify-radio-wrapper:first-child {
+ margin-inline-start: 0!important;
+}
+
+
+/* Accent Color Radio Buttons - Colored Circle Interface */
+.selectify-settings-form #edit-accent-color--wrapper input.form-radio {
+  display: none;
+}
+
+.selectify-settings-form #edit-accent-color--wrapper label.form-item__label {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid transparent;
+  transition: transform 0.2s ease, border 0.2s ease, box-shadow 0.2s;
+  position: relative;
+  text-indent: -9999px;
+  overflow: visible;
+}
+
+/* Individual Color Assignments */
+.selectify-settings-form #edit-accent-color--wrapper label[for="edit-accent-color-blue"] {
+  background-color: #2196f3;
+}
+
+.selectify-settings-form #edit-accent-color--wrapper label[for="edit-accent-color-teal"] {
+  background-color: #009688;
+}
+
+.selectify-settings-form #edit-accent-color--wrapper label[for="edit-accent-color-coral"] {
+  background-color: #ff5252;
+}
+
+.selectify-settings-form #edit-accent-color--wrapper label[for="edit-accent-color-gold"] {
+  background-color: #ffc107;
+}
+
+.selectify-settings-form #edit-accent-color--wrapper label[for="edit-accent-color-indigo"] {
+  background-color: #3f51b5;
+}
+
+.selectify-settings-form #edit-accent-color--wrapper label[for="edit-accent-color-neutral"] {
+  background-color: #f2f2f2;
+  border: 2px solid #8d8d8d;
+}
+
+.selectify-settings-form #edit-accent-color--wrapper label[for="edit-accent-color-slate"] {
+  background-color: #607d8b;
+}
+
+.selectify-settings-form #edit-accent-color--wrapper label[for="edit-accent-color-none"] {
+  background-color: #f2f2f2;
+  border: 2px solid #8d8d8d;
+}
+
+/* Default State */
+.selectify-settings-form #edit-accent-color--wrapper input.form-radio + label {
+  box-shadow: rgba(244, 67, 54, 0.7) 0 4px 16px;
+}
+
+/* Checked State */
+.selectify-settings-form #edit-accent-color--wrapper input.form-radio:checked + label,
+.selectify-settings-form #edit-accent-color--wrapper input.selectify-checked + label {
+  transform: scale(1.2);
+  box-shadow: rgba(76, 175, 80, 0.7) 0 8px 32px;
+  cursor: default;
+}
+
+/* Checkmark on Selected */
+.selectify-settings-form #edit-accent-color--wrapper input.form-radio:checked + label::after,
+.selectify-settings-form #edit-accent-color--wrapper input.selectify-checked + label::after {
+  content: "✓";
+  font-size: 1.25rem;
+  color: white;
+  font-weight: bold;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-indent: 0;
+}
+
+/* Dark Checkmark for Light Colors */
+.selectify-settings-form #edit-accent-color--wrapper input#edit-accent-color-neutral:checked + label::after,
+.selectify-settings-form #edit-accent-color--wrapper input#edit-accent-color-none:checked + label::after,
+.selectify-settings-form #edit-accent-color--wrapper input.selectify-checked[id*="neutral"] + label::after,
+.selectify-settings-form #edit-accent-color--wrapper input.selectify-checked[id*="none"] + label::after {
+  color: #333;
+}
+
+/* Disabled State */
+.selectify-settings-form #edit-accent-color--wrapper input.form-radio:disabled + label {
+  cursor: default;
+  box-shadow: none;
+  border: none;
+  opacity: 0.6;
+}
+
+.selectify-settings-form #edit-accent-color--wrapper input.form-radio:disabled + label::after {
+  content: "" !important;
+  font-size: 0 !important;
+  visibility: hidden !important;
+}
+/* Tooltip for Accent Color Circles */
+.selectify-settings-form .accent-tooltip {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: -35px;
+  background-color: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  font-size: 0.75rem;
+  padding: 5px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.selectify-settings-form #edit-accent-color .form-item--accent-color {
+  position: relative;
+  display: inline-block;
+}
+
+/* Responsive Grid Layout for All Radio Button Groups (Except Accent Color) */
+.selectify-settings-form #edit-accent-color-mode--wrapper .form-radios,
+.selectify-settings-form #edit-radio-style--wrapper .form-radios,
+.selectify-settings-form #edit-radio-shape--wrapper .form-radios,
+.selectify-settings-form #edit-radio-size--wrapper .form-radios,
+.selectify-settings-form #edit-checkbox-style--wrapper .form-radios,
+.selectify-settings-form #edit-checkbox-shape--wrapper .form-radios,
+.selectify-settings-form #edit-checkbox-size--wrapper .form-radios {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+/* Tablet: 2 Columns */
+@media (min-width: 768px) {
+  .selectify-settings-form #edit-accent-color-mode--wrapper .form-radios,
+  .selectify-settings-form #edit-radio-style--wrapper .form-radios,
+  .selectify-settings-form #edit-radio-shape--wrapper .form-radios,
+  .selectify-settings-form #edit-radio-size--wrapper .form-radios,
+  .selectify-settings-form #edit-checkbox-style--wrapper .form-radios,
+  .selectify-settings-form #edit-checkbox-shape--wrapper .form-radios,
+  .selectify-settings-form #edit-checkbox-size--wrapper .form-radios {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px 24px;
+  }
+}
+
+/* Desktop: 3 Columns */
+@media (min-width: 1024px) {
+  .selectify-settings-form #edit-accent-color-mode--wrapper .form-radios,
+  .selectify-settings-form #edit-radio-style--wrapper .form-radios,
+  .selectify-settings-form #edit-radio-shape--wrapper .form-radios,
+  .selectify-settings-form #edit-radio-size--wrapper .form-radios,
+  .selectify-settings-form #edit-checkbox-style--wrapper .form-radios,
+  .selectify-settings-form #edit-checkbox-shape--wrapper .form-radios,
+  .selectify-settings-form #edit-checkbox-size--wrapper .form-radios {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px 32px;
+  }
+}
+
+/* Keep Accent Color Circles Horizontal */
+.selectify-settings-form #edit-accent-color--wrapper .form-radios {
   display: flex;
   flex-wrap: wrap;
   gap: 0 24px;
+  align-items: center;
 }
