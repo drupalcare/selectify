@@ -1,7 +1,7 @@
 :root {
-  --selectify-select-border-radius: 8px;
-  --selectify-select-padding: 10px 14px;
-  --selectify-select-font-size: 16px;
+  --selectify-select-border-radius: 0.25rem;
+  --selectify-select-padding: 0.75rem 0.875rem;
+  --selectify-select-font-size: 1rem;
   --selectify-select-bg: #ffffff;
   --selectify-select-border-color: #cfd8dc;
   --selectify-select-color: #37474f;
@@ -43,13 +43,13 @@ body .selectify-select .selectify-available-display {
 
 body .selectify-clear-all,
 body .selectify-select .selectify-selected-display {
-  border: 2px solid var(--selectify-select-border-color, var(--r-br));
+  border: 1px solid var(--selectify-select-border-color, var(--r-br));
 }
 
 body .selectify-select .search-input input {
   width: calc(100% - 16px);
   margin: 0 auto;
-  border-radius: 5px;
+  border-radius: 0.25rem;
   border: 1px solid var(--selectify-select-border-color, var(--r-br));
   box-shadow: none!important;
 }
@@ -57,7 +57,7 @@ body .selectify-select .search-input input {
 body .dual-available,
 body .dual-selected {
   background: var(--selectify-select-bg, var(--r-bg));
-  border: 2px solid var(--selectify-select-border-color, var(--r-br));
+  border: 1px solid var(--selectify-select-border-color, var(--r-br));
 }
 
 body .selectify-select .selectify-available-display {

@@ -34,8 +34,8 @@
   flex-grow: 0;
   align-items: center;
   justify-content: end;
-  gap: 10px;
-  padding: 8px 12px;
+  gap: 0.625rem;
+  padding: var(--selectify-select-padding);
   min-width: 230px;
   min-height: 48px;
 }
@@ -44,7 +44,7 @@
 .selectify-select-dropdowns .selectify-selected-options {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 0.375rem;
   flex-grow: 1;
   margin-right: 26px;
   width: calc(100% - 30px);
@@ -54,11 +54,11 @@
 .selectify-select-dropdowns .selectify-selected-one-option {
   display: flex;
   align-items: center;
-  gap: 2px;
-  padding: 2px 8px;
-  border-radius: 6px;
+  gap: 0.125rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.375rem;
   border-style: solid;
-  border-width: 1px;
+  border-width: 0.063rem;
 }
 
 /* Remove Tag Button */
@@ -136,14 +136,14 @@
 .selectify-select-dropdowns .selectify-available-one-option {
   display: flex;
   align-items: center;
-  padding: 8px 12px;
+  padding: 0.5rem 0.75rem;
   transition: all 0.3s ease;
   cursor: pointer;
   font-weight: normal;
 }
 
 .checkbox.selectify-select-dropdowns .selectify-available-one-option {
-  gap: 8px;
+  gap: 0.5rem;
 }
 
 .selectify-select-dropdowns .selectify-available-one-option * {
@@ -157,7 +157,7 @@
 
 .selectify-select-dropdowns .search-input input {
   width: 100%;
-  padding: 8px 12px 8px 32px;
+  padding: 0.5rem 0.75rem 0.5rem 2rem;
   outline: none;
   transition: border 0.2s ease;
 }
@@ -205,7 +205,7 @@ html[dir="rtl"] .selectify-select-dropdowns .selectify-dorpdown-arrow {
 }
 
 html[dir="rtl"] .selectify-select-dropdowns .search-input input {
-  padding: 8px 32px 8px 12px;
+  padding: 0.5rem 2rem 0.5rem 0.75rem;
 }
 
 html[dir="rtl"] .selectify-select-dropdowns .selectify-selected-options {
