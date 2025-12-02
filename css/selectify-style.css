@@ -69,9 +69,15 @@ body .selectify-select .search-input+.selectify-selected-one-option {
   border-top: 1px dashed var(--selectify-select-border-color, var(--r-br));
 }
 
-body .selectify-select *:focus {
-  outline: none;
-  border-color: var(--selectify-select-focus-border-color, var(--r-br));
+body .selectify-select:focus,
+body .selectify-select:focus-visible,
+body .selectify-select .search-input input:focus,
+body .selectify-select .search-input input:focus-visible,
+body .selectify-select .selectify-available-display *:focus,
+body .selectify-select .selectify-available-display *:focus-visible{
+  outline: 2px solid var(--selectify-select-focus-border, var(--r-br));
+  outline-offset: -2px;
+  border-color: var(--selectify-select-focus-border, var(--r-br));
   box-shadow: var(--selectify-dropdown-shadow, unset);
 }
 
@@ -89,14 +95,14 @@ body .selectify-available-one-option {
 
 body .selectify-selected-display:hover {
   background: var(--selectify-select-hover-bg, var(--r-bg));
-  border-color: var(--selectify-select-focus-border-color, var(--r-br));
+  border-color: var(--selectify-select-focus-border, var(--r-br));
 }
 
 body .selectify-clear-all:hover,
 body .selectify-selected-one-option.dual-item:hover,
 body .selectify-available-one-option:hover {
   background: var(--selectify-select-hover-bg, var(--r-bg));
-  border-color: var(--selectify-select-focus-border);
+  border-color: var(--selectify-select-focus-border, var(--r-br));
   transform: translateY(2px);
 }
 
@@ -116,19 +122,19 @@ body .selectify-available-one-option.s-selected * {
 
 .selectify-select:focus,
 .selectify-select:focus-visible {
-  outline: 2px solid var(--selectify-select-focus-border);
+  outline: 2px solid var(--selectify-select-focus-border, var(--r-br));
   outline-offset: 2px;
 }
 
 .selectify-available-one-option:focus,
 .selectify-available-one-option:focus-visible {
-  outline: 2px solid var(--selectify-select-focus-border);
+  outline: 2px solid var(--selectify-select-focus-border, var(--r-br));
   outline-offset: -2px;
   background: var(--selectify-option-hover-bg);
 }
 
 .selectify-selected-display:focus {
-  outline: 2px solid var(--selectify-select-focus-border);
+  outline: 2px solid var(--selectify-select-focus-border, var(--r-br));
   outline-offset: 2px;
 }
 
