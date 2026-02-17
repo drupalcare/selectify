@@ -18,22 +18,16 @@
  */
 #}
 {% set wrapper_id = "wrapper-" ~ attributes.id %}
-{# Combine default Drupal classes with Selectify classes #}
+{# Combine Selectify wrapper classes with existing Drupal classes from attributes #}
 {% set all_classes = [
   'wrapper-selectify',
-  wrapper_id,
-  'views-exposed-form__item',
-  'js-form-item',
-  'form-item',
-  'js-form-type-select',
-  'form-type--select'
+  wrapper_id
 ] %}
-{# Add extra Views-specific classes if this is an exposed filter #}
+{# Add Views-specific classes only for exposed filters #}
 {% if is_views %}
   {% set all_classes = all_classes|merge([
-    'views-exposed-form__item--preceding-actions',
-    'js-form-item-status',
-    'form-item--status'
+    'views-exposed-form__item',
+    'views-exposed-form__item--preceding-actions'
   ]) %}
 {% endif %}
 {# Merge with existing Drupal classes from `attributes.class` #}
