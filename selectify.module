@@ -10,29 +10,25 @@
  * Developer:    Alaa Haddad https://www.alaahaddad.com.
  */
 
-use Drupal\Core\Template\Attribute;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Template\Attribute;
 
 /**
  * Implements hook_preprocess_html().
  */
 function selectify_preprocess_html(&$variables) {
-  // Get the Selectify configuration to check if radio/checkbox is enabled.
   $config = \Drupal::config('selectify.settings');
   $radioEnabled = $config->get('enable_radio');
   $checkboxEnabled = $config->get('enable_checkbox');
 
-  // Only add classes if at least one is enabled.
   if (!$radioEnabled && !$checkboxEnabled) {
     return;
   }
 
-  // Get CSS classes from the style service.
   /** @var \Drupal\selectify\Service\SelectifyStyleService $styleService */
   $styleService = \Drupal::service('selectify.style_service');
   $bodyClasses = $styleService->getBodyClasses();
 
-  // Add classes to the body tag.
   if (!empty($bodyClasses)) {
     $classes = explode(' ', $bodyClasses);
     foreach ($classes as $class) {
@@ -46,7 +42,7 @@ function selectify_preprocess_html(&$variables) {
  */
 function selectify_help($route_name, RouteMatchInterface $route_match): ?string {
   if ($route_name === 'help.page.selectify') {
-    return _selectify_helper_render_readme();
+    return _selectify_render_readme();
   }
   return NULL;
 }
@@ -57,7 +53,7 @@ function selectify_help($route_name, RouteMatchInterface $route_match): ?string 
  * @return string
  *   The rendered content of README.md.
  */
-function _selectify_helper_render_readme(): string {
+function _selectify_render_readme(): string {
   $readme_path = __DIR__ . '/README.md';
   $text = file_get_contents($readme_path);
 
@@ -69,7 +65,6 @@ function _selectify_helper_render_readme(): string {
     return '<pre>' . htmlspecialchars($text) . '</pre>';
   }
 
-  // Use the Markdown filter to render the README.
   $filter_manager = \Drupal::service('plugin.manager.filter');
   $settings = \Drupal::config('markdown.settings')->getRawData();
   $filter = $filter_manager->createInstance('markdown', ['settings' => $settings]);
@@ -80,35 +75,30 @@ function _selectify_helper_render_readme(): string {
  * Implements hook_theme_suggestions_select_alter().
  */
 function selectify_theme_suggestions_select_alter(array &$suggestions, array $variables) {
-  // Ensure the element exists and has attributes.
   if (empty($variables['element']['#attributes']['class'])) {
     return;
   }
 
   $classes = (array) $variables['element']['#attributes']['class'];
 
-  // Remove `form_element` if it's applied.
   foreach ($suggestions as $key => $suggestion) {
     if (strpos($suggestion, 'form_element') !== FALSE) {
       unset($suggestions[$key]);
     }
   }
 
-  // Add the correct select template based on class.
-  if (in_array('selectify-apply-dropdown', $classes)) {
-    $suggestions[] = 'select__selectify_dropdown';
-  }
-  if (in_array('selectify-apply-checkbox', $classes)) {
-    $suggestions[] = 'select__selectify_dropdown_checkbox';
-  }
-  if (in_array('selectify-apply-searchable', $classes)) {
-    $suggestions[] = 'select__selectify_dropdown_searchable';
-  }
-  if (in_array('selectify-apply-tags', $classes)) {
-    $suggestions[] = 'select__selectify_dropdown_tags';
-  }
-  if (in_array('selectify-apply-dual', $classes)) {
-    $suggestions[] = 'select__selectify_dual';
+  $class_to_suggestion = [
+    'selectify-apply-dropdown' => 'select__selectify_dropdown',
+    'selectify-apply-checkbox' => 'select__selectify_dropdown_checkbox',
+    'selectify-apply-searchable' => 'select__selectify_dropdown_searchable',
+    'selectify-apply-tags' => 'select__selectify_dropdown_tags',
+    'selectify-apply-dual' => 'select__selectify_dual',
+  ];
+
+  foreach ($class_to_suggestion as $class => $suggestion) {
+    if (in_array($class, $classes)) {
+      $suggestions[] = $suggestion;
+    }
   }
 }
 
@@ -142,7 +132,6 @@ function selectify_theme($existing, $type, $theme, $path) {
       'template' => 'select--selectify-dual',
       'path' => $path . '/templates',
     ],
-
   ];
 }
 
@@ -182,40 +171,16 @@ function selectify_preprocess_select__selectify_dual(&$variables) {
 }
 
 /**
- * Cleans a theme name to allow only letters, numbers, and dashes.
- */
-function selectify_clean_theme_name($name) {
-  // Convert spaces and underscores to dashes.
-  $name = str_replace([' ', '_'], '-', $name);
-  // Remove any character that is not a letter, number, or dash.
-  return preg_replace('/[^a-zA-Z0-9-]/', '', $name);
-}
-
-/**
- * Recursively finds the topmost base theme (the original parent).
- */
-function selectify_get_root_parent_theme($theme_name) {
-  $theme_handler = \Drupal::service('theme_handler');
-  $theme_info = $theme_handler->getTheme($theme_name);
-
-  // If this theme has a base theme, continue checking recursively.
-  if (!empty($theme_info->info['base theme'])) {
-    $base_themes = (array) $theme_info->info['base theme'];
-    // Recursive call.
-    return selectify_get_root_parent_theme(reset($base_themes));
-  }
-
-  // If no base theme, this is the root theme.
-  return $theme_name;
-}
-
-/**
  * Common preprocessing logic for all Selectify widgets.
  */
 function _selectify_preprocess_widget(array &$variables) {
   if (!isset($variables['element'])) {
     return;
   }
+
+  /** @var \Drupal\selectify\Service\SelectifyHelper $helper */
+  $helper = \Drupal::service('selectify.helper');
+
   $element = $variables['element'];
   $raw_attributes = $element['#attributes'] ?? [];
   $variables['attributes'] = new Attribute($raw_attributes);
@@ -269,59 +234,29 @@ function _selectify_preprocess_widget(array &$variables) {
   $clean_field_name = str_replace(['_', '[]'], ['-', ''], $variables['field_name']);
   $variables['clean_field_name'] = $clean_field_name;
 
-  // background:Get the actual active theme for the request.
-  $theme_manager = \Drupal::service('theme.manager');
-  $active_theme = $theme_manager->getActiveTheme();
-  // The theme currently in use.
-  $theme_name = $active_theme->getName();
-  // background:Get the root parent theme.
-  $parent_theme = selectify_get_root_parent_theme($theme_name);
-  // Add the theme classes, ensuring the real parent is first.
+  // Get the active theme and root parent theme via helper service.
+  $theme_name = $helper->getActiveThemeName();
+  $parent_theme = $helper->getRootParentTheme($theme_name);
+
   $theme_classes = [];
   if (!empty($parent_theme) && $parent_theme !== $theme_name) {
-    // background:Print the last (root) parent.
-    $theme_classes[] = 'theme-parent-' . selectify_clean_theme_name($parent_theme);
+    $theme_classes[] = 'theme-parent-' . $helper->cleanThemeName($parent_theme);
   }
-  // background:Print the currently active theme.
-  $theme_classes[] = 'theme-' . selectify_clean_theme_name($theme_name);
-  // Get the Selectify checkbox configuration.
-  $config = selectify_get_radio_checkbox_config();
+  $theme_classes[] = 'theme-' . $helper->cleanThemeName($theme_name);
+
+  $config = $helper->getRadioCheckboxConfig();
   $variables['enable_checkbox'] = !empty($config['enable_checkbox']);
-  // Merge theme classes.
   $variables['attributes']->addClass($theme_classes);
-}
-
-/**
- * Retrieves Selectify settings with admin route check.
- *
- * @return array|false
- *   Returns array of settings if Selectify should be applied, otherwise false.
- */
-function selectify_get_radio_checkbox_config() {
-  $config = \Drupal::config('selectify.settings');
-  $is_admin = \Drupal::service('router.admin_context')->isAdminRoute();
-
-  // Check if Disable on Admin Route is enabled and if we are on an admin page.
-  if ($config->get('disable_on_admin_routes') && $is_admin) {
-    // Prevent applying styles and libraries.
-    return FALSE;
-  }
-
-  return [
-    'enable_radio' => $config->get('enable_radio'),
-    'enable_checkbox' => $config->get('enable_checkbox'),
-    'disable_on_admin_routes' => $config->get('disable_on_admin_routes'),
-    'accent_color' => $config->get('accent_color'),
-  ];
 }
 
 /**
  * Implements hook_preprocess_form_element() for Selectify.
  */
 function selectify_preprocess_form_element(array &$variables): void {
-  $config = selectify_get_radio_checkbox_config();
+  /** @var \Drupal\selectify\Service\SelectifyHelper $helper */
+  $helper = \Drupal::service('selectify.helper');
+  $config = $helper->getRadioCheckboxConfig();
 
-  // If Selectify is disabled (e.g., on admin routes), stop processing.
   if ($config === FALSE) {
     return;
   }
@@ -332,7 +267,6 @@ function selectify_preprocess_form_element(array &$variables): void {
 
   $type = $variables['element']['#type'];
 
-  // Add the correct wrapper class only if the feature is enabled.
   if ($type === 'radio' && ($config['enable_radio'] === TRUE)) {
     $variables['attributes']['class'][] = 'selectify-form-item selectify-radio-wrapper';
   }
@@ -345,9 +279,10 @@ function selectify_preprocess_form_element(array &$variables): void {
  * Implements hook_preprocess_input() for Selectify.
  */
 function selectify_preprocess_input(array &$variables): void {
-  $config = selectify_get_radio_checkbox_config();
+  /** @var \Drupal\selectify\Service\SelectifyHelper $helper */
+  $helper = \Drupal::service('selectify.helper');
+  $config = $helper->getRadioCheckboxConfig();
 
-  // If Selectify is disabled (e.g., on admin routes), stop processing.
   if ($config === FALSE) {
     return;
   }
@@ -358,7 +293,6 @@ function selectify_preprocess_input(array &$variables): void {
 
   $type = $variables['attributes']['type'];
 
-  // Add the correct input class only if the feature is enabled.
   if ($type === 'radio' && ($config['enable_radio'] === TRUE)) {
     $variables['attributes']['class'][] = 'selectify-radio';
   }
@@ -371,275 +305,35 @@ function selectify_preprocess_input(array &$variables): void {
  * Implements hook_page_attachments() for Selectify.
  */
 function selectify_page_attachments(array &$attachments) {
-  $config = selectify_get_radio_checkbox_config();
+  /** @var \Drupal\selectify\Service\SelectifyHelper $helper */
+  $helper = \Drupal::service('selectify.helper');
+  $config = $helper->getRadioCheckboxConfig();
 
-  // If the function returns FALSE, do not attach any libraries.
   if ($config === FALSE) {
     return;
   }
 
-  // Attach base styles only if radio or checkbox styling is enabled.
   if (($config['enable_checkbox'] === TRUE) || ($config['enable_radio'] === TRUE)) {
     $attachments['#attached']['library'][] = 'selectify/selectify-base';
     $attachments['#attached']['library'][] = 'selectify/selectify-radio-checkbox';
 
     $selected_accent = $config['accent_color'];
     if (!empty($selected_accent) && $selected_accent !== 'none') {
-      $accent_color_mode = \Drupal::config('selectify.settings')->get('accent_color_mode') ?: 'light';
+      $accent_color_mode = $helper->getConfig()->get('accent_color_mode') ?: 'light';
       $attachments['#attached']['library'][] = "selectify/selectify-color-{$selected_accent}-{$accent_color_mode}";
     }
   }
-
-}
-
-/**
- * Adds the 'selectify-views' class to all select elements Views exposed form.
- *
- * @param array &$form
- *   The Views exposed form array.
- */
-function selectify_add_views_class(array &$form) {
-  foreach ($form as &$element) {
-    if (is_array($element) && isset($element['#type']) && $element['#type'] === 'select') {
-      // Ensure #attributes array exists.
-      $element['#attributes'] = $element['#attributes'] ?? [];
-
-      // Ensure class array exists.
-      $element['#attributes']['class'] = $element['#attributes']['class'] ?? [];
-
-      // Add the selectify-views class.
-      $element['#attributes']['class'][] = 'selectify-views';
-    }
-  }
-}
-
-/**
- * Loads Selectify configuration settings.
- *
- * @return array
- *   An associative array containing Selectify settings.
- */
-function selectify_load_config() {
-  $config = \Drupal::config('selectify.settings');
-
-  return [
-    'disable_on_admin_routes' => $config->get('disable_on_admin_routes'),
-    'widget_map' => $config->get('widget_for_filters') ?? [],
-    'apply_site_wide' => $config->get('apply_site_wide'),
-    'global_widget' => $config->get('global_selectify_widget'),
-  ];
-}
-
-/**
- * Checks if Selectify is disabled on admin routes.
- *
- * @return bool
- *   TRUE if Selectify is disabled on an admin route, FALSE otherwise.
- */
-function selectify_disabled_on_admin_routes() {
-  // Fetch the configuration.
-  $config = selectify_load_config();
-  $disable_on_admin_routes = $config['disable_on_admin_routes'];
-
-  if ($disable_on_admin_routes && \Drupal::routeMatch()->getRouteName() !== NULL) {
-    $current_path = \Drupal::service('path.current')->getPath();
-    if (strpos($current_path, '/admin') === 0) {
-      // \Drupal::messenger()->addMessage("Selectify is disabled on admin
-      // routes. Skipping.", 'warning');
-      return TRUE;
-    }
-  }
-  return FALSE;
-}
-
-/**
- * Extracts and normalizes the form ID by replacing underscores with hyphens.
- *
- * @param array $form
- *   The Views exposed form array.
- *
- * @return string
- *   The normalized form ID.
- */
-function selectify_normalize_form_id(array $form) {
-  $form_id = $form['#id'] ?? ($form['#attributes']['id'] ?? '');
-
-  if (is_array($form_id)) {
-    $form_id = reset($form_id);
-  }
-
-  return str_replace('_', '-', $form_id);
-}
-
-/**
- * Retrieves the library dependencies for each Selectify widget type.
- *
- * @return array
- *   An associative array where keys are widget names and values are arrays
- */
-function selectify_get_widget_libraries() {
-  return [
-    'selectify_dropdown' => [
-      'selectify/selectify-base',
-      'selectify/selectify-helper',
-      'selectify/selectify-dropdowns',
-      'selectify/selectify-dropdown',
-    ],
-    'selectify_tags' => [
-      'selectify/selectify-base',
-      'selectify/selectify-helper',
-      'selectify/selectify-dropdowns',
-      'selectify/selectify-dropdown-tags',
-    ],
-    'selectify_searchable' => [
-      'selectify/selectify-base',
-      'selectify/selectify-helper',
-      'selectify/selectify-dropdowns',
-      'selectify/selectify-dropdown-searchable',
-    ],
-    'selectify_dual' => [
-      'selectify/selectify-base',
-      'selectify/selectify-helper',
-      'selectify/selectify-dual',
-    ],
-    'selectify_checkbox' => [
-      'selectify/selectify-base',
-      'selectify/selectify-helper',
-      'selectify/selectify-dropdowns',
-      'selectify/selectify-dropdown-checkbox',
-    ],
-  ];
-}
-
-/**
- * Applies the global Selectify widget if site-wide setting is enabled.
- *
- * @param array &$form
- *   The Views exposed form array.
- * @param string $global_widget
- *   The global widget type.
- * @param array $widget_libraries
- *   The widget-to-library mapping.
- * @param array $widget_classes
- *   The widget-to-class mapping.
- */
-function selectify_global_widget(array &$form, $global_widget, array $widget_libraries, array $widget_classes) {
-  if (!empty($global_widget) && isset($widget_libraries[$global_widget])) {
-    // \Drupal::messenger()->addMessage("Applying Global Widget:
-    // {$global_widget}", 'status');
-    // Attach libraries.
-    foreach ($widget_libraries[$global_widget] as $library) {
-      $form['#attached']['library'][] = $library;
-    }
-
-    // \Drupal::messenger()->addMessage("Global Libraries
-    // Attached: " . implode(', ', $widget_libraries[$global_widget]),
-    // 'status');
-    // Apply widget-specific class if available.
-    if (isset($widget_classes[$global_widget])) {
-      $form['#attributes']['class'][] = 'selectify-views-form';
-
-      foreach ($form as &$element) {
-        if (is_array($element) && isset($element['#type']) && $element['#type'] === 'select') {
-          $element['#attributes']['class'][] = $widget_classes[$global_widget];
-        }
-      }
-
-    }
-  }
-}
-
-/**
- * Applies Selectify widgets based on the Views exposed filter configuration.
- *
- * @param array &$form
- *   The Views exposed form array.
- * @param array $widget_map
- *   The stored configuration mapping of Views filters to widgets.
- * @param string $clean_form_id
- *   The current normalized form ID.
- * @param array $widget_libraries
- *   The widget-to-library mapping.
- * @param array $widget_classes
- *   The widget-to-class mapping.
- */
-function selectify_single_widget(array &$form, array $widget_map, $clean_form_id, array $widget_libraries, array $widget_classes) {
-
-  foreach ($widget_map as $widget_data) {
-    $stored_exposed_form_id = $widget_data['exposed_form_id'] ?? '';
-    $normalized_stored_form_id = str_replace('_', '-', $stored_exposed_form_id);
-
-    if (!empty($normalized_stored_form_id) && $normalized_stored_form_id === $clean_form_id) {
-      $selected_widget = $widget_data['widget'];
-
-      if (isset($widget_libraries[$selected_widget])) {
-        foreach ($widget_libraries[$selected_widget] as $library) {
-          $form['#attached']['library'][] = $library;
-        }
-      }
-
-      // Apply widget class if available.
-      if (isset($widget_classes[$selected_widget])) {
-        $form['#attributes']['class'][] = 'selectify-views-form';
-
-        foreach ($form as &$element) {
-          if (is_array($element) && isset($element['#type']) && $element['#type'] === 'select') {
-            $element['#attributes']['class'][] = $widget_classes[$selected_widget];
-          }
-        }
-      }
-    }
-  }
-}
-
-/**
- * Check if the current page matches any disabled page pattern.
- *
- * @return bool
- *   TRUE if the current page should have Selectify disabled, FALSE otherwise.
- */
-function selectify_is_page_disabled(): bool {
-  // Use static caching to avoid multiple checks per request.
-  static $is_disabled = NULL;
-
-  if ($is_disabled !== NULL) {
-    return $is_disabled;
-  }
-
-  $config = \Drupal::config('selectify.settings');
-  $disabled_pages = $config->get('disabled_pages') ?? '';
-
-  // If no disabled pages configured, return FALSE.
-  if (empty(trim($disabled_pages))) {
-    $is_disabled = FALSE;
-    return $is_disabled;
-  }
-
-  /** @var \Drupal\Core\Path\PathMatcherInterface $path_matcher */
-  $path_matcher = \Drupal::service('path.matcher');
-
-  /** @var \Drupal\Core\Path\CurrentPathStack $current_path_service */
-  $current_path_service = \Drupal::service('path.current');
-  $current_path = ltrim($current_path_service->getPath(), '/');
-
-  /** @var \Drupal\path_alias\AliasManagerInterface $alias_manager */
-  $alias_manager = \Drupal::service('path_alias.manager');
-  $path_alias = ltrim($alias_manager->getAliasByPath('/' . $current_path), '/');
-
-  // Check both system path and alias.
-  $is_disabled = $path_matcher->matchPath($current_path, $disabled_pages)
-    || ($path_alias !== $current_path && $path_matcher->matchPath($path_alias, $disabled_pages));
-
-  return $is_disabled;
 }
 
 /**
  * Implements hook_page_attachments_alter().
  */
 function selectify_page_attachments_alter(array &$attachments): void {
+  /** @var \Drupal\selectify\Service\SelectifyHelper $helper */
+  $helper = \Drupal::service('selectify.helper');
+
   // Check if current page is in the disabled pages list.
-  if (selectify_is_page_disabled()) {
-    // Remove all Selectify libraries.
+  if ($helper->isPageDisabled()) {
     if (isset($attachments['#attached']['library'])) {
       foreach ($attachments['#attached']['library'] as $key => $library) {
         if (is_string($library) && strpos($library, 'selectify/') === 0) {
@@ -647,7 +341,6 @@ function selectify_page_attachments_alter(array &$attachments): void {
         }
       }
     }
-    // Remove any Selectify drupalSettings.
     if (isset($attachments['#attached']['drupalSettings']['selectify'])) {
       unset($attachments['#attached']['drupalSettings']['selectify']);
     }
@@ -655,17 +348,15 @@ function selectify_page_attachments_alter(array &$attachments): void {
   }
 
   // Load configuration.
-  $config = \Drupal::config('selectify.settings');
+  $selectifyConfig = $helper->getConfig();
 
   // Attach radio-checkbox library and inject CSS variables if enabled.
-  $radioEnabled = (bool) $config->get('enable_radio');
-  $checkboxEnabled = (bool) $config->get('enable_checkbox');
+  $radioEnabled = (bool) $selectifyConfig->get('enable_radio');
+  $checkboxEnabled = (bool) $selectifyConfig->get('enable_checkbox');
 
   if ($radioEnabled || $checkboxEnabled) {
-    // Attach the base radio-checkbox library.
     $attachments['#attached']['library'][] = 'selectify/selectify-radio-checkbox';
 
-    // Generate and attach inline CSS variables.
     /** @var \Drupal\selectify\Service\SelectifyStyleService $styleService */
     $styleService = \Drupal::service('selectify.style_service');
     $inlineCSS = $styleService->getConfiguredInlineCss();
@@ -681,24 +372,20 @@ function selectify_page_attachments_alter(array &$attachments): void {
       ];
     }
 
-    // Attach accent color library if configured.
-    $accentColor = $config->get('accent_color');
-    $accentColorMode = $config->get('accent_color_mode') ?? 'light';
+    $accentColor = $selectifyConfig->get('accent_color');
+    $accentColorMode = $selectifyConfig->get('accent_color_mode') ?? 'light';
 
     if (!empty($accentColor) && $accentColor !== 'none') {
-      $colorLibrary = "selectify/selectify-color-{$accentColor}-{$accentColorMode}";
-      $attachments['#attached']['library'][] = $colorLibrary;
+      $attachments['#attached']['library'][] = "selectify/selectify-color-{$accentColor}-{$accentColorMode}";
     }
   }
 
-  // Normal Selectify library attachment for non-disabled pages.
-  $gin_info = selectify_detect_gin_theme();
+  // Gin theme integration.
+  $gin_info = $helper->detectGinTheme();
 
   if ($gin_info && $gin_info['is_gin']) {
-    // Attach base Gin library.
     $attachments['#attached']['library'][] = 'selectify/selectify-gin-base';
 
-    // Attach mode-specific library based on color scheme.
     $color_scheme = $gin_info['color_scheme'];
     if ($color_scheme === 'dark') {
       $attachments['#attached']['library'][] = 'selectify/selectify-gin-dark';
@@ -710,139 +397,21 @@ function selectify_page_attachments_alter(array &$attachments): void {
       $attachments['#attached']['library'][] = 'selectify/selectify-gin-auto';
     }
 
-    // Pass color scheme and accent color to JavaScript.
     $attachments['#attached']['drupalSettings']['selectify']['gin'] = [
       'colorScheme' => $color_scheme,
       'accentColor' => $gin_info['accent_color'],
     ];
   }
 
-  // Detect Claro theme.
-  $theme_manager = \Drupal::service('theme.manager');
-  $active_theme = $theme_manager->getActiveTheme();
-  $active_theme_name = $active_theme->getName();
-
-  // Check if Claro theme or Claro sub-theme.
-  $is_claro = FALSE;
-  if ($active_theme_name === 'claro') {
-    $is_claro = TRUE;
-  }
-  else {
-    $base_themes = $active_theme->getBaseThemeExtensions();
-    foreach ($base_themes as $base_theme) {
-      if ($base_theme->getName() === 'claro') {
-        $is_claro = TRUE;
-        break;
-      }
-    }
-  }
-
-  if ($is_claro) {
+  // Claro theme integration.
+  if ($helper->isBaseTheme('claro')) {
     $attachments['#attached']['library'][] = 'selectify/selectify-claro';
   }
 
-  // Check if Olivero theme or Olivero sub-theme.
-  $is_olivero = FALSE;
-  if ($active_theme_name === 'olivero') {
-    $is_olivero = TRUE;
-  }
-  else {
-    $base_themes = $active_theme->getBaseThemeExtensions();
-    foreach ($base_themes as $base_theme) {
-      if ($base_theme->getName() === 'olivero') {
-        $is_olivero = TRUE;
-        break;
-      }
-    }
-  }
-
-  if ($is_olivero) {
+  // Olivero theme integration.
+  if ($helper->isBaseTheme('olivero')) {
     $attachments['#attached']['library'][] = 'selectify/selectify-olivero';
   }
-}
-
-/**
- * Better Gin color scheme detection using DOM attribute.
- */
-function selectify_get_gin_color_scheme() {
-  // Gin sets data-gin-color-scheme on the HTML element
-  // Values: 'dark', 'light', or 'auto'.
-  $gin_config = \Drupal::config('gin.settings');
-  $enable_darkmode = (int) ($gin_config->get('enable_darkmode') ?? 0);
-
-  // Gin darkmode values:
-  // 0 = Light mode
-  // 1 = Dark mode
-  // 2 = Auto (system preference)
-  if ($enable_darkmode === 1) {
-    return 'dark';
-  }
-  elseif ($enable_darkmode === 2) {
-    return 'auto';
-  }
-  else {
-    return 'light';
-  }
-}
-
-/**
- * Detects if Gin theme is active and returns color scheme.
- *
- * @return array|false
- *   Array with 'is_gin', 'color_scheme', and 'accent_color' keys, or FALSE.
- */
-function selectify_detect_gin_theme() {
-  $theme_manager = \Drupal::service('theme.manager');
-  $active_theme = $theme_manager->getActiveTheme();
-  $active_theme_name = $active_theme->getName();
-
-  // Check if the active theme is Gin or a Gin sub-theme.
-  $is_gin = FALSE;
-  if ($active_theme_name === 'gin') {
-    $is_gin = TRUE;
-  }
-  else {
-    // Check if any base theme is Gin.
-    $base_themes = $active_theme->getBaseThemeExtensions();
-    foreach ($base_themes as $base_theme) {
-      if ($base_theme->getName() === 'gin') {
-        $is_gin = TRUE;
-        break;
-      }
-    }
-  }
-
-  // If not Gin or Gin sub-theme, return FALSE.
-  if (!$is_gin) {
-    return FALSE;
-  }
-
-  // Get Gin configuration.
-  $gin_config = \Drupal::config('gin.settings');
-
-  // Get accent color.
-  $accent_color = $gin_config->get('preset_accent_color') ?? 'blue';
-
-  // Get dark mode setting (cast to int since config stores as string)
-  $dark_mode = (int) ($gin_config->get('enable_darkmode') ?? 0);
-
-  // Determine color scheme
-  // 0 = Light mode
-  // 1 = Dark mode
-  // 2 = Auto (system preference)
-  $color_scheme = 'light';
-  if ($dark_mode === 2) {
-    $color_scheme = 'auto';
-  }
-  elseif ($dark_mode === 1) {
-    $color_scheme = 'dark';
-  }
-
-  return [
-    'is_gin' => TRUE,
-    'color_scheme' => $color_scheme,
-    'accent_color' => $accent_color,
-  ];
 }
 
 /**
@@ -868,7 +437,6 @@ function selectify_preprocess_container(array &$variables): void {
   }
 
   if (is_string($classes)) {
-    // Split on any whitespace, drop empties.
     $classes = preg_split('/\s+/', trim($classes), -1, PREG_SPLIT_NO_EMPTY) ?: [];
   }
   elseif (!is_array($classes)) {
@@ -879,7 +447,6 @@ function selectify_preprocess_container(array &$variables): void {
     return;
   }
 
-  // Detect Selectify widget container and add single/multi class.
   foreach ($classes as $class) {
     if (is_string($class) && str_starts_with($class, 'field--widget-selectify-')) {
       $max = $variables['element']['widget'][0]['#attributes']['data-max-selections'] ?? NULL;
@@ -889,7 +456,6 @@ function selectify_preprocess_container(array &$variables): void {
         $variables['attributes']->addClass($new_class);
       }
       else {
-        // Ensure the destination is an array.
         if (!isset($variables['attributes']['class']) || !is_array($variables['attributes']['class'])) {
           $variables['attributes']['class'] = (array) ($variables['attributes']['class'] ?? []);
         }
@@ -905,40 +471,53 @@ function selectify_preprocess_container(array &$variables): void {
  */
 function selectify_preprocess_views_exposed_form(&$variables) {
   $form = &$variables['form'];
-  if (selectify_is_page_disabled()) {
+
+  /** @var \Drupal\selectify\Service\SelectifyHelper $helper */
+  $helper = \Drupal::service('selectify.helper');
+
+  if ($helper->isPageDisabled()) {
     return;
   }
-  // Check if Selectify is disabled on admin routes.
-  if (selectify_disabled_on_admin_routes()) {
+
+  if ($helper->isDisabledOnAdminRoute()) {
     return;
   }
-  // Add the 'selectify-views' class to all selects.
-  selectify_add_views_class($form);
+
+  // Add the 'selectify-views' class to all select elements.
+  foreach ($form as &$element) {
+    if (is_array($element) && isset($element['#type']) && $element['#type'] === 'select') {
+      $element['#attributes'] = $element['#attributes'] ?? [];
+      $element['#attributes']['class'] = $element['#attributes']['class'] ?? [];
+      $element['#attributes']['class'][] = 'selectify-views';
+    }
+  }
+  unset($element);
+
   // Retrieve the Selectify configuration.
-  $config = selectify_load_config();
+  $config = $helper->getViewsConfig();
   $apply_site_wide = $config['apply_site_wide'];
   $global_widget = $config['global_widget'];
   $widget_map = $config['widget_map'];
-  // Extract and normalize the form ID (convert underscores to dashes).
-  $clean_form_id = selectify_normalize_form_id($form);
-  // These css classes must match the css classes in field widget and in
-  // selectify_theme_suggestions_alter()
-  $widget_libraries = selectify_get_widget_libraries();
-  $widget_classes = [
-    'selectify_dropdown' => 'selectify-apply-dropdown',
-    'selectify_tags' => 'selectify-apply-tags',
-    'selectify_searchable' => 'selectify-apply-searchable',
-    'selectify_checkbox' => 'selectify-apply-checkbox',
-    'selectify_dual' => 'selectify-apply-dual',
-  ];
-  // Apply global widget if site-wide setting is enabled,
-  // otherwise process specific widgets.
+  $clean_form_id = $helper->normalizeFormId($form);
+
+  // Apply global or per-view widget.
   if ($apply_site_wide) {
-    selectify_global_widget($form, $global_widget, $widget_libraries, $widget_classes);
+    if (!empty($global_widget)) {
+      $helper->applyWidgetToForm($form, $global_widget);
+    }
   }
   else {
-    selectify_single_widget($form, $widget_map, $clean_form_id, $widget_libraries, $widget_classes);
+    foreach ($widget_map as $widget_data) {
+      $stored_id = $widget_data['exposed_form_id'] ?? '';
+      $normalized_id = str_replace('_', '-', $stored_id);
+
+      if (!empty($normalized_id) && $normalized_id === $clean_form_id) {
+        $helper->applyWidgetToForm($form, $widget_data['widget']);
+      }
+    }
   }
+
+  // Add single/multi class to each select wrapper.
   foreach ($form as &$element) {
     if (is_array($element) && isset($element['#type']) && $element['#type'] === 'select') {
       $is_multiple = isset($element['#multiple']) && $element['#multiple'] === TRUE;

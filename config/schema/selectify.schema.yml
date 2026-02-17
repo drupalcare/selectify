@@ -38,6 +38,12 @@ selectify.settings:
     apply_site_wide:
       type: boolean
       label: 'Apply Selectify to all exposed filters'
+    disable_views_widgets:
+      type: boolean
+      label: 'Disable Selectify for all Views filters'
+    disabled_pages:
+      type: string
+      label: 'Additional pages to disable Selectify'
     global_selectify_widget:
       type: string
       label: 'Global Selectify Widget'

@@ -180,20 +180,6 @@ class SelectifyStyleService {
    *   Shape type: 'circle' or 'square'.
    * @param string $style
    *   Style type: 'toggle' or 'checkbox'.
-   *
-   * @return array
-   *   Associative array of shape variables.
-   */
-
-  /**
-   * Gets shape-related variables.
-   *
-   * @param string $elementType
-   *   Element type: 'radio' or 'checkbox'.
-   * @param string $shape
-   *   Shape type: 'circle' or 'square'.
-   * @param string $style
-   *   Style type: 'toggle' or 'checkbox'.
    * @param string $size
    *   Size type: 'small', 'medium', or 'large'.
    *

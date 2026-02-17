@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset name="Selectify">
+  <description>Drupal coding standards for the Selectify module.</description>
+
+  <!-- Check the module root directory. -->
+  <file>.</file>
+
+  <!-- Exclude third-party and generated files. -->
+  <exclude-pattern>vendor/</exclude-pattern>
+  <exclude-pattern>node_modules/</exclude-pattern>
+
+  <!-- Use Drupal and DrupalPractice standards. -->
+  <rule ref="Drupal"/>
+  <rule ref="DrupalPractice"/>
+
+  <!-- Set default encoding. -->
+  <arg name="encoding" value="utf-8"/>
+
+  <!-- Show sniff names in reports. -->
+  <arg value="sp"/>
+
+  <!-- Check PHP files. -->
+  <arg name="extensions" value="php,module,install,inc,theme,profile"/>
+</ruleset>

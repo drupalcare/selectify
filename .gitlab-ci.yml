@@ -29,8 +29,8 @@ variables:
   _TARGET_PHP: "8.1,8.3"
   # Skip certain jobs for efficiency.
   _SKIP_PHPSTAN: "0"
-  _SKIP_ESLINT: "1"
-  _SKIP_STYLELINT: "1"
+  _SKIP_ESLINT: "0"
+  _SKIP_STYLELINT: "0"
 
 ################
 # Custom Jobs (Optional)

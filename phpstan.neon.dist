@@ -1,0 +1,12 @@
+parameters:
+  level: 6
+  paths:
+    - src/
+    - selectify.module
+  excludePaths:
+    - vendor/
+  drupal:
+    drupal_root: '%currentWorkingDirectory%/../../..'
+  ignoreErrors:
+    # Allow static calls in .module file (Drupal hook pattern).
+    - '#\Drupal calls should be avoided in classes#'

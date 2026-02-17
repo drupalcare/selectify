@@ -23,8 +23,8 @@
     marginBottom: '0'
   };
   const removeStyles = (target) => {
-    const stylesToRemove = ['height', 'paddingTop', 'paddingBottom', 'marginTop', 'marginBottom', 'overflow', 'transitionDuration', 'transitionProperty'];
-    stylesToRemove.forEach(st => target.style.removeProperty(st));
+    const stylesToRemove = ['height', 'paddingTop', 'paddingBottom', 'marginTop', 'marginBottom', 'overflow', 'transitionDuration', 'transitionProperty', 'transitionTimingFunction', 'boxSizing'];
+    stylesToRemove.forEach(st => { target.style[st] = ''; });
   }
   Drupal.selectify.removeStyles = removeStyles;
   const slideUp = (target, duration = 300) => {
@@ -57,7 +57,7 @@
     if (currentDisplay === 'none') {
       target.style.display = menuDisplay;
     }
-    let height = target.offsetHeight;
+    let height = target.scrollHeight;
     height = Math.round(height);
     Object.keys(cssStyles).forEach(style => {
       target.style[style] = cssStyles[style];
@@ -74,11 +74,11 @@
       trigger.setAttribute('aria-expanded', 'true');
     }
     ['paddingTop', 'paddingBottom', 'marginTop', 'marginBottom'].forEach(property => {
-      target.style.removeProperty(property);
+      target.style[property] = '';
     });
     setTimeout(() => {
-      ['height', 'overflow', 'transitionDuration', 'transitionProperty'].forEach(property => {
-        target.style.removeProperty(property);
+      ['height', 'overflow', 'transitionDuration', 'transitionProperty', 'transitionTimingFunction', 'boxSizing'].forEach(property => {
+        target.style[property] = '';
       });
     }, duration);
   };

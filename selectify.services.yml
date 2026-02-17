@@ -7,3 +7,15 @@ services:
   selectify.style_service:
     class: Drupal\selectify\Service\SelectifyStyleService
     arguments: ['@config.factory']
+
+  selectify.helper:
+    class: Drupal\selectify\Service\SelectifyHelper
+    arguments:
+      - '@config.factory'
+      - '@router.admin_context'
+      - '@theme.manager'
+      - '@theme_handler'
+      - '@path.matcher'
+      - '@path.current'
+      - '@path_alias.manager'
+      - '@current_route_match'
