@@ -103,7 +103,7 @@
 }
 
 .selectify-select-footer {
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   margin: 0;
@@ -117,8 +117,8 @@
   background: #f1f1f1;
 }
 
-.selectify-select-footer button.s-hidden {
-  margin: 0;
+.selectify-select.has-selections .selectify-select-footer {
+  display: flex;
 }
 
 .options-inner,

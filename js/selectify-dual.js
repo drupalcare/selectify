@@ -107,11 +107,6 @@
         const selectedValues = [...selectedDisplay.querySelectorAll('.selectify-selected-one-option')].map(item => item.getAttribute('data-value'));
         Drupal.selectify.syncHiddenSelect(nativeSelect, selectedValues);
         Drupal.selectify.updateSelectedDisplay(type, nativeSelect, selectedDisplay, clearAllButton);
-        // Check if anything is left.
-        const dualInner = selectedDisplay.querySelector('.selectify-selected-options.dual-inner');
-        if (!dualInner || dualInner.children.length === 0) {
-          clearAllButton.classList.add('s-hidden');
-        }
         nativeSelect.dispatchEvent(new Event('change'));
       }
     });

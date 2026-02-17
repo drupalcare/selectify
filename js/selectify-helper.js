@@ -103,8 +103,6 @@
           if (shouldShowMessage) {
             showMaxSelectionMessage();
           }
-          // Toggle "Clear All" button visibility
-          clearAllButton.classList.toggle('s-hidden', selectedValues.length === 0);
           // Sync hidden select field & update display
           Drupal.selectify.syncHiddenSelect(nativeSelect, selectedValues);
           Drupal.selectify.updateSelectedDisplay(type, nativeSelect, selectedDisplay, clearAllButton);
@@ -145,9 +143,6 @@
           const selectedValues = Array.from(nativeSelect.options)
             .filter(opt => opt.selected)
             .map(opt => opt.value);
-          if (clearAllButton) {
-            clearAllButton.classList.toggle('s-hidden', selectedValues.length === 0);
-          }
           Drupal.selectify.syncHiddenSelect(nativeSelect, selectedValues);
           Drupal.selectify.updateSelectedDisplay(type, nativeSelect, selectedDisplay, clearAllButton);
           // Ensure the select field updates before dispatching the event.
@@ -214,7 +209,7 @@
       }
     }
 
-    const parentSelect = triggerElement?.closest('.selectify-select');
+    const parentSelect = dropdown.closest('.selectify-select');
     if (parentSelect) {
       parentSelect.classList.remove('selectify-opened');
       // Remove direction classes from parent only
@@ -346,8 +341,12 @@
         Drupal.selectify.updateOptionState(option, isSelected, type);
       });
     }
-    // Ensure "Clear All" button visibility.
-    clearAllButton.classList.toggle('s-hidden', selectedValues.length === 0);
+    // Toggle "has-selections" on parent — CSS controls Clear All visibility.
+    // Exclude placeholder values: _none (entity fields) and All (Views exposed filters).
+    if (selectWidget) {
+      const hasRealSelections = selectedValues.filter(v => v !== '_none' && v !== 'All' && v !== '').length > 0;
+      selectWidget.classList.toggle('has-selections', hasRealSelections);
+    }
     // Announce selection change to screen readers
     if (selectWidget) {
       Drupal.selectify.announceSelectionChange(selectWidget, selectedValues.length);
@@ -557,7 +556,6 @@ Drupal.selectify.toggleMultiSelectOption = function(type, nativeSelect, optionEl
       nativeSelect.querySelectorAll('option').forEach(opt => opt.selected = (opt.value === '_none'));
       Drupal.selectify.syncHiddenSelect(nativeSelect, ['_none']);
       Drupal.selectify.updateSelectedDisplay(type, nativeSelect, selectedDisplay, clearAllButton);
-      clearAllButton.classList.add('s-hidden');
       return;
     }
     // For single-value fields (maxSelections=1 or !multiple), deselect all other options first
