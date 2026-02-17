@@ -323,31 +323,27 @@ class SelectifyStyleService {
    *   CSS string with :root selector and variables.
    */
   public function generateInlineCss(array $radioVars, array $checkboxVars): string {
-    $cssLines = [];
+    $parts = [];
 
-    // Generate scoped radio variables.
+    // Generate minified scoped radio variables.
     if (!empty($radioVars)) {
-      $cssLines[] = "input.selectify-radio[type=\"radio\"] {";
+      $declarations = [];
       foreach ($radioVars as $varName => $varValue) {
-        $cssLines[] = "  {$varName}: {$varValue};";
+        $declarations[] = "{$varName}:{$varValue}";
       }
-      $cssLines[] = "}";
+      $parts[] = 'input.selectify-radio[type="radio"]{' . implode(';', $declarations) . '}';
     }
 
-    // Generate scoped checkbox variables.
+    // Generate minified scoped checkbox variables.
     if (!empty($checkboxVars)) {
-      if (!empty($radioVars)) {
-        // Add blank line between selectors.
-        $cssLines[] = "";
-      }
-      $cssLines[] = "input.selectify-checkbox[type=\"checkbox\"] {";
+      $declarations = [];
       foreach ($checkboxVars as $varName => $varValue) {
-        $cssLines[] = "  {$varName}: {$varValue};";
+        $declarations[] = "{$varName}:{$varValue}";
       }
-      $cssLines[] = "}";
+      $parts[] = 'input.selectify-checkbox[type="checkbox"]{' . implode(';', $declarations) . '}';
     }
 
-    return implode("\n", $cssLines);
+    return implode('', $parts);
   }
 
   /**

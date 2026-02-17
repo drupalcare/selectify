@@ -51,6 +51,27 @@ input.selectify-checkbox[type="checkbox"] {
   color: var(--selectify-select-color, var(--input-fg-color));
 }
 
+/* Reset Claro .form-boolean checkbox/radio pseudo-element styles
+   to prevent Claro's positioning and mask-image from overriding
+   Selectify toggle circle and checkmark icon */
+input.selectify-checkbox.form-boolean[type="checkbox"]::before,
+input.selectify-radio.form-boolean[type="radio"]::before {
+  inset-block-start: 0 !important;
+  inset-inline-start: 0 !important;
+  inset-block-end: auto !important;
+  inset-inline-end: auto !important;
+  mask-image: none !important;
+  -webkit-mask-image: none !important;
+  clip-path: none !important;
+}
+
+input.selectify-checkbox.form-boolean[type="checkbox"]::after,
+input.selectify-radio.form-boolean[type="radio"]::after {
+  mask-image: none !important;
+  -webkit-mask-image: none !important;
+  clip-path: none !important;
+}
+
 .selectify-select-dropdowns .selectify-selected-display {
   max-width: 100%;
   min-height: calc(((var(--input-padding-vertical) + var(--input-border-size)) * 2) + var(--input-line-height));
