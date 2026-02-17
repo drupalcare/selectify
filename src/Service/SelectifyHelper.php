@@ -20,7 +20,7 @@ use Drupal\path_alias\AliasManagerInterface;
  * Consolidates configuration access, theme detection, and page/route
  * checks that were previously scattered across the .module file.
  */
-class SelectifyHelper {
+class SelectifyHelper implements SelectifyHelperInterface {
 
   /**
    * Cached Selectify configuration object.

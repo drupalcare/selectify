@@ -1,0 +1,20 @@
+{#
+/**
+ * @file
+ * Shared footer for Selectify widget inner content.
+ *
+ * Renders the max-selection warning message and the live region
+ * used by JavaScript to announce selection count changes.
+ *
+ * Expected variables:
+ * - max_selected: Maximum number of selections allowed.
+ */
+#}
+    {% if max_selected is not null and max_selected is defined and max_selected is not empty %}
+    <div class="selectify-max-selection-message hide" role="alert">
+      {{ 'You can only select up to @count options.'|t({'@count': max_selected}) }}
+    </div>
+    {% endif %}
+    <div class="visually-hidden" role="status" aria-live="polite" aria-atomic="true">
+      <!-- JavaScript will update this with selection count -->
+    </div>

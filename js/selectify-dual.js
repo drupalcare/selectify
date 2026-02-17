@@ -19,13 +19,13 @@
           // Retrieve the target ID from the data attribute.
           const targetId = selectifySelect.getAttribute('data-target-id');
           if (!targetId) {
-            console.error('Selectify: Missing data-target-id on dual list element', selectifySelect);
+
             return;
           }
           // Locate the corresponding hidden <select> element by its ID.
           const nativeSelect = document.getElementById(targetId);
           if (!nativeSelect || nativeSelect.tagName !== 'SELECT') {
-            console.error(`Selectify: No matching <select> found for data-target-id="${targetId}"`, selectifySelect);
+
             return;
           }
           initializeSelectifyDual(selectifySelect, nativeSelect);
@@ -60,7 +60,7 @@
     const options = selectifySelect.querySelectorAll('.dual-available-option');
     const clearAllButton = selectifySelect.querySelector('.dual-clear-all');
     if (!nativeSelect || nativeSelect.tagName !== 'SELECT') {
-      console.error('Selectify: Could not find the corresponding hidden <select> for', selectifySelect);
+
       return;
     }
     if (!selectedDisplay || options.length === 0) {

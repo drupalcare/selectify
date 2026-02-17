@@ -11,8 +11,6 @@
  */
 #}
 {% apply spaceless %}
-{% set wrapper_id = "wrapper-" ~ attributes.id %}
-
 {% set clean_field_name = field_name|replace({'_': '-', '[]': ''}) %}
 {% set show_none = true %}
 {% if not is_views %}
@@ -20,27 +18,9 @@
     {% set show_none = false %}
   {% endif %}
 {% endif %}
-{# Combine default Drupal classes with Selectify classes #}
-{% set all_classes = [
-  'wrapper-selectify',
-  wrapper_id,
-  'views-exposed-form__item',
-  'js-form-item',
-  'form-item',
-  'js-form-type-select',
-  'form-type--select'
-] %}
-{# Add extra Views-specific classes if this is an exposed filter #}
-{% if is_views %}
-  {% set all_classes = all_classes|merge([
-    'views-exposed-form__item--preceding-actions',
-    'js-form-item-status',
-    'form-item--status'
-  ]) %}
-{% endif %}
-{# Merge with existing Drupal classes from `attributes.class` #}
-{% set all_classes = all_classes|merge(attributes.class|default([])) %}
-<div id="{{ wrapper_id }}" class="{{ all_classes|join(' ') }}">
+
+{% embed '@selectify/partials/_selectify-base.html.twig' %}
+  {% block widget_content %}
   <div class="selectify selectify-select selectify-select-dropdowns selectify-dropdown-tags-widget"
      tabindex="0"
      role="combobox"
@@ -110,22 +90,8 @@
         </div>
       </div>
     </div>
-    {% if max_selected is not null and max_selected is defined and max_selected is not empty %}
-    <div class="selectify-max-selection-message hide" role="alert">
-      {{ 'You can only select up to @count options.'|t({'@count': max_selected}) }}
-    </div>
-    {% endif %}
-    <div class="visually-hidden" role="status" aria-live="polite" aria-atomic="true">
-      <!-- JavaScript will update this with selection count -->
-    </div>
+    {% include '@selectify/partials/_selectify-widget-footer.html.twig' %}
   </div>
-  <!-- Hidden select for form submission -->
-  <select {{ attributes.addClass('selectify-visually-hidden') }} aria-hidden="true" tabindex="-1"{% if is_multiple %} size="{{ views_attributes['size'] }}"{% endif %}>
-    {% for option in options %}
-      {% if option.value != '_none' or show_none %}
-        <option value="{{ option.value }}" {{ option.selected ? 'selected="selected"' }}>{{ option.label }}</option>
-      {% endif %}
-    {% endfor %}
-  </select>
-</div>
+  {% endblock %}
+{% endembed %}
 {% endapply %}

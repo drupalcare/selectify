@@ -19,13 +19,13 @@
           // Retrieve the target ID from the data attribute.
           const targetId = selectifySelect.getAttribute('data-target-id');
           if (!targetId) {
-            console.error('Selectify: Missing data-target-id on dropdown element', selectifySelect);
+
             return;
           }
           // Locate the corresponding hidden <select> element by its ID.
           const nativeSelect = document.getElementById(targetId);
           if (!nativeSelect || nativeSelect.tagName !== 'SELECT') {
-            console.error(`Selectify: No matching <select> found for data-target-id="${targetId}"`, selectifySelect);
+
             return;
           }
           initializeSelectifyTags(selectifySelect, nativeSelect);
@@ -65,7 +65,7 @@
     const options = selectifySelect.querySelectorAll('.selectify-available-one-option');
     const clearAllButton = selectifySelect.querySelector('.selectify-clear-all');
     if (!nativeSelect || nativeSelect.tagName !== 'SELECT') {
-      console.error('Selectify: Could not find the corresponding hidden <select> for', selectifySelect);
+
       return;
     }
     if (!selectedDisplay || !dropdownMenu || options.length === 0) {
@@ -132,7 +132,11 @@
       });
     });
 
-    // Re-add keyboard support when tags are dynamically added
+    // Re-add keyboard support when tags are dynamically added.
+    // Store observer reference on element for cleanup.
+    if (selectedDisplay._selectifyObserver) {
+      selectedDisplay._selectifyObserver.disconnect();
+    }
     const observer = new MutationObserver(() => {
       selectedDisplay.querySelectorAll('.remove-tag').forEach(btn => {
         if (!btn.hasAttribute('data-keyboard-enabled')) {
@@ -147,13 +151,8 @@
       });
     });
     observer.observe(selectedDisplay, { childList: true, subtree: true });
+    selectedDisplay._selectifyObserver = observer;
 
-    // Close dropdown when clicking outside.
-    document.addEventListener('click', (event) => {
-      if (!selectifySelect.contains(event.target)) {
-        Drupal.selectify.closeDropdown(dropdownMenu, selectedDisplay);
-      }
-    });
     // Add event delegation for remove tag buttons
     once('selectifyRemoveTagDelegation', selectedDisplay).forEach(() => {
       selectedDisplay.addEventListener('click', function(event) {

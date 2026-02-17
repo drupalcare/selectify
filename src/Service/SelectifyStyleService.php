@@ -12,7 +12,7 @@ use Drupal\Core\Config\ConfigFactoryInterface;
  * This service generates inline CSS variables that override the base
  * selectify-radio-checkbox.css defaults based on user configuration.
  */
-class SelectifyStyleService {
+class SelectifyStyleService implements SelectifyStyleServiceInterface {
 
   /**
    * The config factory.

@@ -1,0 +1,51 @@
+{#
+/**
+ * @file
+ * Shared base layout for all Selectify widget templates.
+ *
+ * Provides the outer wrapper div (with Drupal/Views classes),
+ * a widget_content block for the unique inner widget, and
+ * the hidden <select> element used for form submission.
+ *
+ * Expected variables from the including template's context:
+ * - attributes: HTML attributes for the <select> tag.
+ * - options: The <option> element children.
+ * - field_name: The field machine name.
+ * - is_views: Whether this is a Views exposed filter.
+ * - is_multiple: Whether this is a multi-value field.
+ * - show_none: Whether to show the _none option.
+ * - views_attributes: Views-specific attributes (if is_views).
+ */
+#}
+{% set wrapper_id = "wrapper-" ~ attributes.id %}
+{# Combine default Drupal classes with Selectify classes #}
+{% set all_classes = [
+  'wrapper-selectify',
+  wrapper_id,
+  'views-exposed-form__item',
+  'js-form-item',
+  'form-item',
+  'js-form-type-select',
+  'form-type--select'
+] %}
+{# Add extra Views-specific classes if this is an exposed filter #}
+{% if is_views %}
+  {% set all_classes = all_classes|merge([
+    'views-exposed-form__item--preceding-actions',
+    'js-form-item-status',
+    'form-item--status'
+  ]) %}
+{% endif %}
+{# Merge with existing Drupal classes from `attributes.class` #}
+{% set all_classes = all_classes|merge(attributes.class|default([])) %}
+<div id="{{ wrapper_id }}" class="{{ all_classes|join(' ') }}">
+  {% block widget_content %}{% endblock %}
+  <!-- Hidden select for form submission -->
+  <select {{ attributes.addClass('selectify-visually-hidden') }} aria-hidden="true" tabindex="-1"{% if is_multiple %} size="{{ views_attributes['size'] }}"{% endif %}>
+    {% for option in options %}
+      {% if option.value != '_none' or show_none %}
+        <option value="{{ option.value }}" {{ option.selected ? 'selected="selected"' }}>{{ option.label }}</option>
+      {% endif %}
+    {% endfor %}
+  </select>
+</div>

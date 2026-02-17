@@ -8,6 +8,8 @@ services:
     class: Drupal\selectify\Service\SelectifyStyleService
     arguments: ['@config.factory']
 
+  Drupal\selectify\Service\SelectifyStyleServiceInterface: '@selectify.style_service'
+
   selectify.helper:
     class: Drupal\selectify\Service\SelectifyHelper
     arguments:
@@ -19,3 +21,5 @@ services:
       - '@path.current'
       - '@path_alias.manager'
       - '@current_route_match'
+
+  Drupal\selectify\Service\SelectifyHelperInterface: '@selectify.helper'

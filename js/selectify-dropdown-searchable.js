@@ -19,13 +19,13 @@
           // Retrieve the target ID from the data attribute.
           const targetId = selectifySelect.getAttribute('data-target-id');
           if (!targetId) {
-            console.error('Selectify: Missing data-target-id on dropdown element', selectifySelect);
+
             return;
           }
           // Locate the corresponding hidden <select> element by its ID.
           const nativeSelect = document.getElementById(targetId);
           if (!nativeSelect || nativeSelect.tagName !== 'SELECT') {
-            console.error(`Selectify: No matching <select> found for data-target-id="${targetId}"`, selectifySelect);
+
             return;
           }
           initializeSelectifySearchable(selectifySelect, nativeSelect);
@@ -62,7 +62,7 @@
     const dropdownArrow = selectifySelect.querySelector('.selectify-dorpdown-arrow');
     const searchInput = selectifySelect.querySelector('.multi-search-input');
     if (!nativeSelect || nativeSelect.tagName !== 'SELECT') {
-      console.error('Selectify: Could not find the corresponding hidden <select> for', selectifySelect);
+
       return;
     }
     if (!selectedDisplay || !dropdownMenu || options.length === 0) {
@@ -83,10 +83,15 @@
         }
       }
     });
-    // Handle search filtering.
+    // Handle search filtering with debounce for performance.
     if (searchInput) {
+      let searchTimer = null;
       searchInput.addEventListener('input', function() {
         const searchTerm = this.value.toLowerCase();
+        if (searchTimer) {
+          clearTimeout(searchTimer);
+        }
+        searchTimer = setTimeout(() => {
         let optionsArray = Array.from(selectifySelect.querySelectorAll('.selectify-available-one-option'));
         // Filter options based on search input.
         let filteredOptions = optionsArray.filter(option =>
@@ -121,6 +126,7 @@
         [...textOptions, ...numberOptions, ...dateOptions, ...emailOptions, ...entityOptions, ...otherOptions].forEach(option => {
           option.classList.remove('s-hidden');
         });
+        }, 150);
       });
     }
     // Handle option selection.
@@ -173,7 +179,11 @@
       });
     });
 
-    // Re-add keyboard support when tags are dynamically added
+    // Re-add keyboard support when tags are dynamically added.
+    // Store observer reference on element for cleanup.
+    if (selectedDisplay._selectifyObserver) {
+      selectedDisplay._selectifyObserver.disconnect();
+    }
     const observer = new MutationObserver(() => {
       selectedDisplay.querySelectorAll('.remove-tag').forEach(btn => {
         if (!btn.hasAttribute('data-keyboard-enabled')) {
@@ -188,13 +198,8 @@
       });
     });
     observer.observe(selectedDisplay, { childList: true, subtree: true });
+    selectedDisplay._selectifyObserver = observer;
 
-    // Close dropdown when clicking outside.
-    document.addEventListener('click', (event) => {
-      if (!selectifySelect.contains(event.target)) {
-        Drupal.selectify.closeDropdown(dropdownMenu, selectedDisplay);
-      }
-    });
     // Add event delegation for remove tag buttons (ONE listener for all)
     once('selectifyRemoveTagDelegation', selectedDisplay).forEach(() => {
       selectedDisplay.addEventListener('click', function(event) {

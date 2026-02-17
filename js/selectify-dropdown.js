@@ -19,13 +19,11 @@
           // Retrieve the target ID from the data attribute.
           const targetId = selectifySelect.getAttribute('data-target-id');
           if (!targetId) {
-            console.error('Selectify: Missing data-target-id on dropdown element', selectifySelect);
             return;
           }
           // Locate the corresponding hidden <select> element by its ID.
           const nativeSelect = document.getElementById(targetId);
           if (!nativeSelect || nativeSelect.tagName !== 'SELECT') {
-            ;
             return;
           }
           initializeSelectifyDropdown(selectifySelect, nativeSelect);
@@ -118,12 +116,6 @@
           setTimeout(() => selectedDisplay.focus(), 100);
         }
       });
-    });
-    // Close dropdown when clicking outside.
-    document.addEventListener('click', (event) => {
-      if (!selectifySelect.contains(event.target)) {
-        Drupal.selectify.closeDropdown(dropdownMenu, selectedDisplay);
-      }
     });
     // Enable keyboard navigation.
     Drupal.selectify.handleKeyboardNavigation(selectifySelect, dropdownMenu, selectedDisplay, type);

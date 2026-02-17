@@ -16,13 +16,13 @@
           // Retrieve the target ID from data attribute.
           const targetId = selectifySelect.getAttribute('data-target-id');
           if (!targetId) {
-            console.error('Selectify: Missing data-target-id on dropdown element', selectifySelect);
+
             return;
           }
           // Locate the corresponding hidden <select> element by its ID.
           const nativeSelect = document.getElementById(targetId);
           if (!nativeSelect || nativeSelect.tagName !== 'SELECT') {
-            console.error(`Selectify: No matching <select> found for data-target-id="${targetId}"`, selectifySelect);
+
             return;
           }
           initializeSelectifyCheckbox(selectifySelect, nativeSelect);
@@ -61,7 +61,7 @@
     const options = selectifySelect.querySelectorAll('.selectify-available-one-option input[type="checkbox"]');
     const clearAllButton = selectifySelect.querySelector('.selectify-clear-all');
     if (!nativeSelect || nativeSelect.tagName !== 'SELECT') {
-      console.error('Selectify: Could not find the corresponding hidden <select> for', selectifySelect);
+
       return;
     }
     if (!selectedDisplay || !dropdownMenu || options.length === 0) {
@@ -134,12 +134,6 @@
         }
       });
     }
-    // Close dropdown when clicking outside.
-    document.addEventListener('click', (event) => {
-      if (!selectifySelect.contains(event.target)) {
-        Drupal.selectify.closeDropdown(dropdownMenu, selectedDisplay);
-      }
-    });
     // Enable keyboard navigation.
     Drupal.selectify.handleKeyboardNavigation(selectifySelect, dropdownMenu, selectedDisplay, type);
     Drupal.selectify.updateSelectedDisplay(type, nativeSelect, selectedDisplay, clearAllButton);

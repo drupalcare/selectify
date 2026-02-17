@@ -834,15 +834,14 @@ Drupal.selectify.toggleMultiSelectOption = function(type, nativeSelect, optionEl
   })();
 
   /**
-   * Ensures dropdown close event is only bound once.
+   * Close any open dropdown when clicking outside.
+   * Bound at module level (IIFE), so it only runs once per page load.
    */
-  once('selectifyMultiSelectCloseDropdown', document).forEach(() => {
-    document.addEventListener('click', (event) => {
-      if (!event.target.closest('.selectify-available-display') && !event.target.closest('.selectify-selected-display')) {
-        document.querySelectorAll('.selectify-available-display.toggled').forEach(dropdown => {
-          Drupal.selectify.closeDropdown(dropdown);
-        });
-      }
-    });
+  document.addEventListener('click', (event) => {
+    if (!event.target.closest('.selectify-available-display') && !event.target.closest('.selectify-selected-display')) {
+      document.querySelectorAll('.selectify-available-display.toggled').forEach(dropdown => {
+        Drupal.selectify.closeDropdown(dropdown);
+      });
+    }
   });
 })(Drupal);

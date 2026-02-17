@@ -7,34 +7,83 @@ selectify.settings:
       label: 'Enable custom styles for radio buttons'
     radio_style:
       type: string
-      label: 'Radio button style (toggle or checkbox)'
+      label: 'Radio button style'
+      constraints:
+        Choice:
+          choices:
+            - toggle
+            - checkbox
     radio_shape:
       type: string
-      label: 'Radio button shape (circle or square)'
+      label: 'Radio button shape'
+      constraints:
+        Choice:
+          choices:
+            - circle
+            - square
     radio_size:
       type: string
-      label: 'Radio button size (small, medium, or large)'
+      label: 'Radio button size'
+      constraints:
+        Choice:
+          choices:
+            - small
+            - medium
+            - large
     enable_checkbox:
       type: boolean
       label: 'Enable custom styles for checkboxes'
     checkbox_style:
       type: string
-      label: 'Checkbox style (toggle or checkbox)'
+      label: 'Checkbox style'
+      constraints:
+        Choice:
+          choices:
+            - toggle
+            - checkbox
     checkbox_shape:
       type: string
-      label: 'Checkbox shape (circle or square)'
+      label: 'Checkbox shape'
+      constraints:
+        Choice:
+          choices:
+            - circle
+            - square
     checkbox_size:
       type: string
-      label: 'Checkbox size (small, medium, or large)'
+      label: 'Checkbox size'
+      constraints:
+        Choice:
+          choices:
+            - small
+            - medium
+            - large
     disable_on_admin_routes:
       type: boolean
       label: 'Disable Selectify on admin routes'
     accent_color:
       type: string
       label: 'Selected accent color'
+      constraints:
+        Choice:
+          choices:
+            - none
+            - blue
+            - coral
+            - gold
+            - indigo
+            - neutral
+            - slate
+            - teal
     accent_color_mode:
       type: string
-      label: 'Accent color mode (light or dark)'
+      label: 'Accent color mode'
+      constraints:
+        Choice:
+          choices:
+            - none
+            - light
+            - dark
     apply_site_wide:
       type: boolean
       label: 'Apply Selectify to all exposed filters'
@@ -47,19 +96,27 @@ selectify.settings:
     global_selectify_widget:
       type: string
       label: 'Global Selectify Widget'
+      constraints:
+        Choice:
+          choices:
+            - selectify_dropdown
+            - selectify_tags
+            - selectify_searchable
+            - selectify_checkbox
+            - selectify_dual
     widget_for_filters:
       type: sequence
       label: 'Widget settings for Views Exposed Filters'
       sequence:
-        - type: mapping
-          label: 'Filter Configuration'
-          mapping:
-            filter_id:
-              type: string
-              label: 'Filter Unique ID'
-            widget:
-              type: string
-              label: 'Selected Widget Type'
-            exposed_form_id:
-              type: string
-              label: 'Exposed Form ID'
+        type: mapping
+        label: 'Filter Configuration'
+        mapping:
+          filter_id:
+            type: string
+            label: 'Filter Unique ID'
+          widget:
+            type: string
+            label: 'Selected Widget Type'
+          exposed_form_id:
+            type: string
+            label: 'Exposed Form ID'
