@@ -35,6 +35,17 @@ function selectify_preprocess_html(&$variables) {
       $variables['attributes']['class'][] = $class;
     }
   }
+
+  // Add selectify-color-disabled class when the active color mode is none.
+  /** @var \Drupal\selectify\Service\SelectifyHelper $helper */
+  $helper = \Drupal::service('selectify.helper');
+  $colorMode = $helper->isAdminRoute()
+    ? ($config->get('admin_accent_color_mode') ?? 'light')
+    : ($config->get('accent_color_mode') ?? 'light');
+
+  if ($colorMode === 'none') {
+    $variables['attributes']['class'][] = 'selectify-color-disabled';
+  }
 }
 
 /**
@@ -317,9 +328,14 @@ function selectify_page_attachments(array &$attachments) {
     $attachments['#attached']['library'][] = 'selectify/selectify-base';
     $attachments['#attached']['library'][] = 'selectify/selectify-radio-checkbox';
 
-    $selected_accent = $config['accent_color'];
-    if (!empty($selected_accent) && $selected_accent !== 'none') {
-      $accent_color_mode = $helper->getConfig()->get('accent_color_mode') ?: 'light';
+    $selectifyConfig = $helper->getConfig();
+    $isAdmin = $helper->isAdminRoute();
+    $selected_accent = $isAdmin ? $selectifyConfig->get('admin_accent_color') : $config['accent_color'];
+    $accent_color_mode = $isAdmin
+      ? ($selectifyConfig->get('admin_accent_color_mode') ?: 'light')
+      : ($selectifyConfig->get('accent_color_mode') ?: 'light');
+
+    if (!empty($selected_accent) && $selected_accent !== 'none' && $accent_color_mode !== 'none') {
       $attachments['#attached']['library'][] = "selectify/selectify-color-{$selected_accent}-{$accent_color_mode}";
     }
   }
@@ -372,35 +388,30 @@ function selectify_page_attachments_alter(array &$attachments): void {
       ];
     }
 
-    $accentColor = $selectifyConfig->get('accent_color');
-    $accentColorMode = $selectifyConfig->get('accent_color_mode') ?? 'light';
+    $isAdmin = $helper->isAdminRoute();
+    $accentColor = $isAdmin
+      ? $selectifyConfig->get('admin_accent_color')
+      : $selectifyConfig->get('accent_color');
+    $accentColorMode = $isAdmin
+      ? ($selectifyConfig->get('admin_accent_color_mode') ?? 'light')
+      : ($selectifyConfig->get('accent_color_mode') ?? 'light');
 
-    if (!empty($accentColor) && $accentColor !== 'none') {
+    if (!empty($accentColor) && $accentColor !== 'none' && $accentColorMode !== 'none') {
       $attachments['#attached']['library'][] = "selectify/selectify-color-{$accentColor}-{$accentColorMode}";
     }
   }
 
   // Gin theme integration.
-  $gin_info = $helper->detectGinTheme();
-
-  if ($gin_info && $gin_info['is_gin']) {
+  if ($helper->isBaseTheme('gin')) {
     $attachments['#attached']['library'][] = 'selectify/selectify-gin-base';
 
-    $color_scheme = $gin_info['color_scheme'];
-    if ($color_scheme === 'dark') {
+    $adminColorMode = $selectifyConfig->get('admin_accent_color_mode') ?? 'light';
+    if ($adminColorMode === 'dark') {
       $attachments['#attached']['library'][] = 'selectify/selectify-gin-dark';
     }
-    elseif ($color_scheme === 'light') {
+    elseif ($adminColorMode === 'light') {
       $attachments['#attached']['library'][] = 'selectify/selectify-gin-light';
     }
-    elseif ($color_scheme === 'auto') {
-      $attachments['#attached']['library'][] = 'selectify/selectify-gin-auto';
-    }
-
-    $attachments['#attached']['drupalSettings']['selectify']['gin'] = [
-      'colorScheme' => $color_scheme,
-      'accentColor' => $gin_info['accent_color'],
-    ];
   }
 
   // Claro theme integration.

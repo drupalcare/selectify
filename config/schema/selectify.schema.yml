@@ -84,6 +84,29 @@ selectify.settings:
             - none
             - light
             - dark
+    admin_accent_color:
+      type: string
+      label: 'Admin selected accent color'
+      constraints:
+        Choice:
+          choices:
+            - none
+            - blue
+            - coral
+            - gold
+            - indigo
+            - neutral
+            - slate
+            - teal
+    admin_accent_color_mode:
+      type: string
+      label: 'Admin accent color mode'
+      constraints:
+        Choice:
+          choices:
+            - none
+            - light
+            - dark
     apply_site_wide:
       type: boolean
       label: 'Apply Selectify to all exposed filters'

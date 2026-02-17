@@ -62,9 +62,14 @@ input.selectify-checkbox[type="checkbox"] {
 }
 
 .selectify-select-dropdowns .selectify-selected-one-option {
-  padding: 0 6px;
   line-height: 1.3;
-  font-size: 14px;
+  font-weight: 525;
+  font-size: 0.75;
+  font-variation-settings: initial;
+  padding: .125em .75em;
+  vertical-align: .125em;
+  border: 1px solid transparent;
+  border-radius: .75rem;
 }
 
 /* Reset Claro .form-boolean checkbox/radio pseudo-element styles
@@ -105,6 +110,5 @@ input.selectify-radio.form-boolean[type="radio"]::after {
 .selectify-selected-one-option.dual-item:hover,
 .selectify-available-one-option:hover,
 .selectify-selected-display:hover {
-  background: var(--selectify-select-hover-bg, var(--color-bgblue-hover));
-  border-color: var(--selectify-select-focus-border-color, var(--input--hover-border-color));
+  border-color: var(--selectify-select-focus-border-color, var(--input--hover-border-color), var(--gin-color-text));
 }

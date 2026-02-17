@@ -10,6 +10,7 @@ use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\Plugin\Field\FieldWidget\OptionsSelectWidget;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Routing\AdminContext;
 use Drupal\Core\Template\Attribute;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -43,6 +44,13 @@ abstract class SelectifyWidgetBase extends OptionsSelectWidget {
   protected ConfigFactoryInterface $configFactory;
 
   /**
+   * The admin context service.
+   *
+   * @var \Drupal\Core\Routing\AdminContext
+   */
+  protected AdminContext $adminContext;
+
+  /**
    * Constructs a SelectifyWidgetBase object.
    *
    * @param string $plugin_id
@@ -57,6 +65,8 @@ abstract class SelectifyWidgetBase extends OptionsSelectWidget {
    *   Any third-party settings.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The configuration factory.
+   * @param \Drupal\Core\Routing\AdminContext $admin_context
+   *   The admin context service.
    */
   public function __construct(
     $plugin_id,
@@ -65,9 +75,11 @@ abstract class SelectifyWidgetBase extends OptionsSelectWidget {
     array $settings,
     array $third_party_settings,
     ConfigFactoryInterface $config_factory,
+    AdminContext $admin_context,
   ) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $third_party_settings);
     $this->configFactory = $config_factory;
+    $this->adminContext = $admin_context;
   }
 
   /**
@@ -80,7 +92,8 @@ abstract class SelectifyWidgetBase extends OptionsSelectWidget {
       $configuration['field_definition'],
       $configuration['settings'],
       $configuration['third_party_settings'],
-      $container->get('config.factory')
+      $container->get('config.factory'),
+      $container->get('router.admin_context')
     );
   }
 
@@ -218,9 +231,17 @@ abstract class SelectifyWidgetBase extends OptionsSelectWidget {
       $this->getWidgetLibraries()
     );
 
-    if (!empty($selected_accent) && $selected_accent !== 'none') {
-      $accent_color_mode = $this->configFactory->get('selectify.settings')->get('accent_color_mode') ?: 'light';
-      $element['#attached']['library'][] = "selectify/selectify-color-{$selected_accent}-{$accent_color_mode}";
+    $isAdmin = $this->adminContext->isAdminRoute();
+    $selectifySettings = $this->configFactory->get('selectify.settings');
+    $accent = $isAdmin
+      ? ($selectifySettings->get('admin_accent_color') ?: 'default')
+      : $selected_accent;
+    $accent_color_mode = $isAdmin
+      ? ($selectifySettings->get('admin_accent_color_mode') ?: 'light')
+      : ($selectifySettings->get('accent_color_mode') ?: 'light');
+
+    if (!empty($accent) && $accent !== 'none' && $accent_color_mode !== 'none') {
+      $element['#attached']['library'][] = "selectify/selectify-color-{$accent}-{$accent_color_mode}";
     }
 
     $element['#attached']['drupalSettings']['selectify']['maxSelections'][$this->fieldDefinition->getName()] = $max_selected;

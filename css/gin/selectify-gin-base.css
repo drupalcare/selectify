@@ -17,7 +17,7 @@ body .selectify-selected-display {
 
 input.selectify-radio[type="radio"],
 input.selectify-checkbox[type="checkbox"] {
-  border-color: var(--selectify-checkbox-border-color, var(--gin-border-color-form-element))!important;
+  border-color: var(--selectify-checkbox-border-color, var(--gin-border-color-form-element)) !important;
   color: var(--selectify-select-color, var(--gin-color-text));
 }
 
@@ -91,4 +91,15 @@ body .selectify-select .selectify-selected-display {
 body .selectify-select-dropdowns .selectify-selected-display {
   min-height: calc(var(--input-padding-vertical) * 2 + var(--input-line-height));
   border-radius: var(--gin-border-m);
+}
+
+body.selectify-color-disabled .wrapper-selectify svg {
+  fill: var(--gin-color-text) !important;
+}
+
+body.selectify-color-disabled input.selectify-radio[type="radio"],
+body.selectify-color-disabled input.selectify-checkbox[type="checkbox"] {
+  background: transparent !important;
+}
+
 }

@@ -148,3 +148,66 @@ body .selectify-selected-display {
 body .selectify svg {
   fill: var(--selectify-select-arrow-color);
 }
+
+/* ============================================
+   Color Disabled — Strip Selectify colors only
+   When body.selectify-color-disabled is present,
+   reset color, background, border-color, text,
+   and hover color variables. Layout properties
+   (border-radius, padding, font-size, shadow)
+   are never touched.
+   ============================================ */
+
+/* Reset select/dropdown color variables */
+body.selectify-color-disabled {
+  --selectify-select-bg: initial;
+  --selectify-select-border-color: initial;
+  --selectify-select-color: initial;
+  --selectify-select-hover-bg: initial;
+  --selectify-select-focus-border: initial;
+  --selectify-select-focus-border-color: initial;
+  --selectify-select-disabled-bg: initial;
+  --selectify-select-arrow-color: initial;
+  --selectify-option-hover-bg: initial;
+  --selectify-option-active-bg: initial;
+}
+
+/* Reset checkbox/radio color variables */
+body.selectify-color-disabled .selectify-radio,
+body.selectify-color-disabled .selectify-checkbox,
+body.selectify-color-disabled .selectify-radio *,
+body.selectify-color-disabled .selectify-checkbox * {
+  --selectify-checkbox-border-color: initial;
+  --selectify-checkbox-bg: initial;
+  --selectify-checkbox-check-circle: initial;
+  --selectify-checkbox-checked-border-color: initial;
+  --selectify-checkbox-checked-bg: initial;
+  --selectify-checkbox-checked-circle: initial;
+  --selectify-checkbox-disabled-border-color: initial;
+  --selectify-checkbox-disabled-bg: initial;
+  --selectify-checkbox-disabled-circle: initial;
+  --selectify-checkbox-hover-border-color: initial;
+  --selectify-checkbox-hover-bg: initial;
+  --selectify-checkbox-active-border-color: initial;
+  --selectify-checkbox-active-bg: initial;
+  --selectify-checkbox-indeterminate-border-color: initial;
+  --selectify-checkbox-indeterminate-bg: initial;
+  --selectify-checkbox-indeterminate-bar: initial;
+  --selectify-checkbox-invalid-border-color: initial;
+  --selectify-checkbox-invalid-bg: initial;
+}
+
+/* Reset select widget color variables */
+body.selectify-color-disabled .selectify-select,
+body.selectify-color-disabled .selectify-select * {
+  --selectify-select-bg: initial;
+  --selectify-select-border-color: initial;
+  --selectify-select-color: initial;
+  --selectify-select-hover-bg: initial;
+  --selectify-select-focus-border: initial;
+  --selectify-select-focus-border-color: initial;
+  --selectify-select-disabled-bg: initial;
+  --selectify-select-arrow-color: initial;
+  --selectify-option-hover-bg: initial;
+  --selectify-option-active-bg: initial;
+}

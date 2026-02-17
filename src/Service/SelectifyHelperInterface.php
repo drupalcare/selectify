@@ -52,13 +52,12 @@ interface SelectifyHelperInterface {
   public function isPageDisabled(): bool;
 
   /**
-   * Detects if Gin theme is active and returns its settings.
+   * Checks if the current route is an admin route.
    *
-   * @return array|false
-   *   Array with 'is_gin', 'color_scheme', and 'accent_color' keys,
-   *   or FALSE if Gin is not the active theme.
+   * @return bool
+   *   TRUE if the current route is an admin route.
    */
-  public function detectGinTheme(): array|false;
+  public function isAdminRoute(): bool;
 
   /**
    * Checks if the active theme is or extends the given base theme.

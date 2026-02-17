@@ -241,12 +241,12 @@ class SelectifySettingsForm extends ConfigFormBase {
     ];
 
     // =========================================================================
-    // SECTION 4: Color Theme
+    // SECTION 4: Frontend Color Theme
     // =========================================================================
     $form['color_theme'] = [
       '#type' => 'details',
-      '#title' => $this->t('Color Theme'),
-      '#description' => $this->t('Choose accent colors for radio buttons and checkboxes when selected.'),
+      '#title' => $this->t('Frontend Color Theme'),
+      '#description' => $this->t('Choose accent colors for radio buttons, checkboxes, and select widgets on the frontend.'),
       '#open' => FALSE,
       '#weight' => 30,
     ];
@@ -280,6 +280,53 @@ class SelectifySettingsForm extends ConfigFormBase {
       '#states' => [
         'disabled' => [
           ':input[name="accent_color_mode"]' => ['value' => 'none'],
+        ],
+      ],
+      '#after_build' => [
+        [get_called_class(), 'addDataAccent'],
+      ],
+    ];
+
+    // =========================================================================
+    // SECTION 4b: Admin Color Theme
+    // =========================================================================
+    $form['admin_color_theme'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Admin Color Theme'),
+      '#description' => $this->t('Choose accent colors for radio buttons, checkboxes, and select widgets on admin pages.'),
+      '#open' => FALSE,
+      '#weight' => 35,
+    ];
+
+    $form['admin_color_theme']['admin_accent_color_mode'] = [
+      '#type' => 'radios',
+      '#title' => $this->t('Color mode'),
+      '#description' => $this->t('Choose between light and dark variants of the selected accent color for admin pages.'),
+      '#options' => [
+        'none' => $this->t('None - Use default browser colors'),
+        'light' => $this->t('Light'),
+        'dark' => $this->t('Dark'),
+      ],
+      '#default_value' => $config->get('admin_accent_color_mode') ?? 'light',
+    ];
+
+    $form['admin_color_theme']['admin_accent_color'] = [
+      '#type' => 'radios',
+      '#title' => $this->t('Accent color'),
+      '#description' => $this->t('Choose the color that appears when a radio button or checkbox is selected on admin pages.'),
+      '#default_value' => $config->get('admin_accent_color') ?? 'blue',
+      '#options' => [
+        'blue' => $this->t('Blue'),
+        'coral' => $this->t('Coral'),
+        'gold' => $this->t('Gold'),
+        'indigo' => $this->t('Indigo'),
+        'neutral' => $this->t('Neutral'),
+        'slate' => $this->t('Slate'),
+        'teal' => $this->t('Teal'),
+      ],
+      '#states' => [
+        'disabled' => [
+          ':input[name="admin_accent_color_mode"]' => ['value' => 'none'],
         ],
       ],
       '#after_build' => [
@@ -481,7 +528,9 @@ class SelectifySettingsForm extends ConfigFormBase {
       ->set('disable_on_admin_routes', (bool) $form_state->getValue('disable_on_admin_routes', FALSE))
       ->set('disabled_pages', $form_state->getValue('disabled_pages', ''))
       ->set('accent_color', $form_state->getValue('accent_color', $config->get('accent_color', 'neutral')))
-      ->set('accent_color_mode', $form_state->getValue('accent_color_mode', $config->get('accent_color_mode', 'light')));
+      ->set('accent_color_mode', $form_state->getValue('accent_color_mode', $config->get('accent_color_mode', 'light')))
+      ->set('admin_accent_color', $form_state->getValue('admin_accent_color', $config->get('admin_accent_color', 'neutral')))
+      ->set('admin_accent_color_mode', $form_state->getValue('admin_accent_color_mode', $config->get('admin_accent_color_mode', 'light')));
 
     // Retrieve values from form.
     $apply_site_wide = (bool) $form_state->getValue('apply_site_wide', FALSE);

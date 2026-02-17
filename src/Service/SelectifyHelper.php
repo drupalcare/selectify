@@ -181,32 +181,13 @@ class SelectifyHelper implements SelectifyHelperInterface {
   }
 
   /**
-   * Detects if Gin theme is active and returns its settings.
+   * Checks if the current route is an admin route.
    *
-   * @return array|false
-   *   Array with 'is_gin', 'color_scheme', and 'accent_color' keys,
-   *   or FALSE if Gin is not the active theme.
+   * @return bool
+   *   TRUE if the current route is an admin route.
    */
-  public function detectGinTheme(): array|false {
-    if (!$this->isBaseTheme('gin')) {
-      return FALSE;
-    }
-
-    $gin_config = $this->configFactory->get('gin.settings');
-    $accent_color = $gin_config->get('preset_accent_color') ?? 'blue';
-    $dark_mode = (int) ($gin_config->get('enable_darkmode') ?? 0);
-
-    $color_scheme = match ($dark_mode) {
-      2 => 'auto',
-      1 => 'dark',
-      default => 'light',
-    };
-
-    return [
-      'is_gin' => TRUE,
-      'color_scheme' => $color_scheme,
-      'accent_color' => $accent_color,
-    ];
+  public function isAdminRoute(): bool {
+    return $this->adminContext->isAdminRoute();
   }
 
   /**

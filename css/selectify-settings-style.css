@@ -23,11 +23,13 @@
 
 
 /* Accent Color Radio Buttons - Colored Circle Interface */
-.selectify-settings-form #edit-accent-color--wrapper input.form-radio {
+.selectify-settings-form #edit-accent-color--wrapper input.form-radio,
+.selectify-settings-form #edit-admin-accent-color--wrapper input.form-radio {
   display: none;
 }
 
-.selectify-settings-form #edit-accent-color--wrapper label.form-item__label {
+.selectify-settings-form #edit-accent-color--wrapper label.form-item__label,
+.selectify-settings-form #edit-admin-accent-color--wrapper label.form-item__label {
   width: 32px;
   height: 32px;
   border-radius: 50%;
@@ -43,48 +45,59 @@
 }
 
 /* Individual Color Assignments */
-.selectify-settings-form #edit-accent-color--wrapper label[for="edit-accent-color-blue"] {
+.selectify-settings-form #edit-accent-color--wrapper label[for="edit-accent-color-blue"],
+.selectify-settings-form #edit-admin-accent-color--wrapper label[for="edit-admin-accent-color-blue"] {
   background-color: #2196f3;
 }
 
-.selectify-settings-form #edit-accent-color--wrapper label[for="edit-accent-color-teal"] {
+.selectify-settings-form #edit-accent-color--wrapper label[for="edit-accent-color-teal"],
+.selectify-settings-form #edit-admin-accent-color--wrapper label[for="edit-admin-accent-color-teal"] {
   background-color: #009688;
 }
 
-.selectify-settings-form #edit-accent-color--wrapper label[for="edit-accent-color-coral"] {
+.selectify-settings-form #edit-accent-color--wrapper label[for="edit-accent-color-coral"],
+.selectify-settings-form #edit-admin-accent-color--wrapper label[for="edit-admin-accent-color-coral"] {
   background-color: #ff5252;
 }
 
-.selectify-settings-form #edit-accent-color--wrapper label[for="edit-accent-color-gold"] {
+.selectify-settings-form #edit-accent-color--wrapper label[for="edit-accent-color-gold"],
+.selectify-settings-form #edit-admin-accent-color--wrapper label[for="edit-admin-accent-color-gold"] {
   background-color: #ffc107;
 }
 
-.selectify-settings-form #edit-accent-color--wrapper label[for="edit-accent-color-indigo"] {
+.selectify-settings-form #edit-accent-color--wrapper label[for="edit-accent-color-indigo"],
+.selectify-settings-form #edit-admin-accent-color--wrapper label[for="edit-admin-accent-color-indigo"] {
   background-color: #3f51b5;
 }
 
-.selectify-settings-form #edit-accent-color--wrapper label[for="edit-accent-color-neutral"] {
+.selectify-settings-form #edit-accent-color--wrapper label[for="edit-accent-color-neutral"],
+.selectify-settings-form #edit-admin-accent-color--wrapper label[for="edit-admin-accent-color-neutral"] {
   background-color: #f2f2f2;
   border: 2px solid #8d8d8d;
 }
 
-.selectify-settings-form #edit-accent-color--wrapper label[for="edit-accent-color-slate"] {
+.selectify-settings-form #edit-accent-color--wrapper label[for="edit-accent-color-slate"],
+.selectify-settings-form #edit-admin-accent-color--wrapper label[for="edit-admin-accent-color-slate"] {
   background-color: #607d8b;
 }
 
-.selectify-settings-form #edit-accent-color--wrapper label[for="edit-accent-color-none"] {
+.selectify-settings-form #edit-accent-color--wrapper label[for="edit-accent-color-none"],
+.selectify-settings-form #edit-admin-accent-color--wrapper label[for="edit-admin-accent-color-none"] {
   background-color: #f2f2f2;
   border: 2px solid #8d8d8d;
 }
 
 /* Default State */
-.selectify-settings-form #edit-accent-color--wrapper input.form-radio + label {
+.selectify-settings-form #edit-accent-color--wrapper input.form-radio + label,
+.selectify-settings-form #edit-admin-accent-color--wrapper input.form-radio + label {
   box-shadow: rgba(244, 67, 54, 0.7) 0 4px 16px;
 }
 
 /* Checked State */
 .selectify-settings-form #edit-accent-color--wrapper input.form-radio:checked + label,
-.selectify-settings-form #edit-accent-color--wrapper input.selectify-checked + label {
+.selectify-settings-form #edit-accent-color--wrapper input.selectify-checked + label,
+.selectify-settings-form #edit-admin-accent-color--wrapper input.form-radio:checked + label,
+.selectify-settings-form #edit-admin-accent-color--wrapper input.selectify-checked + label {
   transform: scale(1.2);
   box-shadow: rgba(76, 175, 80, 0.7) 0 8px 32px;
   cursor: default;
@@ -92,8 +105,10 @@
 
 /* Checkmark on Selected */
 .selectify-settings-form #edit-accent-color--wrapper input.form-radio:checked + label::after,
-.selectify-settings-form #edit-accent-color--wrapper input.selectify-checked + label::after {
-  content: "✓";
+.selectify-settings-form #edit-accent-color--wrapper input.selectify-checked + label::after,
+.selectify-settings-form #edit-admin-accent-color--wrapper input.form-radio:checked + label::after,
+.selectify-settings-form #edit-admin-accent-color--wrapper input.selectify-checked + label::after {
+  content: "\2713";
   font-size: 1.25rem;
   color: white;
   font-weight: bold;
@@ -108,19 +123,25 @@
 .selectify-settings-form #edit-accent-color--wrapper input#edit-accent-color-neutral:checked + label::after,
 .selectify-settings-form #edit-accent-color--wrapper input#edit-accent-color-none:checked + label::after,
 .selectify-settings-form #edit-accent-color--wrapper input.selectify-checked[id*="neutral"] + label::after,
-.selectify-settings-form #edit-accent-color--wrapper input.selectify-checked[id*="none"] + label::after {
+.selectify-settings-form #edit-accent-color--wrapper input.selectify-checked[id*="none"] + label::after,
+.selectify-settings-form #edit-admin-accent-color--wrapper input#edit-admin-accent-color-neutral:checked + label::after,
+.selectify-settings-form #edit-admin-accent-color--wrapper input#edit-admin-accent-color-none:checked + label::after,
+.selectify-settings-form #edit-admin-accent-color--wrapper input.selectify-checked[id*="neutral"] + label::after,
+.selectify-settings-form #edit-admin-accent-color--wrapper input.selectify-checked[id*="none"] + label::after {
   color: #333;
 }
 
 /* Disabled State */
-.selectify-settings-form #edit-accent-color--wrapper input.form-radio:disabled + label {
+.selectify-settings-form #edit-accent-color--wrapper input.form-radio:disabled + label,
+.selectify-settings-form #edit-admin-accent-color--wrapper input.form-radio:disabled + label {
   cursor: default;
   box-shadow: none;
   border: none;
   opacity: 0.6;
 }
 
-.selectify-settings-form #edit-accent-color--wrapper input.form-radio:disabled + label::after {
+.selectify-settings-form #edit-accent-color--wrapper input.form-radio:disabled + label::after,
+.selectify-settings-form #edit-admin-accent-color--wrapper input.form-radio:disabled + label::after {
   content: "" !important;
   font-size: 0 !important;
   visibility: hidden !important;
@@ -144,13 +165,15 @@
   z-index: 10;
 }
 
-.selectify-settings-form #edit-accent-color .form-item--accent-color {
+.selectify-settings-form #edit-accent-color .form-item--accent-color,
+.selectify-settings-form #edit-admin-accent-color .form-item--admin-accent-color {
   position: relative;
   display: inline-block;
 }
 
 /* Responsive Grid Layout for All Radio Button Groups (Except Accent Color) */
 .selectify-settings-form #edit-accent-color-mode--wrapper .form-radios,
+.selectify-settings-form #edit-admin-accent-color-mode--wrapper .form-radios,
 .selectify-settings-form #edit-radio-style--wrapper .form-radios,
 .selectify-settings-form #edit-radio-shape--wrapper .form-radios,
 .selectify-settings-form #edit-radio-size--wrapper .form-radios,
@@ -165,6 +188,7 @@
 /* Tablet: 2 Columns */
 @media (min-width: 768px) {
   .selectify-settings-form #edit-accent-color-mode--wrapper .form-radios,
+  .selectify-settings-form #edit-admin-accent-color-mode--wrapper .form-radios,
   .selectify-settings-form #edit-radio-style--wrapper .form-radios,
   .selectify-settings-form #edit-radio-shape--wrapper .form-radios,
   .selectify-settings-form #edit-radio-size--wrapper .form-radios,
@@ -179,6 +203,7 @@
 /* Desktop: 3 Columns */
 @media (min-width: 1024px) {
   .selectify-settings-form #edit-accent-color-mode--wrapper .form-radios,
+  .selectify-settings-form #edit-admin-accent-color-mode--wrapper .form-radios,
   .selectify-settings-form #edit-radio-style--wrapper .form-radios,
   .selectify-settings-form #edit-radio-shape--wrapper .form-radios,
   .selectify-settings-form #edit-radio-size--wrapper .form-radios,
@@ -191,7 +216,8 @@
 }
 
 /* Keep Accent Color Circles Horizontal */
-.selectify-settings-form #edit-accent-color--wrapper .form-radios {
+.selectify-settings-form #edit-accent-color--wrapper .form-radios,
+.selectify-settings-form #edit-admin-accent-color--wrapper .form-radios {
   display: flex;
   flex-wrap: wrap;
   gap: 0 24px;
