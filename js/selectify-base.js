@@ -57,7 +57,7 @@
     if (currentDisplay === 'none') {
       target.style.display = menuDisplay;
     }
-    let height = target.scrollHeight;
+    let height = target.offsetHeight;
     height = Math.round(height);
     Object.keys(cssStyles).forEach(style => {
       target.style[style] = cssStyles[style];
