@@ -185,6 +185,10 @@
   background: var(--selectify-select-bg, var(--r-bg));
 }
 
+.selectify-select-dropdowns .options-inner .selectify-select-footer button {
+  padding: 4px 8px;
+}
+
 /* RTL Support */
 html[dir="rtl"] .selectify-select-dropdowns .selectify-available-display {
   right: 0;
