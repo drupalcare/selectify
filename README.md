@@ -544,23 +544,35 @@ all widgets:
 
 ### Color Theme System
 
-Choose from 7 professional accent colors, each available in light and dark
-modes with carefully crafted 3D effects:
+Choose from 7 professional accent colors with independent color
+control for admin and front-end:
 
 **Color Palette:**
-- Neutral – Professional grayscale for universal appeal
-- Slate – Cool, modern blue-gray tones
-- Blue – Classic, trustworthy corporate blue
-- Indigo – Deep, sophisticated purple-blue
-- Teal – Fresh, modern blue-green
-- Gold – Warm, prestigious yellow tones
-- Coral – Vibrant, friendly orange-pink
+- **Neutral** – Professional grayscale for universal appeal
+- **Slate** – Cool, modern blue-gray tones
+- **Blue** – Classic, trustworthy corporate blue
+- **Indigo** – Deep, sophisticated purple-blue
+- **Teal** – Fresh, modern blue-green
+- **Gold** – Warm, prestigious yellow tones
+- **Coral** – Vibrant, friendly orange-pink
 
-**Mode Options:**
-- Light Mode – Optimized for standard light backgrounds with 3D depth
-  effects
-- Dark Mode – Designed for dark themes with inverted 3D effects and proper
-  contrast
+**Color Scopes:**
+- **Admin** – Controls Selectify colors on admin pages
+  (`admin_accent_color`, `admin_accent_color_mode`)
+- **Front-end** – Controls Selectify colors on public-facing pages
+  (`accent_color`, `accent_color_mode`)
+
+Each scope is detected automatically via Drupal's admin-route
+context, so admin and front-end can use completely different
+palettes and modes without additional configuration.
+
+**Mode Options (per scope):**
+- **Light** – Optimized for standard light backgrounds with 3D
+  depth effects
+- **Dark** – Designed for dark themes with inverted 3D effects
+  and proper contrast
+- **None** – Strips Selectify colors so form elements inherit
+  the theme's native styling
 
 **Additional Features:**
 - Respects field settings for selection limits
@@ -597,11 +609,17 @@ Navigate to the Selectify settings page to configure:
 - Size selection (Small / Medium / Large)
 - Settings dynamically show/hide based on enable state
 
-**4. Color Theme:**
+**4. Front-end Color Theme:**
 - 7 accent color options with descriptions
-- Light/Dark mode selection
-- Applies to both radio/checkbox and select widgets
+- Light / Dark / None mode selection
+- Applies to radio/checkbox and select widgets on public pages
 - 3D effects automatically adjust for selected mode
+
+**4b. Admin Color Theme:**
+- Same 7 accent color options, configured independently
+- Light / Dark / None mode selection
+- Applies to radio/checkbox and select widgets on admin pages
+- Allows a different palette and mode from the front-end
 
 **5. Views Exposed Filters:**
 

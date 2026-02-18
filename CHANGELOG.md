@@ -34,6 +34,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `disable_views_widgets`.
 - Install/uninstall hooks in `selectify.install` for clean config removal.
 - 150ms debounce on searchable dropdown filter input for large option lists.
+- Independent admin and front-end color theme controls — separate
+  `admin_accent_color` / `admin_accent_color_mode` config fields so admin pages
+  and public pages can each use a different palette and mode.
+- "None" color mode option per scope that strips all Selectify colors, letting
+  form elements inherit the active theme's native styling.
 
 ### Changed
 - All five widget classes now extend `SelectifyWidgetBase` and only declare
@@ -43,6 +48,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `SelectifyHelper` service.
 - `declare(strict_types=1)` added to all PHP class files.
 - Inline CSS variables output minified to a single compact line in `<head>`.
+- Color theme settings split into two independent scopes (admin / front-end),
+  each offering light, dark, and none modes.
 - Replaced hardcoded CSS error colors with custom properties
   (`--selectify-error-bg`, `--selectify-error-color`).
 - `use` statements alphabetized per Drupal coding standards.
