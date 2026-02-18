@@ -37,8 +37,11 @@
     target.offsetHeight; // Trigger reflow
     target.classList.remove('toggled');
     target.setAttribute('aria-hidden', 'true');
+    const combobox = target.closest('[role="combobox"]');
+    if (combobox) {
+      combobox.setAttribute('aria-expanded', 'false');
+    }
     if (trigger) {
-      trigger.setAttribute('aria-expanded', 'false');
       setTimeout(() => trigger.focus(), duration);
     }
     Object.keys(cssStyles).forEach(style => {
@@ -70,8 +73,9 @@
     target.style.height = `${height}px`;
     target.classList.add('toggled');
     target.setAttribute('aria-hidden', 'false');
-    if (trigger) {
-      trigger.setAttribute('aria-expanded', 'true');
+    const combobox = target.closest('[role="combobox"]');
+    if (combobox) {
+      combobox.setAttribute('aria-expanded', 'true');
     }
     ['paddingTop', 'paddingBottom', 'marginTop', 'marginBottom'].forEach(property => {
       target.style[property] = '';

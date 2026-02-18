@@ -178,9 +178,9 @@
       Drupal.selectify.slideDown(dropdown);
     }
 
-    const trigger = triggerElement || dropdown.previousElementSibling;
-    if (trigger) {
-      trigger.setAttribute('aria-expanded', 'true');
+    const combobox = dropdown.closest('[role="combobox"]');
+    if (combobox) {
+      combobox.setAttribute('aria-expanded', 'true');
     }
 
     const parentSelect = triggerElement?.closest('.selectify-select');
@@ -201,12 +201,13 @@
       Drupal.selectify.slideUp(dropdown);
     }
 
+    const combobox = dropdown.closest('[role="combobox"]');
+    if (combobox) {
+      combobox.setAttribute('aria-expanded', 'false');
+    }
     const trigger = triggerElement || dropdown.previousElementSibling;
-    if (trigger) {
-      trigger.setAttribute('aria-expanded', 'false');
-      if (typeof trigger.focus === 'function') {
-        trigger.focus();
-      }
+    if (trigger && typeof trigger.focus === 'function') {
+      trigger.focus();
     }
 
     const parentSelect = dropdown.closest('.selectify-select');
