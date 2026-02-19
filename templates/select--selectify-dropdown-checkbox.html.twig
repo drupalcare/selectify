@@ -26,6 +26,7 @@
      role="combobox"
      aria-controls="edit-{{ clean_field_name }}-dropdown"
      aria-haspopup="listbox"
+     aria-expanded="false"
      aria-multiselectable="{{ is_multiple ? 'true' : 'false' }}"
      data-target-id="{{ unique_id }}"
      {% if max_selected %}data-max-selections="{{ max_selected }}"{% endif %}
