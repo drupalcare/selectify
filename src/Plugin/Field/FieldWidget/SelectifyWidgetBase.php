@@ -12,6 +12,7 @@ use Drupal\Core\Field\Plugin\Field\FieldWidget\OptionsSelectWidget;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Routing\AdminContext;
 use Drupal\Core\Template\Attribute;
+use Drupal\selectify\Service\SelectifyHelperInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -51,6 +52,13 @@ abstract class SelectifyWidgetBase extends OptionsSelectWidget {
   protected AdminContext $adminContext;
 
   /**
+   * The Selectify helper service.
+   *
+   * @var \Drupal\selectify\Service\SelectifyHelperInterface
+   */
+  protected SelectifyHelperInterface $selectifyHelper;
+
+  /**
    * Constructs a SelectifyWidgetBase object.
    *
    * @param string $plugin_id
@@ -67,6 +75,8 @@ abstract class SelectifyWidgetBase extends OptionsSelectWidget {
    *   The configuration factory.
    * @param \Drupal\Core\Routing\AdminContext $admin_context
    *   The admin context service.
+   * @param \Drupal\selectify\Service\SelectifyHelperInterface $selectify_helper
+   *   The Selectify helper service.
    */
   public function __construct(
     $plugin_id,
@@ -76,10 +86,12 @@ abstract class SelectifyWidgetBase extends OptionsSelectWidget {
     array $third_party_settings,
     ConfigFactoryInterface $config_factory,
     AdminContext $admin_context,
+    SelectifyHelperInterface $selectify_helper,
   ) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $third_party_settings);
     $this->configFactory = $config_factory;
     $this->adminContext = $admin_context;
+    $this->selectifyHelper = $selectify_helper;
   }
 
   /**
@@ -93,7 +105,8 @@ abstract class SelectifyWidgetBase extends OptionsSelectWidget {
       $configuration['settings'],
       $configuration['third_party_settings'],
       $container->get('config.factory'),
-      $container->get('router.admin_context')
+      $container->get('router.admin_context'),
+      $container->get('selectify.helper')
     );
   }
 
@@ -177,6 +190,12 @@ abstract class SelectifyWidgetBase extends OptionsSelectWidget {
    */
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
     $element = parent::formElement($items, $delta, $element, $form, $form_state);
+
+    // When the current page is in "Additional pages to disable Selectify",
+    // render a plain select with no Selectify styling or behavior.
+    if ($this->selectifyHelper->isPageDisabled()) {
+      return $element;
+    }
 
     $selected_accent = $this->configFactory->get('selectify.settings')->get('accent_color') ?: 'default';
     $is_multiple = $this->fieldDefinition->getFieldStorageDefinition()->isMultiple();

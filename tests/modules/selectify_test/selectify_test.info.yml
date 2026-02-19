@@ -1,0 +1,5 @@
+name: 'Selectify Test'
+type: module
+description: 'Test module for Selectify Form API integration testing. Quick steps: 1) Enable this module, 2) Visit /selectify-test-form on your site, 3) Configure Selectify Form API settings to apply widgets to "selectify_test_form", 4) Test the form with different Selectify widgets. This form contains plain Form API select elements (not field widgets) for testing Selectify Form API integration.'
+core_version_requirement: ^10 || ^11
+package: Testing

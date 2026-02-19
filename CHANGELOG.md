@@ -6,12 +6,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+- "Additional pages to disable Selectify" now disables all Selectify features
+  on matching paths (selects, radios, checkboxes). Field widgets (Manage Form
+  Display) respect disabled pages and render plain selects when the current
+  page matches.
+
+### Fixed
+- Radio/checkbox styling and body classes no longer applied on pages listed in
+  "Additional pages to disable Selectify" (previously only select widgets were
+  disabled).
+- Menu link title capitalization: "selectify Settings" → "Selectify Settings".
+- Menu link description updated for clarity.
+
 ## [2.0.2] - 2026-02-17
 
 ### Added
 - `SelectifyWidgetBase` abstract class — single source of truth for all widget
-  constructor, dependency injection, and `formElement()` logic (~553 lines removed
-  across the five widget classes).
+  constructor, dependency injection, and `formElement()` logic (~553 lines
+  removed across the five widget classes).
 - `SelectifyHelper` service with per-request config caching, replacing ~15
   redundant `\Drupal::` static calls per request.
 - `SelectifyHelperInterface` and `SelectifyStyleServiceInterface` for
@@ -91,7 +104,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Added
 - Initial release of the Selectify module.
 - Five field widgets: Dropdown, Tags, Searchable, Checkbox, and Dual List.
-- Custom radio button and checkbox styling with toggle/checkbox, circle/square, and small/medium/large options.
+- Custom radio button and checkbox styling with toggle/checkbox, circle/square,
+  and small/medium/large options.
 - Seven accent color themes with light and dark modes.
 - Views exposed filter integration with site-wide and per-view configuration.
 - Theme integration for Claro, Gin, and Olivero.

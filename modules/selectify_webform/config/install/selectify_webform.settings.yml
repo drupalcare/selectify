@@ -1,0 +1,6 @@
+enable_webform_selects: true
+webform_widget: selectify_dropdown
+disable_webform_widgets: false
+apply_site_wide_webform: false
+global_webform_widget: 'none'
+widget_for_webforms: []

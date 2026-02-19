@@ -6,7 +6,7 @@
  * Website: https://www.flashwebcenter.com
  * Developer: Alaa Haddad https://www.alaahaddad.com.
  */
-((Drupal, once) => {
+((Drupal, once, drupalSettings) => {
   'use strict';
   const type = 'dual';
   /**
@@ -15,17 +15,23 @@
   Drupal.behaviors.selectifySelectDual = {
     attach: (context) => {
       once('selectifyMultiSelectDual', '.selectify-select-dual-list', context).forEach((selectifySelect) => {
+        const constants = Drupal.selectify?.constants || {};
+        const initDelay = constants.INIT_DELAY || 10;
         setTimeout(() => {
           // Retrieve the target ID from the data attribute.
           const targetId = selectifySelect.getAttribute('data-target-id');
           if (!targetId) {
-
+            if (drupalSettings?.selectify?.debug) {
+              console.warn('[Selectify] Dual widget missing data-target-id attribute');
+            }
             return;
           }
           // Locate the corresponding hidden <select> element by its ID.
           const nativeSelect = document.getElementById(targetId);
           if (!nativeSelect || nativeSelect.tagName !== 'SELECT') {
-
+            if (drupalSettings?.selectify?.debug) {
+              console.warn('[Selectify] Native select element not found:', targetId);
+            }
             return;
           }
           initializeSelectifyDual(selectifySelect, nativeSelect);
@@ -47,12 +53,15 @@
             selectifySelect.setAttribute('aria-controls', dropdownId);
           }
           Drupal.selectify.injectAriaLabelledBy();
-        }, 10);
+        }, initDelay);
       });
     }
   };
   /**
    * Initializes the dual list multi-select.
+   *
+   * @param {HTMLElement} selectifySelect - The Selectify wrapper element.
+   * @param {HTMLElement} nativeSelect - The hidden native <select> element.
    */
   function initializeSelectifyDual(selectifySelect, nativeSelect) {
     const selectedDisplay = selectifySelect.querySelector('.dual-selected');
@@ -63,7 +72,7 @@
 
       return;
     }
-    if (!selectedDisplay || options.length === 0) {
+    if (!selectedDisplay || !dropdownMenu || options.length === 0) {
       return;
     }
     // Click event to select an item.
@@ -111,36 +120,40 @@
       }
     });
     // "Clear All" Button Logic.
-    once('clearAllDual', clearAllButton).forEach(() => {
-      clearAllButton.addEventListener('click', () => {
-        nativeSelect.querySelectorAll('option').forEach(option => {
-          option.selected = false;
-        });
-        selectedDisplay.querySelectorAll('.selectify-selected-one-option').forEach(item => item.remove());
-        dropdownMenu.querySelectorAll('.selectify-available-one-option.selected').forEach(option => {
-          option.classList.remove('s-selected');
-        });
-        dropdownMenu.querySelectorAll('.selectify-available-one-option.s-hidden').forEach(option => {
-          option.classList.remove('s-hidden');
-        });
-        Drupal.selectify.syncHiddenSelect(nativeSelect, []);
-        Drupal.selectify.updateSelectedDisplay(type, nativeSelect, selectedDisplay, clearAllButton);
-        setTimeout(() => {
-          nativeSelect.dispatchEvent(new Event('change', { bubbles: true }));
-          nativeSelect.dispatchEvent(new Event('input', { bubbles: true }));
-        }, 0);
+    if (clearAllButton) {
+      once('clearAllDual', clearAllButton).forEach(() => {
+        clearAllButton.addEventListener('click', () => {
+          nativeSelect.querySelectorAll('option').forEach(option => {
+            option.selected = false;
+          });
+          selectedDisplay.querySelectorAll('.selectify-selected-one-option').forEach(item => item.remove());
+          dropdownMenu.querySelectorAll('.selectify-available-one-option.s-selected').forEach(option => {
+            option.classList.remove('s-selected');
+          });
+          dropdownMenu.querySelectorAll('.selectify-available-one-option.s-hidden').forEach(option => {
+            option.classList.remove('s-hidden');
+          });
+          Drupal.selectify.syncHiddenSelect(nativeSelect, []);
+          Drupal.selectify.updateSelectedDisplay(type, nativeSelect, selectedDisplay, clearAllButton);
+          setTimeout(() => {
+            nativeSelect.dispatchEvent(new Event('change', { bubbles: true }));
+            nativeSelect.dispatchEvent(new Event('input', { bubbles: true }));
+          }, 0);
 
-        // Return focus to the dual available list
-        const availableList = selectifySelect.querySelector('.dual-available');
-        if (availableList && typeof availableList.focus === 'function') {
-          setTimeout(() => availableList.focus(), 100);
-        }
+          // Return focus to the dual available list
+          const availableList = selectifySelect.querySelector('.dual-available');
+          if (availableList && typeof availableList.focus === 'function') {
+            const constants = Drupal.selectify?.constants || {};
+            const focusDelay = constants.FOCUS_DELAY || 100;
+            setTimeout(() => availableList.focus(), focusDelay);
+          }
+        });
       });
-    });
+    }
     // Enable keyboard navigation.
     Drupal.selectify.handleKeyboardNavigation(selectifySelect, dropdownMenu, selectedDisplay, type);
     const selectedValues = Drupal.selectify.getSelectedValues(nativeSelect);
     Drupal.selectify.syncHiddenSelect(nativeSelect, selectedValues);
     Drupal.selectify.updateSelectedDisplay(type, nativeSelect, selectedDisplay, clearAllButton);
   }
-})(Drupal, once);
+})(Drupal, once, drupalSettings);

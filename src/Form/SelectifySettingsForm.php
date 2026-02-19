@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Drupal\selectify\Form;
 
+use Drupal\Component\Utility\Html;
 use Drupal\Core\Config\Config;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\TypedConfigManagerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Messenger\MessengerInterface;
+use Drupal\webform\Entity\Webform;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\views\Views;
 
@@ -75,6 +77,40 @@ class SelectifySettingsForm extends ConfigFormBase {
    */
   public function getFormId(): string {
     return 'selectify_settings_form';
+  }
+
+  /**
+   * Returns Selectify widget options (single source for widget labels).
+   *
+   * @return array
+   *   Associative array of widget machine name => translated label.
+   */
+  protected function getSelectifyWidgetOptions(): array {
+    return [
+      'selectify_dropdown' => $this->t('Dropdown - Enhanced dropdown with better styling'),
+      'selectify_tags' => $this->t('Tags - Enhanced dropdown displaying selections as removable tags'),
+      'selectify_searchable' => $this->t('Searchable - Enhanced dropdown with search/filter capability'),
+      'selectify_checkbox' => $this->t('Checkbox - Enhanced dropdown with checkbox-style selections'),
+      'selectify_dual' => $this->t('Dual List - Side-by-side selection (available/selected lists)'),
+    ];
+  }
+
+  /**
+   * Returns accent color options (single source for color labels).
+   *
+   * @return array
+   *   Associative array of color key => translated label.
+   */
+  protected function getAccentColorOptions(): array {
+    return [
+      'blue' => $this->t('Blue'),
+      'coral' => $this->t('Coral'),
+      'gold' => $this->t('Gold'),
+      'indigo' => $this->t('Indigo'),
+      'neutral' => $this->t('Neutral'),
+      'slate' => $this->t('Slate'),
+      'teal' => $this->t('Teal'),
+    ];
   }
 
   /**
@@ -268,15 +304,7 @@ class SelectifySettingsForm extends ConfigFormBase {
       '#title' => $this->t('Accent color'),
       '#description' => $this->t('Choose the color that appears when a radio button or checkbox is selected.'),
       '#default_value' => $config->get('accent_color') ?? 'blue',
-      '#options' => [
-        'blue' => $this->t('Blue'),
-        'coral' => $this->t('Coral'),
-        'gold' => $this->t('Gold'),
-        'indigo' => $this->t('Indigo'),
-        'neutral' => $this->t('Neutral'),
-        'slate' => $this->t('Slate'),
-        'teal' => $this->t('Teal'),
-      ],
+      '#options' => $this->getAccentColorOptions(),
       '#states' => [
         'disabled' => [
           ':input[name="accent_color_mode"]' => ['value' => 'none'],
@@ -315,15 +343,7 @@ class SelectifySettingsForm extends ConfigFormBase {
       '#title' => $this->t('Accent color'),
       '#description' => $this->t('Choose the color that appears when a radio button or checkbox is selected on admin pages.'),
       '#default_value' => $config->get('admin_accent_color') ?? 'blue',
-      '#options' => [
-        'blue' => $this->t('Blue'),
-        'coral' => $this->t('Coral'),
-        'gold' => $this->t('Gold'),
-        'indigo' => $this->t('Indigo'),
-        'neutral' => $this->t('Neutral'),
-        'slate' => $this->t('Slate'),
-        'teal' => $this->t('Teal'),
-      ],
+      '#options' => $this->getAccentColorOptions(),
       '#states' => [
         'disabled' => [
           ':input[name="admin_accent_color_mode"]' => ['value' => 'none'],
@@ -335,7 +355,264 @@ class SelectifySettingsForm extends ConfigFormBase {
     ];
 
     // =========================================================================
-    // SECTION 5: Views Select Filters
+    // SECTION 5: Form API Select Elements
+    // =========================================================================
+    $form['form_api_selects'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Form API Select Elements'),
+      '#description' => $this->t('Apply Selectify to plain &lt;select&gt; elements in regular Drupal forms (Form API). This covers any select that is not already handled by Views exposed filters, Webform submissions, or Field Widgets.<br><br><strong>Safety:</strong> Selectify maintains a built-in blocklist of AJAX-dependent admin forms that are always excluded (Field UI, Views UI, Layout Builder, Editor config, Media Library, etc.). Individual selects with <code>#ajax</code> callbacks are also automatically skipped.'),
+      '#open' => FALSE,
+      '#weight' => 42,
+    ];
+
+    $form['form_api_selects']['enable_form_api_selects'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Enable Selectify for Form API selects'),
+      '#description' => $this->t('When enabled, Selectify can be applied to specific discovered forms below. <strong>Important:</strong> After enabling and saving, visit pages containing your forms, then return here and refresh to see discovered forms. AJAX-dependent selects and known admin forms are always excluded.'),
+      '#default_value' => $config->get('enable_form_api_selects'),
+    ];
+
+    $form['form_api_selects']['form_api_widget'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Default widget style for Form API selects'),
+      '#description' => $this->t('This widget will be applied to all enabled Form API selects unless overridden per-form below.'),
+      '#options' => $this->getSelectifyWidgetOptions(),
+      '#default_value' => $config->get('form_api_widget') ?? 'selectify_dropdown',
+      '#states' => [
+        'visible' => [
+          ':input[name="enable_form_api_selects"]' => ['checked' => TRUE],
+        ],
+      ],
+    ];
+
+    // Per-form configuration (Views-like): list only discovered forms that
+    // contain eligible select elements.
+    $form['form_api_selects']['per_form_configuration'] = [
+      '#type' => 'container',
+      '#states' => [
+        'visible' => [
+          ':input[name="enable_form_api_selects"]' => ['checked' => TRUE],
+        ],
+      ],
+    ];
+
+    $form['form_api_selects']['per_form_configuration']['description'] = [
+      '#type' => 'markup',
+      '#markup' => '<div class="messages messages--info">' . $this->t('<strong>Per-form configuration:</strong> Only forms that have been detected with eligible select elements are shown below.<br><br><strong>To discover forms:</strong><ol><li>Enable "@checkbox_label" above</li><li>Click "@save_button" at the bottom of this page</li><li>Visit the pages on your site that contain the forms you want to style</li><li>Return to this settings page and refresh/reload it</li></ol>The forms you visited will then appear in the table below.', [
+        '@checkbox_label' => $this->t('Enable Selectify for Form API selects'),
+        '@save_button' => $this->t('Save configuration'),
+      ]) . '</div>',
+    ];
+
+    $stored_map = [];
+    $stored_entries = $config->get('form_api_widget_map') ?? [];
+    if (is_array($stored_entries)) {
+      foreach ($stored_entries as $entry) {
+        if (!empty($entry['form_id']) && !empty($entry['widget'])) {
+          $stored_map[$entry['form_id']] = $entry['widget'];
+        }
+      }
+    }
+
+    // phpcs:ignore DrupalPractice.Objects.GlobalDrupal.GlobalDrupal
+    $discovered = \Drupal::state()->get('selectify.form_api_discovered_forms', []);
+    if (!is_array($discovered)) {
+      $discovered = [];
+    }
+    $discovered_ids = array_keys($discovered);
+    sort($discovered_ids, SORT_NATURAL | SORT_FLAG_CASE);
+
+    /** @var \Drupal\selectify\Service\SelectifyHelper $selectify_helper */
+    // phpcs:ignore DrupalPractice.Objects.GlobalDrupal.GlobalDrupal
+    $selectify_helper = \Drupal::service('selectify.helper');
+    // phpcs:ignore DrupalPractice.Objects.GlobalDrupal.GlobalDrupal
+    $date_formatter = \Drupal::service('date.formatter');
+
+    $form['form_api_selects']['per_form_configuration']['form_api_widgets'] = [
+      '#type' => 'table',
+      '#header' => [
+        $this->t('Form ID'),
+        $this->t('Last seen'),
+        $this->t('Selectify widget'),
+      ],
+      '#tree' => TRUE,
+    ];
+
+    $row_count = 0;
+    foreach ($discovered_ids as $discovered_form_id) {
+      // Validate form_id to prevent XSS and ensure it's a valid string.
+      if (!is_string($discovered_form_id) || empty($discovered_form_id) || strlen($discovered_form_id) > 255) {
+        continue;
+      }
+
+      // Skip forms that are always excluded (built-in blocklist).
+      if ($selectify_helper->isFormExcluded($discovered_form_id)) {
+        continue;
+      }
+
+      $row_count++;
+      $selected_widget = $stored_map[$discovered_form_id] ?? 'none';
+
+      // Safely extract last_seen timestamp.
+      $last_seen = NULL;
+      if (isset($discovered[$discovered_form_id]) && is_array($discovered[$discovered_form_id])) {
+        $last_seen = $discovered[$discovered_form_id]['last_seen'] ?? NULL;
+      }
+      // Ensure last_seen is a valid integer timestamp.
+      $last_seen = (is_numeric($last_seen) && $last_seen > 0) ? (int) $last_seen : NULL;
+      $last_seen_markup = $last_seen ? $date_formatter->format($last_seen, 'short') : '-';
+
+      // Row structure matches Webform table: no #attributes on row, same cell keys pattern.
+      $form['form_api_selects']['per_form_configuration']['form_api_widgets'][$discovered_form_id] = [
+        'form_id' => [
+          '#markup' => '<code>' . Html::escape($discovered_form_id) . '</code>',
+        ],
+        'last_seen' => [
+          '#markup' => $last_seen_markup,
+        ],
+        'widget' => [
+          '#type' => 'select',
+          '#title' => '',
+          '#options' => array_merge(['none' => $this->t('None')], $this->getSelectifyWidgetOptions()),
+          '#default_value' => $selected_widget,
+          '#wrapper_attributes' => ['class' => ['form-item--table-cell']],
+        ],
+      ];
+    }
+
+
+    // Show the built-in blocklist for transparency.
+    $blocked = $selectify_helper->getInternalBlockedFormPatterns();
+    $blocked_markup = '<code>' . implode('</code>, <code>', $blocked) . '</code>';
+
+    $form['form_api_selects']['internal_blocklist'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Built-in blocklist (always excluded)'),
+      '#description' => $this->t('These form patterns are always excluded to prevent breaking AJAX-dependent admin forms. This list cannot be modified through the UI.'),
+      '#open' => FALSE,
+      '#states' => [
+        'visible' => [
+          ':input[name="enable_form_api_selects"]' => ['checked' => TRUE],
+        ],
+      ],
+    ];
+
+    $form['form_api_selects']['internal_blocklist']['list'] = [
+      '#markup' => '<div class="description">' . $blocked_markup . '</div>',
+    ];
+
+    // =========================================================================
+    // SECTION 5b: Webform Integration (visible when submodule is installed)
+    // =========================================================================
+    // phpcs:ignore DrupalPractice.Objects.GlobalDrupal.GlobalDrupal
+    if (\Drupal::moduleHandler()->moduleExists('selectify_webform')) {
+      $webform_config = $this->configFactory->get('selectify_webform.settings');
+
+      $form['webform_selects'] = [
+        '#type' => 'details',
+        '#title' => $this->t('Webform Select Elements'),
+        '#description' => $this->t('Configure Selectify for Webform select elements, including composite elements like Select Other and Entity Select.'),
+        '#open' => FALSE,
+        '#weight' => 44,
+      ];
+
+      $form['webform_selects']['disable_webform_widgets'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Disable Selectify for all Webforms'),
+        '#description' => $this->t('When enabled, all Webform submission forms will use their default widgets.'),
+        '#default_value' => $webform_config->get('disable_webform_widgets'),
+      ];
+
+      $form['webform_selects']['apply_site_wide_webform'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Apply Selectify to all Webform submissions site-wide'),
+        '#description' => $this->t('When enabled, all Webform submission forms with select elements will use the widget selected below.'),
+        '#default_value' => $webform_config->get('apply_site_wide_webform'),
+        '#states' => [
+          'visible' => [
+            ':input[name="disable_webform_widgets"]' => ['checked' => FALSE],
+          ],
+        ],
+      ];
+
+      $form['webform_selects']['global_webform_widget'] = [
+        '#type' => 'select',
+        '#title' => $this->t('Site-wide Webform widget'),
+        '#description' => $this->t('This widget will be applied to all Webform submissions when site-wide mode is enabled.'),
+        '#options' => array_merge(['none' => $this->t('None - Use default widgets')], $this->getSelectifyWidgetOptions()),
+        '#default_value' => $webform_config->get('global_webform_widget') ?? 'none',
+        '#states' => [
+          'visible' => [
+            ':input[name="disable_webform_widgets"]' => ['checked' => FALSE],
+            ':input[name="apply_site_wide_webform"]' => ['checked' => TRUE],
+          ],
+        ],
+      ];
+
+      // Per-Webform configuration, mirroring Views behavior.
+      $webforms_with_selects = $this->getWebformsWithSelects();
+      if (!empty($webforms_with_selects)) {
+        $stored_webform_widgets = $webform_config->get('widget_for_webforms') ?? [];
+
+        $form['webform_selects']['per_webform_configuration'] = [
+          '#type' => 'details',
+          '#title' => $this->t('Per-Webform configuration'),
+          '#open' => FALSE,
+          '#states' => [
+            'visible' => [
+              ':input[name="disable_webform_widgets"]' => ['checked' => FALSE],
+              ':input[name="apply_site_wide_webform"]' => ['checked' => FALSE],
+            ],
+          ],
+        ];
+
+        $form['webform_selects']['per_webform_configuration']['description'] = [
+          '#type' => 'markup',
+          '#markup' => '<div class="messages messages--info">' . $this->t('<strong>Per-Webform configuration:</strong> Only Webforms that contain select elements are listed below. Choose a widget for each Webform as needed.') . '</div>',
+        ];
+
+        $form['webform_selects']['per_webform_configuration']['webform_widgets'] = [
+          '#type' => 'table',
+          '#header' => [
+            $this->t('Webform label'),
+            $this->t('Machine name'),
+            $this->t('Widget'),
+          ],
+          '#tree' => TRUE,
+        ];
+
+        foreach ($webforms_with_selects as $webform_id => $label) {
+          $existing = NULL;
+          if (is_array($stored_webform_widgets)) {
+            foreach ($stored_webform_widgets as $entry) {
+              if (!empty($entry['webform_id']) && $entry['webform_id'] === $webform_id) {
+                $existing = $entry['widget'] ?? 'none';
+                break;
+              }
+            }
+          }
+
+          $form['webform_selects']['per_webform_configuration']['webform_widgets'][$webform_id] = [
+            'label' => [
+              '#markup' => '<strong>' . Html::escape($label) . '</strong>',
+            ],
+            'id' => [
+              '#markup' => '<code>' . Html::escape($webform_id) . '</code>',
+            ],
+            'widget' => [
+              '#type' => 'select',
+              '#title' => '',
+              '#options' => array_merge(['none' => $this->t('None')], $this->getSelectifyWidgetOptions()),
+              '#default_value' => $existing ?? 'none',
+              '#wrapper_attributes' => ['class' => ['form-item--table-cell']],
+            ],
+          ];
+        }
+      }
+    }
+
+    // =========================================================================
+    // SECTION 6: Views Select Filters
     // =========================================================================
     $form['views_filters'] = [
       '#type' => 'details',
@@ -368,14 +645,7 @@ class SelectifySettingsForm extends ConfigFormBase {
       '#type' => 'select',
       '#title' => $this->t('Site-wide widget style'),
       '#description' => $this->t('This widget will be applied to all Views exposed select filters across your site.'),
-      '#options' => [
-        'none' => $this->t('None - Use default widgets'),
-        'selectify_dropdown' => $this->t('Dropdown - Enhanced dropdown with better styling'),
-        'selectify_tags' => $this->t('Tags - Enhanced dropdown displaying selections as removable tags'),
-        'selectify_searchable' => $this->t('Searchable - Enhanced dropdown with search/filter capability'),
-        'selectify_checkbox' => $this->t('Checkbox - Enhanced dropdown with checkbox-style selections'),
-        'selectify_dual' => $this->t('Dual List - Side-by-side selection (available/selected lists)'),
-      ],
+      '#options' => array_merge(['none' => $this->t('None - Use default widgets')], $this->getSelectifyWidgetOptions()),
       '#default_value' => $config->get('global_selectify_widget') ?? 'none',
       '#states' => [
         'visible' => [
@@ -438,44 +708,46 @@ class SelectifySettingsForm extends ConfigFormBase {
         ];
 
         foreach ($displays as $display_data) {
+          // Validate required keys exist.
+          if (empty($display_data['view_machine_name']) || empty($display_data['display_id'])) {
+            continue;
+          }
           $unique_key = $display_data['view_machine_name'] . ':' . $display_data['display_id'];
 
           // Check if this row has a selected widget (not 'none').
           $selected_widget = $stored_filters[$unique_key]['widget'] ?? 'none';
           $row_class = ($selected_widget !== 'none') ? 'selected-widget-row' : '';
 
+          $display_title = $display_data['display_title'] ?? $this->t('Untitled');
+          $display_type = $display_data['display_type'] ?? 'unknown';
+          $display_id = $display_data['display_id'] ?? '';
+          $exposed_form_id = $display_data['exposed_form_id'] ?? '';
+
           $form['views_filters']['per_view_configuration']['selectify_widgets'][$view_machine_name]['filters_table'][$unique_key] = [
           // Add class dynamically.
             '#attributes' => ['class' => [$row_class]],
             'display_title' => [
-              '#markup' => '<strong>' . $display_data['display_title'] . '</strong>',
+              '#markup' => '<strong>' . Html::escape($display_title) . '</strong>',
             ],
             'display_type' => [
-              '#markup' => ucfirst(str_replace('_', ' ', $display_data['display_type'])),
+              '#markup' => Html::escape(ucfirst(str_replace('_', ' ', $display_type))),
             ],
             'display_id' => [
-              '#markup' => '<code>' . $display_data['display_id'] . '</code>',
+              '#markup' => '<code>' . Html::escape($display_id) . '</code>',
             ],
             'exposed_form_id' => [
-              '#markup' => "<code>{$display_data['exposed_form_id']}</code>",
+              '#markup' => '<code>' . Html::escape($exposed_form_id) . '</code>',
             ],
             'widget' => [
               '#type' => 'select',
-              '#title' => $this->t('Widget for %label', ['%label' => $display_data['display_title']]),
-              '#title_display' => 'invisible',
-              '#options' => [
-                'none' => $this->t('None'),
-                'selectify_dropdown' => $this->t('Dropdown - Enhanced dropdown with better styling'),
-                'selectify_tags' => $this->t('Tags - Enhanced dropdown displaying selections as removable tags'),
-                'selectify_searchable' => $this->t('Searchable - Enhanced dropdown with search/filter capability'),
-                'selectify_checkbox' => $this->t('Checkbox - Enhanced dropdown with checkbox-style selections'),
-                'selectify_dual' => $this->t('Dual List - Side-by-side selection (available/selected lists)'),
-              ],
+              '#title' => '',
+              '#options' => array_merge(['none' => $this->t('None')], $this->getSelectifyWidgetOptions()),
               '#default_value' => $selected_widget,
               '#parents' => ['selectify_widgets',
                 $view_machine_name, 'filters_table',
                 $unique_key, 'widget',
               ],
+              '#wrapper_attributes' => ['class' => ['form-item--table-cell']],
             ],
           ];
         }
@@ -504,10 +776,128 @@ class SelectifySettingsForm extends ConfigFormBase {
    *   The modified form element with data attributes added.
    */
   public static function addDataAccent(array $element): array {
+    if (empty($element['#options']) || !is_array($element['#options'])) {
+      return $element;
+    }
     foreach ($element['#options'] as $key => $label) {
+      if (!isset($element[$key])) {
+        continue;
+      }
+      if (!isset($element[$key]['#attributes'])) {
+        $element[$key]['#attributes'] = [];
+      }
       $element[$key]['#attributes']['data-accent'] = $label;
     }
     return $element;
+  }
+
+  /**
+   * Builds structured Form API widget map entries from submitted values.
+   *
+   * @param array $values
+   *   The submitted 'form_api_widgets' values.
+   *
+   * @return array
+   *   Structured configuration entries.
+   */
+  protected function buildFormApiWidgetMapConfig(array $values): array {
+    $result = [];
+    if (!is_array($values)) {
+      return $result;
+    }
+    foreach ($values as $form_id => $row) {
+      // Ensure form_id is a valid string and row is an array.
+      if (!is_string($form_id) || !is_array($row)) {
+        continue;
+      }
+      $widget = $row['widget'] ?? 'none';
+      if (is_string($widget) && $widget !== 'none' && $widget !== '') {
+        $result[] = [
+          'form_id' => $form_id,
+          'widget' => $widget,
+        ];
+      }
+    }
+    return $result;
+  }
+
+  /**
+   * Returns Webforms that contain select-like elements.
+   *
+   * Only Webforms with at least one element that will be styled by the
+   * selectify_webform submodule are listed.
+   *
+   * @return array
+   *   An array of webform_id => label.
+   */
+  protected function getWebformsWithSelects(): array {
+    if (!class_exists(Webform::class)) {
+      return [];
+    }
+    $storage = Webform::loadMultiple();
+    if (empty($storage)) {
+      return [];
+    }
+    $result = [];
+    foreach ($storage as $webform) {
+      if (!$webform || !method_exists($webform, 'getElementsDecoded')) {
+        continue;
+      }
+      $webform_id = $webform->id();
+      if (empty($webform_id)) {
+        continue;
+      }
+      $elements = $webform->getElementsDecoded();
+      if (!is_array($elements)) {
+        continue;
+      }
+      if ($this->webformHasSelect($elements)) {
+        $label = $webform->label() ?? $webform_id;
+        $result[$webform_id] = $label;
+      }
+    }
+    asort($result, SORT_NATURAL | SORT_FLAG_CASE);
+    return $result;
+  }
+
+  /**
+   * Recursively checks if a Webform element tree contains a select-like input.
+   *
+   * @param array $elements
+   *   The Webform elements array.
+   *
+   * @return bool
+   *   TRUE if any element is a select or a supported composite type.
+   */
+  protected function webformHasSelect(array $elements): bool {
+    foreach ($elements as $element) {
+      if (!is_array($element)) {
+        continue;
+      }
+      $type = $element['#type'] ?? '';
+      if ($type === 'select') {
+        return TRUE;
+      }
+      // Composite element types known to contain selects.
+      $composite_types = [
+        'webform_select_other',
+        'webform_entity_select',
+        'webform_term_select',
+        'webform_likert',
+        'webform_mapping',
+        'webform_tableselect',
+        'webform_composite',
+      ];
+      if (in_array($type, $composite_types, TRUE)) {
+        return TRUE;
+      }
+      if (!empty($element)) {
+        if ($this->webformHasSelect($element)) {
+          return TRUE;
+        }
+      }
+    }
+    return FALSE;
   }
 
   /**
@@ -517,6 +907,8 @@ class SelectifySettingsForm extends ConfigFormBase {
     $config = $this->configFactory()->getEditable('selectify.settings');
 
     // Preserve existing settings while updating necessary ones.
+    // Drupal flattens form values when #tree is not set, so we can access
+    // nested elements directly by their key names.
     $config->set('enable_radio', (bool) $form_state->getValue('enable_radio', FALSE))
       ->set('radio_style', $form_state->getValue('radio_style', 'toggle'))
       ->set('radio_shape', $form_state->getValue('radio_shape', 'circle'))
@@ -530,7 +922,20 @@ class SelectifySettingsForm extends ConfigFormBase {
       ->set('accent_color', $form_state->getValue('accent_color', $config->get('accent_color', 'neutral')))
       ->set('accent_color_mode', $form_state->getValue('accent_color_mode', $config->get('accent_color_mode', 'light')))
       ->set('admin_accent_color', $form_state->getValue('admin_accent_color', $config->get('admin_accent_color', 'neutral')))
-      ->set('admin_accent_color_mode', $form_state->getValue('admin_accent_color_mode', $config->get('admin_accent_color_mode', 'light')));
+      ->set('admin_accent_color_mode', $form_state->getValue('admin_accent_color_mode', $config->get('admin_accent_color_mode', 'light')))
+      ->set('enable_form_api_selects', (bool) $form_state->getValue('enable_form_api_selects', FALSE))
+      ->set('form_api_widget', $form_state->getValue('form_api_widget', 'selectify_dropdown'));
+
+    // Build Form API per-form widget map — guard against non-array values
+    // which occur when the per-form section is hidden via #states or when
+    // no forms have been discovered yet.
+    $form_api_widgets_raw = $form_state->getValue('form_api_widgets', []);
+    // Ensure we always have an array, even if form state returns empty string
+    // or other non-array value when the section is hidden.
+    if (!is_array($form_api_widgets_raw) || empty($form_api_widgets_raw)) {
+      $form_api_widgets_raw = [];
+    }
+    $config->set('form_api_widget_map', $this->buildFormApiWidgetMapConfig($form_api_widgets_raw));
 
     // Retrieve values from form.
     $apply_site_wide = (bool) $form_state->getValue('apply_site_wide', FALSE);
@@ -569,7 +974,84 @@ class SelectifySettingsForm extends ConfigFormBase {
     }
 
     $config->save();
+
+    // Save Webform submodule settings if installed.
+    // phpcs:ignore DrupalPractice.Objects.GlobalDrupal.GlobalDrupal
+    if (\Drupal::moduleHandler()->moduleExists('selectify_webform')) {
+      $webform_config = $this->configFactory()->getEditable('selectify_webform.settings');
+      $disable_webform_widgets = (bool) $form_state->getValue('disable_webform_widgets', FALSE);
+      $apply_site_wide_webform = (bool) $form_state->getValue('apply_site_wide_webform', FALSE);
+      $global_webform_widget = $form_state->getValue('global_webform_widget', 'none');
+
+      // If disabling Webform widgets, clear everything.
+      if ($disable_webform_widgets) {
+        $webform_config
+          ->set('enable_webform_selects', TRUE)
+          ->set('disable_webform_widgets', TRUE)
+          ->set('apply_site_wide_webform', FALSE)
+          ->set('global_webform_widget', 'none')
+          ->set('widget_for_webforms', []);
+      }
+      // If applying site-wide, clear per-Webform config.
+      elseif ($apply_site_wide_webform) {
+        $webform_config
+          ->set('enable_webform_selects', TRUE)
+          ->set('disable_webform_widgets', FALSE)
+          ->set('apply_site_wide_webform', TRUE)
+          ->set('global_webform_widget', $global_webform_widget)
+          ->set('widget_for_webforms', []);
+      }
+      // If using per-Webform configuration, save the widget map.
+      else {
+        // Build Webform per-form widget map.
+        // With #tree => TRUE on the table, Drupal uses the table key
+        // ('webform_widgets') as the form state key, matching Form API pattern.
+        $webform_widgets_raw = $form_state->getValue('webform_widgets', []);
+        if (!is_array($webform_widgets_raw)) {
+          $webform_widgets_raw = [];
+        }
+        $webform_config
+          ->set('enable_webform_selects', TRUE)
+          ->set('disable_webform_widgets', FALSE)
+          ->set('apply_site_wide_webform', FALSE)
+          ->set('global_webform_widget', 'none')
+          ->set('widget_for_webforms', $this->buildWebformWidgetConfig($webform_widgets_raw));
+      }
+
+      $webform_config->save();
+    }
+
     parent::submitForm($form, $form_state);
+  }
+
+  /**
+   * Normalizes Webform widget configuration from form values.
+   *
+   * @param array $values
+   *   The submitted 'webform_widgets' table values.
+   *
+   * @return array
+   *   Structured configuration entries.
+   */
+  protected function buildWebformWidgetConfig(array $values): array {
+    $result = [];
+    if (!is_array($values)) {
+      return $result;
+    }
+    foreach ($values as $webform_id => $row) {
+      // Validate webform_id is a valid string and row is an array.
+      if (!is_string($webform_id) || empty($webform_id) || !is_array($row)) {
+        continue;
+      }
+      $widget = $row['widget'] ?? 'none';
+      if (is_string($widget) && $widget !== 'none' && $widget !== '') {
+        $result[] = [
+          'webform_id' => $webform_id,
+          'widget' => $widget,
+        ];
+      }
+    }
+    return $result;
   }
 
   /**
@@ -583,32 +1065,36 @@ class SelectifySettingsForm extends ConfigFormBase {
    * @return array
    *   An associative array of Views widget settings.
    */
-  private function processViewsWidgetSettings(FormStateInterface $form_state, Config $config) {
+  private function processViewsWidgetSettings(FormStateInterface $form_state, Config $config): array {
 
     $stored_widgets = $config->get('widget_for_filters', []);
     $views_data = $form_state->getValue('selectify_widgets', []);
 
     if (!empty($views_data) && is_array($views_data)) {
-      foreach ($views_data as $view_machine_name => $view_content) {
+      foreach ($views_data as $view_content) {
         if (!isset($view_content['filters_table']) || !is_array($view_content['filters_table'])) {
           continue;
         }
 
         foreach ($view_content['filters_table'] as $unique_key => $values) {
-          if (!empty($values['widget']) && $values['widget'] !== 'none') {
-            $exposed_form_id = $values['exposed_form_id'] ?? '';
-
-            // Generate `exposed_form_id` if missing.
-            if (empty($exposed_form_id)) {
-              [$view_machine_name, $display_id] = explode(':', $unique_key, 2);
-              $exposed_form_id = "views-exposed-form-{$view_machine_name}-{$display_id}";
-            }
-
-            $stored_widgets[$unique_key] = [
-              'widget' => $values['widget'],
-              'exposed_form_id' => $exposed_form_id,
-            ];
+          if (!is_array($values) || empty($values['widget']) || $values['widget'] === 'none') {
+            continue;
           }
+          $exposed_form_id = $values['exposed_form_id'] ?? '';
+
+          // Generate `exposed_form_id` if missing.
+          if (empty($exposed_form_id) && is_string($unique_key)) {
+            $parts = explode(':', $unique_key, 2);
+            if (count($parts) === 2) {
+              [$view_machine_name_part, $display_id] = $parts;
+              $exposed_form_id = "views-exposed-form-{$view_machine_name_part}-{$display_id}";
+            }
+          }
+
+          $stored_widgets[$unique_key] = [
+            'widget' => $values['widget'],
+            'exposed_form_id' => $exposed_form_id,
+          ];
         }
       }
     }
@@ -627,16 +1113,35 @@ class SelectifySettingsForm extends ConfigFormBase {
     $filters = [];
     $views = Views::getAllViews();
 
+    if (empty($views)) {
+      return $filters;
+    }
+
     foreach ($views as $view) {
+      if (!$view || !method_exists($view, 'id')) {
+        continue;
+      }
       $view_machine_name = $view->id();
-      $view_human_name = $view->label();
+      $view_human_name = $view->label() ?? $view_machine_name;
+
+      if (empty($view_machine_name)) {
+        continue;
+      }
+
       $displays = $view->get('display');
+      if (!is_array($displays) || empty($displays)) {
+        continue;
+      }
 
       // Get default display filters for inheritance checking.
       $default_filters = $displays['default']['display_options']['filters'] ?? [];
 
       foreach ($displays as $display_id => $display) {
-        $display_type = $display['display_plugin'];
+        // Skip invalid display entries.
+        if (!is_array($display) || empty($display_id)) {
+          continue;
+        }
+        $display_type = $display['display_plugin'] ?? 'unknown';
         $exposed_form_id = "views-exposed-form-{$view_machine_name}-{$display_id}";
         $has_select_filter = FALSE;
 
@@ -744,13 +1249,18 @@ class SelectifySettingsForm extends ConfigFormBase {
    *   The widget type (e.g., 'select', 'radios', 'textfield').
    */
   protected function getFilterWidget(array $filter): string {
+    // Validate filter structure.
+    if (!is_array($filter)) {
+      return 'select';
+    }
+
     // Check for explicitly set widget in expose configuration.
-    if (isset($filter['expose']['widget'])) {
+    if (isset($filter['expose']['widget']) && is_string($filter['expose']['widget'])) {
       return $filter['expose']['widget'];
     }
 
     // Check for widget in expose settings (alternative location).
-    if (isset($filter['expose']['settings']['widget'])) {
+    if (isset($filter['expose']['settings']['widget']) && is_string($filter['expose']['settings']['widget'])) {
       return $filter['expose']['settings']['widget'];
     }
 

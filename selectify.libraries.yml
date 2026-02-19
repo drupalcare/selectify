@@ -3,6 +3,7 @@ selectify-base:
     component:
       css/selectify-base.css: { weight: -50 }
   js:
+    js/selectify-constants.js: { }
     js/selectify-base.js: { }
   dependencies:
     - core/drupal

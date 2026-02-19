@@ -1,0 +1,57 @@
+selectify_webform.settings:
+  type: config_object
+  label: 'Selectify Webform Settings'
+  mapping:
+    enable_webform_selects:
+      type: boolean
+      label: 'Enable Selectify for Webform select elements'
+    webform_widget:
+      type: string
+      label: 'Webform widget type'
+      constraints:
+        Choice:
+          choices:
+            - selectify_dropdown
+            - selectify_tags
+            - selectify_searchable
+            - selectify_checkbox
+            - selectify_dual
+    disable_webform_widgets:
+      type: boolean
+      label: 'Disable Selectify for all Webforms'
+    apply_site_wide_webform:
+      type: boolean
+      label: 'Apply a single widget to all Webform submissions'
+    global_webform_widget:
+      type: string
+      label: 'Global Webform widget type'
+      constraints:
+        Choice:
+          choices:
+            - none
+            - selectify_dropdown
+            - selectify_tags
+            - selectify_searchable
+            - selectify_checkbox
+            - selectify_dual
+    widget_for_webforms:
+      type: sequence
+      label: 'Widget settings for individual Webforms'
+      sequence:
+        type: mapping
+        label: 'Webform configuration'
+        mapping:
+          webform_id:
+            type: string
+            label: 'Webform machine name'
+          widget:
+            type: string
+            label: 'Selected Widget Type'
+            constraints:
+              Choice:
+                choices:
+                  - selectify_dropdown
+                  - selectify_tags
+                  - selectify_searchable
+                  - selectify_checkbox
+                  - selectify_dual

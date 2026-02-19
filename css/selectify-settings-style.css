@@ -8,24 +8,93 @@
   border-color: #28a745 !important;
   font-weight: bold;
 }
+
 .selectify-settings-form {
   max-width: 1400px;
   margin: 0 auto;
 }
 
-.selectify-settings-form td .form-type--select {
-  display: grid;
+/* Fix table cell form elements - prevent wrapper from breaking layout */
+.selectify-settings-form table.responsive-enabled td {
+  vertical-align: middle;
+  display: table-cell !important;
+}
+
+/* Remove form-item wrapper spacing in table cells */
+.selectify-settings-form table td .form-item--table-cell,
+.selectify-settings-form table td .form-type--select,
+.selectify-settings-form table td .form-item {
+  margin: 0 !important;
+  padding: 0 !important;
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Hide labels in table cells */
+.selectify-settings-form table td .form-item--table-cell .form-item__label,
+.selectify-settings-form table td .form-type--select .form-item__label,
+.selectify-settings-form table td .form-item .form-item__label {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Ensure select elements fill their container */
+.selectify-settings-form table td .form-item--table-cell select,
+.selectify-settings-form table td .form-type--select select,
+.selectify-settings-form table td .form-item select {
+  width: 100% !important;
+  margin: 0 !important;
+  display: block !important;
+  box-sizing: border-box !important;
+  max-width: 100% !important;
+}
+
+/* Ensure table cells maintain proper structure */
+.selectify-settings-form table.responsive-enabled tbody td {
+  display: table-cell !important;
+  vertical-align: middle !important;
+  white-space: nowrap;
+}
+
+.selectify-settings-form table.responsive-enabled tbody td:last-child {
+  white-space: normal;
 }
 
 .selectify-radio-wrapper:first-child {
- margin-inline-start: 0!important;
+  margin-inline-start: 0 !important;
 }
 
+.selectify-settings-form #edit-form-api-selects table tr {
+  display: flex;
+  align-items: center;
+}
+
+.selectify-settings-form #edit-form-api-selects table tr td {
+  flex: 1 1 auto;
+  min-width: 0;
+}
 
 /* Accent Color Radio Buttons - Colored Circle Interface */
+/* Hide the actual radio inputs - users click on the colored circles (labels) */
 .selectify-settings-form #edit-accent-color--wrapper input.form-radio,
-.selectify-settings-form #edit-admin-accent-color--wrapper input.form-radio {
-  display: none;
+.selectify-settings-form #edit-accent-color--wrapper input.selectify-radio,
+.selectify-settings-form #edit-accent-color--wrapper input[type="radio"],
+.selectify-settings-form #edit-admin-accent-color--wrapper input.form-radio,
+.selectify-settings-form #edit-admin-accent-color--wrapper input.selectify-radio,
+.selectify-settings-form #edit-admin-accent-color--wrapper input[type="radio"] {
+  position: absolute !important;
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  clip: rect(0, 0, 0, 0) !important;
+  overflow: hidden !important;
+  visibility: hidden !important;
 }
 
 .selectify-settings-form #edit-accent-color--wrapper label.form-item__label,
@@ -146,6 +215,7 @@
   font-size: 0 !important;
   visibility: hidden !important;
 }
+
 /* Tooltip for Accent Color Circles */
 .selectify-settings-form .accent-tooltip {
   position: absolute;
@@ -186,7 +256,7 @@
 }
 
 /* Tablet: 2 Columns */
-@media (min-width: 768px) {
+@media (min-width:768px) {
   .selectify-settings-form #edit-accent-color-mode--wrapper .form-radios,
   .selectify-settings-form #edit-admin-accent-color-mode--wrapper .form-radios,
   .selectify-settings-form #edit-radio-style--wrapper .form-radios,
@@ -198,10 +268,11 @@
     grid-template-columns: repeat(2, 1fr);
     gap: 16px 24px;
   }
+
 }
 
 /* Desktop: 3 Columns */
-@media (min-width: 1024px) {
+@media (min-width:1024px) {
   .selectify-settings-form #edit-accent-color-mode--wrapper .form-radios,
   .selectify-settings-form #edit-admin-accent-color-mode--wrapper .form-radios,
   .selectify-settings-form #edit-radio-style--wrapper .form-radios,
@@ -213,6 +284,7 @@
     grid-template-columns: repeat(3, 1fr);
     gap: 16px 32px;
   }
+
 }
 
 /* Keep Accent Color Circles Horizontal */

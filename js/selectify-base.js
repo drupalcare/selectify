@@ -22,15 +22,28 @@
     marginTop: '0',
     marginBottom: '0'
   };
+  /**
+   * Removes animation-related inline styles from an element.
+   *
+   * @param {HTMLElement} target - The element to clean up.
+   */
   const removeStyles = (target) => {
     const stylesToRemove = ['height', 'paddingTop', 'paddingBottom', 'marginTop', 'marginBottom', 'overflow', 'transitionDuration', 'transitionProperty', 'transitionTimingFunction', 'boxSizing'];
     stylesToRemove.forEach(st => { target.style[st] = ''; });
-  }
+  };
   Drupal.selectify.removeStyles = removeStyles;
-  const slideUp = (target, duration = 300) => {
+  /**
+   * Slides up (closes) a dropdown element with animation.
+   *
+   * @param {HTMLElement} target - The dropdown element to close.
+   * @param {number} [duration] - Animation duration in milliseconds.
+   */
+  const slideUp = (target, duration) => {
+    const constants = Drupal.selectify?.constants || {};
+    const animDuration = duration || constants.ANIMATION_DURATION || 300;
     const trigger = target.previousElementSibling;
     target.style.transitionProperty = 'height, margin, padding';
-    target.style.transitionDuration = `${duration}ms`;
+    target.style.transitionDuration = `${animDuration}ms`;
     target.style.transitionTimingFunction = 'ease-in-out';
     target.style.boxSizing = 'border-box';
     target.style.height = `${target.offsetHeight}px`;
@@ -42,7 +55,8 @@
       combobox.setAttribute('aria-expanded', 'false');
     }
     if (trigger) {
-      setTimeout(() => trigger.focus(), duration);
+      const focusDelay = constants.FOCUS_DELAY || 100;
+      setTimeout(() => trigger.focus(), animDuration);
     }
     Object.keys(cssStyles).forEach(style => {
       target.style[style] = cssStyles[style];
@@ -50,10 +64,19 @@
     setTimeout(() => {
       target.style.display = 'none';
       removeStyles(target);
-    }, duration);
+    }, animDuration);
   };
   Drupal.selectify.slideUp = slideUp;
-  const slideDown = (target, menuDisplay = 'block', duration = 300) => {
+  /**
+   * Slides down (opens) a dropdown element with animation.
+   *
+   * @param {HTMLElement} target - The dropdown element to open.
+   * @param {string} [menuDisplay='block'] - CSS display value for the menu.
+   * @param {number} [duration] - Animation duration in milliseconds.
+   */
+  const slideDown = (target, menuDisplay = 'block', duration) => {
+    const constants = Drupal.selectify?.constants || {};
+    const animDuration = duration || constants.ANIMATION_DURATION || 300;
     const trigger = target.previousElementSibling;
     target.style.removeProperty('display');
     let currentDisplay = window.getComputedStyle(target).display;
@@ -68,7 +91,7 @@
     target.offsetHeight; // Trigger reflow
     target.style.boxSizing = 'border-box';
     target.style.transitionProperty = 'height, margin, padding';
-    target.style.transitionDuration = `${duration}ms`;
+    target.style.transitionDuration = `${animDuration}ms`;
     target.style.transitionTimingFunction = 'ease-in-out';
     target.style.height = `${height}px`;
     target.classList.add('toggled');
@@ -84,7 +107,7 @@
       ['height', 'overflow', 'transitionDuration', 'transitionProperty', 'transitionTimingFunction', 'boxSizing'].forEach(property => {
         target.style[property] = '';
       });
-    }, duration);
+    }, animDuration);
   };
   Drupal.selectify.slideDown = slideDown;
 })(Drupal, drupalSettings, once);

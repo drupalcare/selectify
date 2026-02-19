@@ -1,0 +1,16 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for Selectify Webform.
+ */
+
+/**
+ * Implements hook_uninstall().
+ *
+ * Removes all submodule config so that reinstalling starts with defaults.
+ * Any new config or state keys added in future must be cleared here.
+ */
+function selectify_webform_uninstall(): void {
+  \Drupal::configFactory()->getEditable('selectify_webform.settings')->delete();
+}

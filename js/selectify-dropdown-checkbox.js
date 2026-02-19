@@ -6,23 +6,29 @@
  * Website: https://www.flashwebcenter.com
  * Developer: Alaa Haddad https://www.alaahaddad.com.
  */
-((Drupal, once) => {
+((Drupal, once, drupalSettings) => {
   'use strict';
   const type = 'checkbox';
   Drupal.behaviors.selectifySelectCheckbox = {
     attach: (context) => {
       once('selectifyMultiSelectCheckbox', '.selectify-dropdown-checkbox-widget', context).forEach((selectifySelect) => {
+        const constants = Drupal.selectify?.constants || {};
+        const initDelay = constants.INIT_DELAY || 10;
         setTimeout(() => {
           // Retrieve the target ID from data attribute.
           const targetId = selectifySelect.getAttribute('data-target-id');
           if (!targetId) {
-
+            if (drupalSettings?.selectify?.debug) {
+              console.warn('[Selectify] Checkbox widget missing data-target-id attribute');
+            }
             return;
           }
           // Locate the corresponding hidden <select> element by its ID.
           const nativeSelect = document.getElementById(targetId);
           if (!nativeSelect || nativeSelect.tagName !== 'SELECT') {
-
+            if (drupalSettings?.selectify?.debug) {
+              console.warn('[Selectify] Native select element not found:', targetId);
+            }
             return;
           }
           initializeSelectifyCheckbox(selectifySelect, nativeSelect);
@@ -43,7 +49,7 @@
             // Set aria-controls on selectifySelect
             selectifySelect.setAttribute('aria-controls', dropdownId);
           }
-        }, 10);
+        }, initDelay);
       });
     }
   };
@@ -93,7 +99,7 @@
         if (correspondingOption) {
           correspondingOption.selected = event.target.checked;
         }
-        // **Add or remove .selected and .s-hidden on the parent div**
+        // **Add or remove .s-selected and .s-hidden on the parent div**
         if (parentOption) {
           if (event.target.checked) {
             parentOption.classList.add('s-selected');
@@ -116,7 +122,7 @@
           opt.checked = false;
           opt.disabled = false;
         });
-        // Remove .selected and .s-hidden from parent elements
+        // Remove .s-selected and .s-hidden from parent elements
         options.forEach(opt => {
           const parentOption = opt.closest('.selectify-available-one-option');
           if (parentOption) {
@@ -130,7 +136,9 @@
 
         // Return focus to the main trigger
         if (selectedDisplay && typeof selectedDisplay.focus === 'function') {
-          setTimeout(() => selectedDisplay.focus(), 100);
+          const constants = Drupal.selectify?.constants || {};
+          const focusDelay = constants.FOCUS_DELAY || 100;
+          setTimeout(() => selectedDisplay.focus(), focusDelay);
         }
       });
     }
@@ -142,4 +150,4 @@
       checkbox.checked = selectedValues.includes(checkbox.value);
     });
   }
-})(Drupal, once);
+})(Drupal, once, drupalSettings);

@@ -1,0 +1,9 @@
+name: 'Selectify Webform'
+type: module
+description: 'Integrates Selectify enhanced select widgets with Webform elements, including composite elements like Select Other and Entity Select.'
+package: 'User interface'
+core_version_requirement: ^10 || ^11
+dependencies:
+  - selectify:selectify
+  - webform:webform
+configure: selectify.settings_form

@@ -396,15 +396,29 @@ form usability challenges by providing:
 
 ## How Selectify Works
 
+**In short:** Selectify styles **select** elements in four places—Manage Form
+Display (field widgets), Views exposed filters, Webform submission forms, and
+any other Form API select. It styles **radio buttons and checkboxes** globally.
+For both selects and radios/checkboxes you can disable Selectify on any page
+using path patterns (e.g. `admin/config/*`, `node/*/edit`).
+
 Selectify applies beautiful, functional enhancements to:
 
 - **Radio buttons and Checkboxes** – Global styling with configuration at
   `/admin/config/selectify/settings`
-- **Select lists** – Five specialized widgets for content forms and Views
-  exposed filters with granular per-field control
+- **Field Widgets** – Five specialized widgets for entity fields configured
+  through Manage Form Display
+- **Views Exposed Filters** – Site-wide or per-View configuration for exposed
+  select filters
+- **Form API Selects** – Per-form configuration for plain Drupal forms with
+  automatic form discovery
+- **Webform Elements** – Site-wide or per-Webform configuration for Webform
+  submission forms (requires selectify_webform submodule)
+- **Disable on any page** – "Additional pages to disable Selectify" (path
+  patterns) disables all Selectify features on matching pages—selects, radios,
+  and checkboxes
 - **Admin page exclusion** – Optional disabling on administrative routes to
   preserve backend familiarity
-- **Custom path patterns** – Wildcard-based exclusion for specific pages
 
 ## Features & Configuration
 
@@ -635,6 +649,45 @@ Three configuration modes:
   - Clear visibility of current assignments
   - Preserves settings between form submissions
 
+**6. Form API Select Elements:**
+
+Per-form configuration for plain Drupal forms (not Views or Webforms):
+- **Enable/Disable Toggle** – Master switch for Form API integration
+- **Automatic Form Discovery** – Forms with eligible select elements are
+  automatically detected when visited
+- **Per-Form Widget Selection** – Table listing discovered forms with:
+  - Form ID (sanitized and validated)
+  - Last seen timestamp
+  - Individual widget selection per form
+- **Built-in Safety** – Automatic exclusion of:
+  - AJAX-dependent forms (Field UI, Views UI, Layout Builder, etc.)
+  - Forms with `#ajax` callbacks on select elements
+  - Field widget-managed selects (identified by `#key_column`)
+- **Additional Exclusions** – Textarea for custom form ID patterns using
+  wildcard matching
+- **Internal Blocklist** – Always-excluded admin forms displayed for
+  reference
+
+**7. Webform Select Elements** (requires selectify_webform submodule):
+
+Three configuration modes matching Views pattern:
+- **Disable Completely** – Turn off Selectify for all Webform submissions
+- **Apply Site-Wide** – Choose one global widget for all Webforms with
+  select elements
+- **Per-Webform Configuration** – Granular control with table interface:
+  - Lists only Webforms that contain select-like elements
+  - Columns: Webform Label, Machine Name, Widget Selection
+  - Automatic discovery of Webforms with eligible selects
+  - Supports composite elements (Select Other, Entity Select, etc.)
+- **Composite Element Support** – Handles nested selects in:
+  - webform_select_other
+  - webform_entity_select
+  - webform_term_select
+  - webform_likert
+  - webform_mapping
+  - webform_tableselect
+  - webform_composite
+
 ### Field Widget Configuration
 
 For content entity fields, configure widgets through Manage Form Display:
@@ -657,6 +710,122 @@ For content entity fields, configure widgets through Manage Form Display:
 - Explicit selection state needed? Use Checkbox Dropdown
 - Bulk selection management? Use Dual-List Selector
 - Simple enhancement? Use Regular Dropdown
+
+### Form API Integration
+
+Selectify can enhance plain Drupal Form API select elements that aren't
+handled by field widgets, Views, or Webforms. This includes custom forms,
+third-party module forms, and any form using `#type => 'select'`.
+
+**How It Works:**
+1. Enable Form API integration in settings
+2. Visit pages containing forms with select elements
+3. Selectify automatically discovers and records eligible forms
+4. Return to settings page to configure widgets per form
+5. Only forms with non-AJAX, non-field-widget selects are discovered
+
+**Safety Features:**
+- Built-in blocklist protects AJAX-dependent admin forms
+- Individual selects with `#ajax` callbacks are automatically skipped
+- Field widget selects (with `#key_column`) are excluded
+- User-defined exclusion patterns via wildcard matching
+- Form ID sanitization prevents storage abuse
+
+**Discovery Process:**
+- Forms are discovered at runtime when pages are visited
+- Discovery data stored in `Drupal::state()` (not config)
+- Limited to 1000 most recently seen forms
+- Form IDs sanitized and validated before storage
+- "Last seen" timestamps help identify active forms
+
+### Webform Integration
+
+The `selectify_webform` submodule extends Selectify to enhance Webform
+submission forms. Install it separately if you use the Webform module.
+
+**Installation:**
+```bash
+composer require drupal/selectify_webform
+drush en selectify_webform -y
+drush cr
+```
+
+**Configuration Options:**
+- **Site-Wide Application** – One widget for all Webforms
+- **Per-Webform Configuration** – Different widgets per Webform
+- **Automatic Discovery** – Only Webforms with select elements are listed
+
+## Extending Selectify
+
+Selectify provides three alter hooks that allow other modules to customize
+widget selection and element processing:
+
+### hook_selectify_widget_alter()
+
+Change which widget is applied to a form or element before Selectify processes
+it. Useful for context-aware widget selection (e.g., use searchable dropdowns
+for forms with many options).
+
+```php
+function mymodule_selectify_widget_alter(string &$widget, array $context): void {
+  if ($context['integration_type'] === 'form_api' && 
+      $context['form_id'] === 'my_custom_form') {
+    // Change widget based on form context.
+    $widget = 'selectify_searchable';
+  }
+}
+```
+
+### hook_selectify_element_alter()
+
+Modify form elements before Selectify processes them. Add custom attributes,
+change options, or set `#selectify_skip => TRUE` to skip Selectify entirely
+for specific elements.
+
+```php
+function mymodule_selectify_element_alter(array &$element, array $context): void {
+  // Add custom data attributes.
+  $element['#attributes']['data-custom-tracking'] = 'enabled';
+  
+  // Skip Selectify for simple selects.
+  if (count($element['#options'] ?? []) < 3) {
+    $element['#selectify_skip'] = TRUE;
+  }
+}
+```
+
+### hook_selectify_is_applicable_alter()
+
+Prevent Selectify from applying to entire forms based on custom logic (user
+roles, routes, query parameters, etc.).
+
+```php
+function mymodule_selectify_is_applicable_alter(bool &$applicable, array $context): void {
+  // Disable Selectify for specific user roles.
+  if (\Drupal::currentUser()->hasPermission('skip selectify')) {
+    $applicable = FALSE;
+  }
+}
+```
+
+See `selectify.api.php` for complete hook documentation and examples.
+
+**Supported Elements:**
+- Direct `select` elements
+- Composite elements containing nested selects:
+  - Select Other (webform_select_other)
+  - Entity Select (webform_entity_select)
+  - Term Select (webform_term_select)
+  - Likert scales (webform_likert)
+  - Mapping elements (webform_mapping)
+  - Table Select (webform_tableselect)
+  - Custom composites (webform_composite)
+
+**Safety:**
+- AJAX-dependent selects automatically skipped
+- Field widget selects excluded
+- Respects admin route exclusion settings
+- Respects custom disabled page patterns
 
 ## Accessibility & ARIA Compliance
 
@@ -954,6 +1123,23 @@ drush cr
 - list_float
 - entity_reference
 
+## Integration Types
+
+Selectify supports four distinct integration paths:
+
+1. **Field Widgets** – For entity fields configured through Manage Form
+   Display
+2. **Views Exposed Filters** – For Views exposed select filters with
+   site-wide or per-View configuration
+3. **Form API Selects** – For plain Drupal forms with per-form
+   configuration and automatic discovery
+4. **Webform Elements** – For Webform submission forms (requires
+   selectify_webform submodule) with site-wide or per-Webform
+   configuration
+
+Each integration type operates independently with its own configuration
+scope, ensuring no overlap or conflicts between different form contexts.
+
 ## Browser Compatibility
 
 - Chrome/Edge (latest 2 versions)
@@ -987,6 +1173,29 @@ Contributions welcome! Please:
 - Drupal.org: https://www.drupal.org/u/alaa-haddad
 - Website: https://www.alaahaddad.com
 - Projects: 27+ contributed Drupal modules and themes
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for a complete list of changes.
+
+### Recent Highlights
+
+**Version 2.0.2+ (Current Development):**
+- Form API integration with per-form configuration and automatic
+  discovery
+- Webform submodule with site-wide and per-Webform configuration
+- Enhanced Views integration with improved per-View configuration UI
+- Comprehensive safety features including AJAX detection and built-in
+  blocklists
+- Runtime form discovery with state storage management
+- Improved defensive programming and error handling
+
+**Version 1.0.0:**
+- Initial release with five field widgets
+- Radio/checkbox styling with toggle and traditional styles
+- Views exposed filter integration
+- Seven accent color themes with light/dark modes
+- WCAG 2.1 Level AA accessibility compliance
 
 ## License
 

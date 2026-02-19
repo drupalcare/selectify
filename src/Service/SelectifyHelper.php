@@ -102,7 +102,14 @@ class SelectifyHelper implements SelectifyHelperInterface {
 
     $config = $this->getConfig();
 
+    // Check if disabled on admin routes.
     if ($config->get('disable_on_admin_routes') && $this->adminContext->isAdminRoute()) {
+      $this->radioCheckboxConfig = FALSE;
+      return FALSE;
+    }
+
+    // Check if current page is in the disabled pages list.
+    if ($this->isPageDisabled()) {
       $this->radioCheckboxConfig = FALSE;
       return FALSE;
     }
@@ -325,13 +332,286 @@ class SelectifyHelper implements SelectifyHelperInterface {
    *   The normalized form ID.
    */
   public function normalizeFormId(array $form): string {
-    $form_id = $form['#id'] ?? ($form['#attributes']['id'] ?? '');
+    $form_id = $form['#id'] ?? '';
 
+    // Fallback to #attributes['id'] if #id is not set.
+    if (empty($form_id) && isset($form['#attributes']['id'])) {
+      $form_id = $form['#attributes']['id'];
+    }
+
+    // Handle array form IDs (shouldn't happen, but be defensive).
     if (is_array($form_id)) {
       $form_id = reset($form_id);
+      // reset() returns FALSE if array is empty.
+      if ($form_id === FALSE) {
+        $form_id = '';
+      }
     }
 
     return str_replace('_', '-', (string) $form_id);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getFormApiConfig(): array|false {
+    $config = $this->getConfig();
+
+    if (!$config->get('enable_form_api_selects')) {
+      return FALSE;
+    }
+
+    if ($config->get('disable_on_admin_routes') && $this->adminContext->isAdminRoute()) {
+      return FALSE;
+    }
+
+    // Per-form widget map: each entry contains a form_id and a widget. This
+    // allows specific forms to use different widgets than the global default.
+    $map_raw = $config->get('form_api_widget_map') ?? [];
+    $widget_map = [];
+    if (is_array($map_raw)) {
+      foreach ($map_raw as $entry) {
+        if (empty($entry['form_id']) || empty($entry['widget'])) {
+          continue;
+        }
+        $widget_map[$entry['form_id']] = $entry['widget'];
+      }
+    }
+
+    return [
+      'widget' => $config->get('form_api_widget') ?? 'selectify_dropdown',
+      'widget_map' => $widget_map,
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getInternalBlockedFormPatterns(): array {
+    return [
+      // -----------------------------------------------------------------
+      // Field UI — Manage Form Display & Manage Display use AJAX selects
+      // to swap widget/formatter types and load their settings dynamically.
+      // -----------------------------------------------------------------
+      'entity_form_display_edit_form',
+      'entity_view_display_edit_form',
+      'field_config_edit_form',
+      'field_storage_config_edit_form',
+      'field_ui_field_storage_add_form',
+
+      // -----------------------------------------------------------------
+      // Views UI — All admin forms are deeply AJAX-dependent.
+      // -----------------------------------------------------------------
+      'views_ui_*',
+
+      // -----------------------------------------------------------------
+      // Layout Builder — AJAX modal forms for adding/configuring blocks.
+      // -----------------------------------------------------------------
+      'layout_builder_*',
+
+      // -----------------------------------------------------------------
+      // Configuration synchronisation — critical admin operations.
+      // -----------------------------------------------------------------
+      'config_single_import_form',
+      'config_single_export_form',
+      'config_import_form',
+
+      // -----------------------------------------------------------------
+      // Block layout — AJAX region assignment selects.
+      // -----------------------------------------------------------------
+      'block_admin_display_form',
+
+      // -----------------------------------------------------------------
+      // System modules page — complex admin tables.
+      // -----------------------------------------------------------------
+      'system_modules',
+      'system_modules_uninstall',
+      'system_modules_confirm_form',
+
+      // -----------------------------------------------------------------
+      // User permissions — large table form, not a normal select context.
+      // -----------------------------------------------------------------
+      'user_admin_permissions',
+
+      // -----------------------------------------------------------------
+      // Taxonomy overview — drag-and-drop weight interface.
+      // -----------------------------------------------------------------
+      'taxonomy_overview_terms',
+
+      // -----------------------------------------------------------------
+      // Text editor / filter configuration — AJAX plugin settings.
+      // -----------------------------------------------------------------
+      'editor_*',
+      'filter_format_*',
+
+      // -----------------------------------------------------------------
+      // Media library — AJAX-heavy modal/selection UI.
+      // -----------------------------------------------------------------
+      'media_library_*',
+
+      // -----------------------------------------------------------------
+      // Update manager — critical update operations.
+      // -----------------------------------------------------------------
+      'update_manager_*',
+
+      // -----------------------------------------------------------------
+      // Webform admin UI (NOT submission forms — those are handled by
+      // the selectify_webform submodule).
+      // -----------------------------------------------------------------
+      'webform_ui_*',
+      'webform_settings_*',
+      'webform_handler_*',
+      'webform_element_*',
+
+      // -----------------------------------------------------------------
+      // Content moderation / workflows — configuration sensitivity.
+      // -----------------------------------------------------------------
+      'content_moderation_*',
+      'workflow_*',
+
+      // -----------------------------------------------------------------
+      // Selectify's own settings form.
+      // -----------------------------------------------------------------
+      'selectify_settings_form',
+
+      // -----------------------------------------------------------------
+      // Common contrib with AJAX-heavy admin forms.
+      // -----------------------------------------------------------------
+      'paragraphs_*',
+      'search_api_*',
+      'feeds_*',
+      'migrate_*',
+      'devel_*',
+
+      // -----------------------------------------------------------------
+      // AJAX-dependent element forms that rebuild dynamically.
+      // -----------------------------------------------------------------
+      'inline_entity_form_*',
+      'entity_browser_*',
+      'commerce_*_settings_form',
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isFormExcluded(string $form_id, array $user_excluded = []): bool {
+    if (empty($form_id) || !is_string($form_id)) {
+      return FALSE;
+    }
+
+    // Check hardcoded internal blocklist first.
+    foreach ($this->getInternalBlockedFormPatterns() as $pattern) {
+      // phpcs:ignore Drupal.Functions.DiscouragedFunctions.Discouraged
+      if (is_string($pattern) && fnmatch($pattern, $form_id)) {
+        return TRUE;
+      }
+    }
+
+    // Check user-defined exclusions.
+    foreach ($user_excluded as $pattern) {
+      // phpcs:ignore Drupal.Functions.DiscouragedFunctions.Discouraged
+      if (is_string($pattern) && fnmatch($pattern, $form_id)) {
+        return TRUE;
+      }
+    }
+
+    return FALSE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function hasThirdPartySelectLibrary(array $element): bool {
+    $attributes = $element['#attributes'] ?? [];
+    $classes = $attributes['class'] ?? [];
+    $class_string = is_array($classes) ? implode(' ', $classes) : (string) $classes;
+
+    // Select2, Chosen, Selectize, Choices.js — common class patterns.
+    $patterns = [
+      'select2-hidden-accessible',
+      'select2',
+      'js-select2',
+      'chosen-select',
+      'chosen-container',
+      'selectize',
+      'selectize-control',
+      'choices',
+      'choices__inner',
+    ];
+    foreach ($patterns as $pattern) {
+      if (preg_match('/\b' . preg_quote($pattern, '/') . '\b/i', $class_string)) {
+        return TRUE;
+      }
+    }
+
+    if (isset($attributes['data-select2-id']) || isset($attributes['data-chosen']) ||
+        isset($attributes['data-selectize-id']) || isset($attributes['data-choices'])) {
+      return TRUE;
+    }
+
+    $element_id = $element['#id'] ?? '';
+    $third_party_ids = ['select2', 'chosen', 'selectize', 'choices'];
+    foreach ($third_party_ids as $id) {
+      if (stripos($element_id, $id) !== FALSE) {
+        return TRUE;
+      }
+    }
+
+    return FALSE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isSelectHiddenOrDisabled(array $element): bool {
+    if (isset($element['#access']) && $element['#access'] === FALSE) {
+      return TRUE;
+    }
+    if (isset($element['#disabled']) && $element['#disabled'] === TRUE) {
+      return TRUE;
+    }
+    if (isset($element['#readonly']) && $element['#readonly'] === TRUE) {
+      return TRUE;
+    }
+    return FALSE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isSelectInExcludedContext(array $element): bool {
+    $context_classes = [
+      'toolbar',
+      'toolbar-item',
+      'off-canvas',
+      'ui-dialog',
+      'modal',
+      'ui-dialog-content',
+    ];
+
+    $wrapper = $element['#wrapper_attributes']['class'] ?? [];
+    $wrapper_string = is_array($wrapper) ? implode(' ', $wrapper) : (string) $wrapper;
+    $attributes = $element['#attributes']['class'] ?? [];
+    $attr_string = is_array($attributes) ? implode(' ', $attributes) : (string) $attributes;
+    $combined = $wrapper_string . ' ' . $attr_string;
+
+    foreach ($context_classes as $cls) {
+      if (preg_match('/\b' . preg_quote($cls, '/') . '\b/i', $combined)) {
+        return TRUE;
+      }
+    }
+
+    return FALSE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function shouldSkipSelectElement(array $element): bool {
+    return $this->hasThirdPartySelectLibrary($element)
+      || $this->isSelectHiddenOrDisabled($element)
+      || $this->isSelectInExcludedContext($element);
   }
 
   /**

@@ -10,6 +10,9 @@
  * Developer:    Alaa Haddad https://www.alaahaddad.com.
  */
 
+use Drupal\Component\Utility\Html;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Element;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Template\Attribute;
 
@@ -17,6 +20,14 @@ use Drupal\Core\Template\Attribute;
  * Implements hook_preprocess_html().
  */
 function selectify_preprocess_html(&$variables) {
+  /** @var \Drupal\selectify\Service\SelectifyHelper $helper */
+  $helper = \Drupal::service('selectify.helper');
+
+  // Check if current page is in the disabled pages list.
+  if ($helper->isPageDisabled()) {
+    return;
+  }
+
   $config = \Drupal::config('selectify.settings');
   $radioEnabled = $config->get('enable_radio');
   $checkboxEnabled = $config->get('enable_checkbox');
@@ -37,8 +48,6 @@ function selectify_preprocess_html(&$variables) {
   }
 
   // Add selectify-color-disabled class when the active color mode is none.
-  /** @var \Drupal\selectify\Service\SelectifyHelper $helper */
-  $helper = \Drupal::service('selectify.helper');
   $colorMode = $helper->isAdminRoute()
     ? ($config->get('admin_accent_color_mode') ?? 'light')
     : ($config->get('accent_color_mode') ?? 'light');
@@ -200,7 +209,7 @@ function _selectify_preprocess_widget(array &$variables) {
   $has_label = !empty($element['#title']) && ($element['#label_display'] ?? 'visible') !== 'hidden';
   $variables['has_label'] = $has_label;
 
-  if ($has_label) {
+  if ($has_label && isset($raw_attributes['id'])) {
     $label_id = $raw_attributes['id'] . '-label';
     $variables['label_id'] = $label_id;
   }
@@ -226,19 +235,28 @@ function _selectify_preprocess_widget(array &$variables) {
     $variables['field_name'] = $raw_attributes['name'] ?? '';
     $variables['views_attributes'] = [
       'data-drupal-selector' => $raw_attributes['data-drupal-selector'] ?? '',
-      'class' => implode(' ', (array) $raw_attributes['class'] ?? []),
+      'class' => implode(' ', (array) ($raw_attributes['class'] ?? [])),
       'size' => $raw_attributes['size'] ?? '',
       'aria-invalid' => $raw_attributes['aria-invalid'] ?? '',
     ];
   }
   else {
-    $variables['unique_id'] = $raw_attributes['id'] ?? 'selectify-default-id';
     $variables['field_name'] = $raw_attributes['data-field-name'] ?? 'unknown';
     $variables['max_selected'] = $raw_attributes['data-max-selections'] ?? NULL;
     $variables['is_multiple'] = filter_var($raw_attributes['data-multiple'] ?? FALSE, FILTER_VALIDATE_BOOLEAN);
     $variables['placeholder'] = $raw_attributes['data-placeholder'] ?? '';
     $variables['is_required'] = filter_var($raw_attributes['aria-required'] ?? FALSE, FILTER_VALIDATE_BOOLEAN);
     $variables['views_attributes'] = [];
+
+    // Ensure non-Views widgets always have a stable, unique ID so that the
+    // JavaScript behavior can locate the hidden native <select>. This is
+    // especially important for Webform elements, which may not provide an ID
+    // on the original select element.
+    $variables['unique_id'] = $raw_attributes['id'] ?? 'selectify-default-id';
+    if ($variables['unique_id'] === 'selectify-default-id') {
+      $base = $variables['field_name'] ?: 'selectify-field';
+      $variables['unique_id'] = Html::getUniqueId('edit-' . $base);
+    }
   }
 
   // Generate clean field name for use in IDs.
@@ -258,6 +276,15 @@ function _selectify_preprocess_widget(array &$variables) {
   $config = $helper->getRadioCheckboxConfig();
   $variables['enable_checkbox'] = !empty($config['enable_checkbox']);
   $variables['attributes']->addClass($theme_classes);
+
+  // Guarantee that the rendered <select> (and its hidden counterpart) carry
+  // the unique ID used by the JavaScript behavior as data-target-id. This
+  // fixes cases where upstream elements (such as Webform composites) omit an
+  // explicit ID, which previously caused the dropdown not to open because the
+  // native <select> could not be located.
+  if ($variables['unique_id']) {
+    $variables['attributes']->setAttribute('id', $variables['unique_id']);
+  }
 }
 
 /**
@@ -511,11 +538,10 @@ function selectify_preprocess_views_exposed_form(&$variables) {
   $widget_map = $config['widget_map'];
   $clean_form_id = $helper->normalizeFormId($form);
 
-  // Apply global or per-view widget.
+  // Determine widget to apply.
+  $widget_to_apply = NULL;
   if ($apply_site_wide) {
-    if (!empty($global_widget)) {
-      $helper->applyWidgetToForm($form, $global_widget);
-    }
+    $widget_to_apply = $global_widget;
   }
   else {
     foreach ($widget_map as $widget_data) {
@@ -523,9 +549,28 @@ function selectify_preprocess_views_exposed_form(&$variables) {
       $normalized_id = str_replace('_', '-', $stored_id);
 
       if (!empty($normalized_id) && $normalized_id === $clean_form_id) {
-        $helper->applyWidgetToForm($form, $widget_data['widget']);
+        $widget_to_apply = $widget_data['widget'];
+        break;
       }
     }
+  }
+
+  // Allow other modules to alter the widget selection.
+  if (!empty($widget_to_apply)) {
+    $view = $variables['view'] ?? NULL;
+    $context = [
+      'form_id' => $clean_form_id,
+      'form' => &$form,
+      'integration_type' => 'views',
+      'view_name' => ($view && is_object($view) && method_exists($view, 'id')) ? $view->id() : NULL,
+      'display_id' => ($view && is_object($view) && isset($view->current_display)) ? $view->current_display : NULL,
+    ];
+    \Drupal::moduleHandler()->alter('selectify_widget', $widget_to_apply, $context);
+  }
+
+  // Apply global or per-view widget.
+  if (!empty($widget_to_apply)) {
+    $helper->applyWidgetToForm($form, $widget_to_apply);
   }
 
   // Add single/multi class to each select wrapper.
@@ -534,5 +579,290 @@ function selectify_preprocess_views_exposed_form(&$variables) {
       $is_multiple = isset($element['#multiple']) && $element['#multiple'] === TRUE;
       $element['#wrapper_attributes']['class'][] = $is_multiple ? 'selectify-multi' : 'selectify-single';
     }
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ *
+ * Applies Selectify widgets to plain Form API <select> elements.
+ * Skips Views exposed forms (handled by hook_preprocess_views_exposed_form)
+ * and elements already styled by field widgets.
+ */
+function selectify_form_alter(array &$form, FormStateInterface $form_state, string $form_id): void {
+  /** @var \Drupal\selectify\Service\SelectifyHelper $helper */
+  $helper = \Drupal::service('selectify.helper');
+
+  // Bail early if the feature is disabled or on a disabled admin route.
+  $config = $helper->getFormApiConfig();
+  if ($config === FALSE) {
+    return;
+  }
+
+  // Bail if page is in the disabled pages list.
+  if ($helper->isPageDisabled()) {
+    return;
+  }
+
+  // Skip Views exposed forms — handled by hook_preprocess_views_exposed_form().
+  if (str_starts_with($form_id, 'views_exposed_form')) {
+    return;
+  }
+
+  // Skip Webform submission forms if the selectify_webform submodule handles
+  // them.
+  if (str_starts_with($form_id, 'webform_submission_') &&
+      \Drupal::moduleHandler()->moduleExists('selectify_webform')) {
+    return;
+  }
+
+  // Check built-in blocklist (always-excluded admin forms: Field UI,
+  // Views UI, Layout Builder, etc.) that break with custom selects.
+  if ($helper->isFormExcluded($form_id)) {
+    return;
+  }
+
+  // Allow other modules to prevent Selectify from applying to this form.
+  $applicable = TRUE;
+  $context = [
+    'form_id' => $form_id,
+    'form' => &$form,
+    'integration_type' => 'form_api',
+  ];
+  \Drupal::moduleHandler()->alter('selectify_is_applicable', $applicable, $context);
+  if (!$applicable) {
+    return;
+  }
+
+  // Also skip any form element that has an #ajax callback on a select,
+  // since custom select replacement can break AJAX triggers.
+  // (Individual selects with #ajax are skipped in the recursive walker.)
+  // Record this form in the discovered list if it contains any eligible
+  // (non-AJAX, non-field-widget) selects. This powers the Views-like
+  // configuration UI for Form API.
+  if (_selectify_form_api_has_eligible_select($form)) {
+    _selectify_form_api_record_discovered_form($form_id);
+  }
+
+  // Form API does not have a global "apply to all forms" mode. Only forms
+  // explicitly configured in the per-form widget map will be styled.
+  $widget = $config['widget_map'][$form_id] ?? 'none';
+
+  // Allow other modules to alter the widget selection.
+  $context = [
+    'form_id' => $form_id,
+    'form' => &$form,
+    'integration_type' => 'form_api',
+  ];
+  \Drupal::moduleHandler()->alter('selectify_widget', $widget, $context);
+
+  if (empty($widget) || $widget === 'none') {
+    return;
+  }
+
+  // Compute accent color library once for this request.
+  $selectifyConfig = $helper->getConfig();
+  $isAdmin = $helper->isAdminRoute();
+  $accent = $isAdmin
+    ? ($selectifyConfig->get('admin_accent_color') ?: 'neutral')
+    : ($selectifyConfig->get('accent_color') ?: 'neutral');
+  $accent_mode = $isAdmin
+    ? ($selectifyConfig->get('admin_accent_color_mode') ?: 'light')
+    : ($selectifyConfig->get('accent_color_mode') ?: 'light');
+  $accent_library = NULL;
+  if (!empty($accent) && $accent !== 'none' && $accent_mode !== 'none') {
+    $accent_library = "selectify/selectify-color-{$accent}-{$accent_mode}";
+  }
+
+  _selectify_apply_to_form_selects($form, $helper, $widget, $accent_library);
+}
+
+/**
+ * Checks whether a form contains at least one eligible Form API select.
+ *
+ * Eligible means:
+ * - #type === 'select'
+ * - no #ajax callback
+ * - not a field-widget select (no #key_column)
+ * - not already styled by Selectify (no selectify-apply-* class)
+ *
+ * @param array $elements
+ *   The form render array (or sub-array).
+ * @param int $depth
+ *   Current recursion depth (internal use).
+ *
+ * @return bool
+ *   TRUE if the form contains an eligible select, FALSE otherwise.
+ */
+function _selectify_form_api_has_eligible_select(array $elements, int $depth = 0): bool {
+  // Prevent infinite recursion on malformed forms (max depth: 50 levels).
+  if ($depth > 50) {
+    return FALSE;
+  }
+
+  foreach (Element::children($elements) as $key) {
+    if (!is_array($elements[$key])) {
+      continue;
+    }
+
+    if (($elements[$key]['#type'] ?? NULL) === 'select') {
+      if (!empty($elements[$key]['#ajax'])) {
+        continue;
+      }
+      if (isset($elements[$key]['#key_column'])) {
+        continue;
+      }
+
+      $existing = (array) ($elements[$key]['#attributes']['class'] ?? []);
+      foreach ($existing as $cls) {
+        if (is_string($cls) && str_starts_with($cls, 'selectify-apply-')) {
+          continue 2;
+        }
+      }
+
+      return TRUE;
+    }
+
+    if (_selectify_form_api_has_eligible_select($elements[$key], $depth + 1)) {
+      return TRUE;
+    }
+  }
+
+  return FALSE;
+}
+
+/**
+ * Records a discovered Form API form ID in state storage.
+ *
+ * @param string $form_id
+ *   The form ID.
+ */
+function _selectify_form_api_record_discovered_form(string $form_id): void {
+  // Sanitize form_id to prevent state storage abuse.
+  $form_id = preg_replace('/[^a-zA-Z0-9_-]/', '', $form_id);
+  if (empty($form_id) || strlen($form_id) > 255) {
+    return;
+  }
+
+  $state = \Drupal::state();
+  $existing = $state->get('selectify.form_api_discovered_forms', []);
+  if (!is_array($existing)) {
+    $existing = [];
+  }
+
+  // Limit discovered forms list to prevent unbounded growth. Keep only the
+  // 1000 most recently seen forms.
+  if (count($existing) >= 1000 && !isset($existing[$form_id])) {
+    // Remove oldest entries (by last_seen timestamp).
+    uasort($existing, function ($a, $b) {
+      $a_time = (is_array($a) && isset($a['last_seen'])) ? (int) $a['last_seen'] : 0;
+      $b_time = (is_array($b) && isset($b['last_seen'])) ? (int) $b['last_seen'] : 0;
+      return $a_time <=> $b_time;
+    });
+    $existing = array_slice($existing, -999, 999, TRUE);
+  }
+
+  $existing[$form_id] = [
+    'last_seen' => \Drupal::time()->getRequestTime(),
+  ];
+
+  $state->set('selectify.form_api_discovered_forms', $existing);
+}
+
+/**
+ * Recursively applies Selectify widget classes and libraries to select elements.
+ *
+ * Walks the form tree depth-first. Skips any select that already carries a
+ * selectify-apply-* class (i.e. it was styled by a field widget or Views).
+ *
+ * @param array &$elements
+ *   The form array (or sub-array) to process.
+ * @param \Drupal\selectify\Service\SelectifyHelperInterface $helper
+ *   The selectify helper service.
+ * @param string $widget
+ *   The widget machine name (e.g. 'selectify_dropdown').
+ * @param string|null $accent_library
+ *   Optional accent colour library to attach.
+ */
+function _selectify_apply_to_form_selects(array &$elements, $helper, string $widget, ?string $accent_library): void {
+  $widget_classes = $helper->getWidgetClasses();
+  $widget_libraries = $helper->getWidgetLibraries();
+
+  if (!isset($widget_classes[$widget]) || !isset($widget_libraries[$widget])) {
+    return;
+  }
+
+  $target_class = $widget_classes[$widget];
+
+  foreach (Element::children($elements) as $key) {
+    if (!is_array($elements[$key])) {
+      continue;
+    }
+
+    // If this element is a select, apply the widget.
+    if (isset($elements[$key]['#type']) && $elements[$key]['#type'] === 'select') {
+      // Skip selects that have an #ajax callback — replacing these breaks
+      // AJAX-dependent form rebuilds (e.g. dependent dropdowns).
+      if (!empty($elements[$key]['#ajax'])) {
+        continue;
+      }
+
+      // Skip field widget selects (Category 2). Core's OptionsWidgetBase
+      // sets #key_column on every field widget select element. This prevents
+      // Category 3 from re-styling selects that belong to field widgets,
+      // whether they use a Selectify widget or the default core widget.
+      if (isset($elements[$key]['#key_column'])) {
+        continue;
+      }
+
+      // Skip selects per shared rules (third-party libs, hidden/disabled, context).
+      if ($helper->shouldSkipSelectElement($elements[$key])) {
+        continue;
+      }
+
+      $existing = (array) ($elements[$key]['#attributes']['class'] ?? []);
+      $already_styled = FALSE;
+      foreach ($existing as $cls) {
+        if (is_string($cls) && str_starts_with($cls, 'selectify-apply-')) {
+          $already_styled = TRUE;
+          break;
+        }
+      }
+
+      if (!$already_styled) {
+        // Allow other modules to alter the element before Selectify processes it.
+        $element_context = [
+          'widget' => $widget,
+          'form_id' => $elements['#form_id'] ?? NULL,
+          'element_key' => $key,
+          'integration_type' => 'form_api',
+        ];
+        \Drupal::moduleHandler()->alter('selectify_element', $elements[$key], $element_context);
+
+        // Check if the element was marked to skip Selectify processing.
+        if (!empty($elements[$key]['#selectify_skip'])) {
+          continue;
+        }
+
+        $elements[$key]['#attributes']['class'][] = $target_class;
+        $elements[$key]['#attributes']['class'][] = 'selectify-form-api';
+
+        $is_multiple = !empty($elements[$key]['#multiple']);
+        $elements[$key]['#wrapper_attributes']['class'][] = $is_multiple ? 'selectify-multi' : 'selectify-single';
+
+        // Attach widget libraries.
+        foreach ($widget_libraries[$widget] as $library) {
+          $elements[$key]['#attached']['library'][] = $library;
+        }
+
+        // Attach accent color library.
+        if ($accent_library) {
+          $elements[$key]['#attached']['library'][] = $accent_library;
+        }
+      }
+    }
+
+    // Recurse into children (containers, fieldsets, details, etc.).
+    _selectify_apply_to_form_selects($elements[$key], $helper, $widget, $accent_library);
   }
 }

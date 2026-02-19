@@ -1,0 +1,381 @@
+<?php
+
+/**
+ * @file
+ * Integrates Selectify with Webform elements.
+ *
+ * Handles plain select elements and composite elements such as
+ * webform_select_other, webform_entity_select, webform_term_select,
+ * webform_likert, and webform_mapping.
+ */
+
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Element;
+
+/**
+ * Known Webform composite element types that contain select sub-elements.
+ */
+function _selectify_webform_composite_types(): array {
+  return [
+    'webform_select_other',
+    'webform_entity_select',
+    'webform_term_select',
+    'webform_likert',
+    'webform_mapping',
+    'webform_tableselect',
+    'webform_composite',
+  ];
+}
+
+/**
+ * Loads and caches the Selectify Webform configuration.
+ *
+ * @return array|false
+ *   Configuration array or FALSE if disabled.
+ */
+function _selectify_webform_get_config(): array|false {
+  $cache = &drupal_static(__FUNCTION__);
+  if ($cache !== NULL) {
+    return $cache;
+  }
+
+  $config = \Drupal::config('selectify_webform.settings');
+  // Backwards-compatible master enable flag: if explicitly disabled, bail.
+  if (!$config->get('enable_webform_selects')) {
+    $cache = FALSE;
+    return FALSE;
+  }
+
+  /** @var \Drupal\selectify\Service\SelectifyHelper $helper */
+  $helper = \Drupal::service('selectify.helper');
+  $selectifyConfig = $helper->getConfig();
+
+  if ($selectifyConfig->get('disable_on_admin_routes') && $helper->isAdminRoute()) {
+    $cache = FALSE;
+    return FALSE;
+  }
+
+  if ($helper->isPageDisabled()) {
+    $cache = FALSE;
+    return FALSE;
+  }
+
+  // Configuration mirroring Views: disable, site-wide, or per-Webform.
+  // - disable_webform_widgets: turn everything off.
+  // - apply_site_wide_webform: one widget for all Webforms.
+  // - global_webform_widget: the chosen widget.
+  // - widget_for_webforms: per-Webform overrides.
+  if ($config->get('disable_webform_widgets')) {
+    $cache = FALSE;
+    return FALSE;
+  }
+
+  $apply_site_wide = (bool) $config->get('apply_site_wide_webform');
+  $global_widget = $config->get('global_webform_widget') ?? 'selectify_dropdown';
+
+  $widget_map_raw = $config->get('widget_for_webforms') ?? [];
+  $widget_map = [];
+  if (is_array($widget_map_raw)) {
+    foreach ($widget_map_raw as $entry) {
+      if (!empty($entry['webform_id']) && !empty($entry['widget'])) {
+        $widget_map[$entry['webform_id']] = $entry['widget'];
+      }
+    }
+  }
+
+  $cache = [
+    'apply_site_wide' => $apply_site_wide,
+    'global_widget' => $global_widget ?: 'selectify_dropdown',
+    'widget_map' => $widget_map,
+  ];
+  return $cache;
+}
+
+/**
+ * Implements hook_webform_element_alter().
+ *
+ * Intercepts each Webform element render array and applies Selectify styling
+ * to select elements and composite elements containing selects.
+ */
+function selectify_webform_webform_element_alter(array &$element, FormStateInterface $form_state, array $context): void {
+  $config = _selectify_webform_get_config();
+  if ($config === FALSE) {
+    return;
+  }
+
+  $webform = $context['webform'] ?? NULL;
+  $element_type = $element['#type'] ?? '';
+
+  // Determine the effective widget for this Webform:
+  // - If apply_site_wide is enabled, always use the global widget.
+  // - Otherwise, look for a specific widget for this Webform ID.
+  //   If none is configured, do not style this element.
+  $widget = NULL;
+  $webform_id = $webform?->id() ?? '';
+  if (!empty($config['apply_site_wide'])) {
+    $widget = $config['global_widget'] ?? NULL;
+  }
+  elseif ($webform_id && !empty($config['widget_map'][$webform_id])) {
+    $widget = $config['widget_map'][$webform_id];
+  }
+
+  // Allow other modules to alter the widget selection.
+  if (!empty($widget) && $widget !== 'none') {
+    $context = [
+      'form_id' => $webform_id,
+      'element' => &$element,
+      'integration_type' => 'webform',
+      'webform' => $webform,
+    ];
+    \Drupal::moduleHandler()->alter('selectify_widget', $widget, $context);
+  }
+
+  if (empty($widget) || $widget === 'none') {
+    return;
+  }
+
+  /** @var \Drupal\selectify\Service\SelectifyHelper $helper */
+  $helper = \Drupal::service('selectify.helper');
+
+  // Direct select element.
+  if ($element_type === 'select') {
+    // Skip selects with AJAX callbacks.
+    if (!empty($element['#ajax'])) {
+      return;
+    }
+    // Skip field widget selects.
+    if (isset($element['#key_column'])) {
+      return;
+    }
+    // Skip date/time picker selects (year, month, day, hour, minute).
+    // These are part of a cohesive date picker UI and should remain grouped.
+    if (_selectify_webform_is_date_select($element)) {
+      return;
+    }
+    // Skip selects per shared rules (third-party libs, hidden/disabled, context).
+    if ($helper->shouldSkipSelectElement($element)) {
+      return;
+    }
+
+    // Allow other modules to alter the element before Selectify processes it.
+    $element_context = [
+      'widget' => $widget,
+      'webform_id' => $webform_id,
+      'integration_type' => 'webform',
+      'webform' => $webform,
+    ];
+    \Drupal::moduleHandler()->alter('selectify_element', $element, $element_context);
+
+    // Check if the element was marked to skip Selectify processing.
+    if (!empty($element['#selectify_skip'])) {
+      return;
+    }
+
+    _selectify_webform_style_select($element, $helper, $widget);
+    return;
+  }
+
+  // Composite element types — walk children to find nested selects.
+  $composites = _selectify_webform_composite_types();
+  if (in_array($element_type, $composites, TRUE)) {
+    _selectify_webform_walk_composites($element, $helper, $widget);
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ *
+ * Safety net: catches any webform selects that hook_webform_element_alter
+ * couldn't reach (e.g. dynamically added elements). Skips elements already
+ * styled.
+ */
+function selectify_webform_form_alter(array &$form, FormStateInterface $form_state, string $form_id): void {
+  if (!str_starts_with($form_id, 'webform_submission_')) {
+    return;
+  }
+
+  $config = _selectify_webform_get_config();
+  if ($config === FALSE) {
+    return;
+  }
+
+  $webform_id = '';
+  if (isset($form['#webform']) && is_object($form['#webform']) && method_exists($form['#webform'], 'id')) {
+    $webform_id = $form['#webform']->id() ?? '';
+  }
+  if ($webform_id === '' && preg_match('/^webform_submission_(.+)_(add|edit|api)_form$/', $form_id, $m)) {
+    $webform_id = $m[1];
+  }
+
+  $widget = NULL;
+  if (!empty($config['apply_site_wide'])) {
+    $widget = $config['global_widget'] ?? NULL;
+  }
+  elseif ($webform_id && !empty($config['widget_map'][$webform_id])) {
+    $widget = $config['widget_map'][$webform_id];
+  }
+
+  if (empty($widget) || $widget === 'none') {
+    return;
+  }
+
+  /** @var \Drupal\selectify\Service\SelectifyHelper $helper */
+  $helper = \Drupal::service('selectify.helper');
+
+  _selectify_webform_walk_composites($form, $helper, $widget);
+}
+
+/**
+ * Applies Selectify styling to a single select element.
+ *
+ * @param array &$element
+ *   The select form element.
+ * @param \Drupal\selectify\Service\SelectifyHelperInterface $helper
+ *   The selectify helper service.
+ * @param string $widget
+ *   The widget machine name.
+ */
+function _selectify_webform_style_select(array &$element, $helper, string $widget): void {
+  $widget_classes = $helper->getWidgetClasses();
+  $widget_libraries = $helper->getWidgetLibraries();
+
+  if (!isset($widget_classes[$widget]) || !isset($widget_libraries[$widget])) {
+    return;
+  }
+
+  // Skip if already styled.
+  $existing = (array) ($element['#attributes']['class'] ?? []);
+  foreach ($existing as $cls) {
+    if (is_string($cls) && str_starts_with($cls, 'selectify-apply-')) {
+      return;
+    }
+  }
+
+  $element['#attributes']['class'][] = $widget_classes[$widget];
+  $element['#attributes']['class'][] = 'selectify-webform';
+
+  $is_multiple = !empty($element['#multiple']);
+  $element['#wrapper_attributes']['class'][] = $is_multiple ? 'selectify-multi' : 'selectify-single';
+
+  // Attach widget libraries.
+  foreach ($widget_libraries[$widget] as $library) {
+    $element['#attached']['library'][] = $library;
+  }
+
+  // Attach accent colour library.
+  $selectifyConfig = $helper->getConfig();
+  $isAdmin = $helper->isAdminRoute();
+  $accent = $isAdmin
+    ? ($selectifyConfig->get('admin_accent_color') ?: 'neutral')
+    : ($selectifyConfig->get('accent_color') ?: 'neutral');
+  $accent_mode = $isAdmin
+    ? ($selectifyConfig->get('admin_accent_color_mode') ?: 'light')
+    : ($selectifyConfig->get('accent_color_mode') ?: 'light');
+  if (!empty($accent) && $accent !== 'none' && $accent_mode !== 'none') {
+    $element['#attached']['library'][] = "selectify/selectify-color-{$accent}-{$accent_mode}";
+  }
+}
+
+/**
+ * Checks if a select element is part of a date/time picker.
+ *
+ * Date selects (year, month, day, hour, minute) should be excluded from
+ * Selectify styling as they're part of a cohesive date picker UI.
+ *
+ * @param array $element
+ *   The form element array.
+ *
+ * @return bool
+ *   TRUE if this is a date-related select, FALSE otherwise.
+ */
+function _selectify_webform_is_date_select(array $element): bool {
+  // Check element attributes for date-related classes.
+  $attributes = $element['#attributes'] ?? [];
+  $classes = $attributes['class'] ?? [];
+  if (is_array($classes)) {
+    $class_string = implode(' ', $classes);
+  }
+  else {
+    $class_string = (string) $classes;
+  }
+
+  // Check for date-related CSS classes (common patterns).
+  $date_patterns = [
+    'date-related',
+    'datepicker',
+    'datetime',
+    'datelist',
+    'timepicker',
+  ];
+  foreach ($date_patterns as $pattern) {
+    if (stripos($class_string, $pattern) !== FALSE) {
+      return TRUE;
+    }
+  }
+
+  // Check element ID/name for date-related parts.
+  $element_id = $element['#id'] ?? '';
+  $element_name = $element['#name'] ?? '';
+  $date_parts = ['year', 'month', 'day', 'hour', 'minute', 'second', 'date', 'time'];
+  foreach ($date_parts as $part) {
+    if (stripos($element_id, $part) !== FALSE || stripos($element_name, $part) !== FALSE) {
+      // Additional check: ensure it's actually part of a date structure.
+      // Look for patterns like "datelist[year]", "date[month]", etc.
+      if (preg_match('/\[(' . implode('|', $date_parts) . ')\]/i', $element_name)) {
+        return TRUE;
+      }
+      // Also check if parent has date-related classes.
+      if (!empty($element['#webform_parent_flexbox']) || !empty($element['#webform_parent'])) {
+        // Parent context suggests date picker grouping.
+        if (stripos($element_id, 'datelist') !== FALSE || stripos($element_name, 'datelist') !== FALSE) {
+          return TRUE;
+        }
+      }
+    }
+  }
+
+  return FALSE;
+}
+
+/**
+ * Recursively walks form elements to find and style nested selects.
+ *
+ * @param array &$elements
+ *   The form or sub-element array.
+ * @param \Drupal\selectify\Service\SelectifyHelperInterface $helper
+ *   The selectify helper service.
+ * @param string $widget
+ *   The widget machine name.
+ */
+function _selectify_webform_walk_composites(array &$elements, $helper, string $widget): void {
+  foreach (Element::children($elements) as $key) {
+    if (!is_array($elements[$key])) {
+      continue;
+    }
+
+    if (isset($elements[$key]['#type']) && $elements[$key]['#type'] === 'select') {
+      // Skip selects with AJAX callbacks to prevent breaking dependent
+      // dropdowns.
+      if (!empty($elements[$key]['#ajax'])) {
+        continue;
+      }
+      // Skip field widget selects (they have #key_column and are handled
+      // separately).
+      if (isset($elements[$key]['#key_column'])) {
+        continue;
+      }
+      // Skip date/time picker selects (year, month, day, hour, minute).
+      if (_selectify_webform_is_date_select($elements[$key])) {
+        continue;
+      }
+      // Skip selects per shared rules (third-party libs, hidden/disabled, context).
+      if ($helper->shouldSkipSelectElement($elements[$key])) {
+        continue;
+      }
+      _selectify_webform_style_select($elements[$key], $helper, $widget);
+    }
+
+    // Continue recursing into children.
+    _selectify_webform_walk_composites($elements[$key], $helper, $widget);
+  }
+}

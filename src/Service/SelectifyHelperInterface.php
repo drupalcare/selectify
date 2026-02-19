@@ -137,4 +137,86 @@ interface SelectifyHelperInterface {
    */
   public function applyWidgetToForm(array &$form, string $widget_name): void;
 
+  /**
+   * Retrieves Selectify Form API select configuration.
+   *
+   * @return array|false
+   *   Array of settings if Form API selects are enabled, FALSE otherwise.
+   */
+  public function getFormApiConfig(): array|false;
+
+  /**
+   * Returns hardcoded form ID patterns that must always be excluded.
+   *
+   * These are admin forms with AJAX-dependent selects or other sensitivity
+   * that prevents safe replacement. This list cannot be overridden by users.
+   *
+   * @return string[]
+   *   Array of form ID patterns (supports fnmatch wildcards).
+   */
+  public function getInternalBlockedFormPatterns(): array;
+
+  /**
+   * Checks whether a form ID matches any internal or user-defined exclusion.
+   *
+   * @param string $form_id
+   *   The form ID to check.
+   * @param string[] $user_excluded
+   *   Additional user-defined exclusion patterns.
+   *
+   * @return bool
+   *   TRUE if the form should be excluded.
+   */
+  public function isFormExcluded(string $form_id, array $user_excluded = []): bool;
+
+  /**
+   * Checks if a select element is enhanced by a third-party library.
+   *
+   * When Select2, Chosen, Selectize, or Choices.js is applied, we skip
+   * Selectify to avoid conflicts.
+   *
+   * @param array $element
+   *   The form element array.
+   *
+   * @return bool
+   *   TRUE if a third-party select library is detected.
+   */
+  public function hasThirdPartySelectLibrary(array $element): bool;
+
+  /**
+   * Checks if a select element is hidden or disabled.
+   *
+   * @param array $element
+   *   The form element array.
+   *
+   * @return bool
+   *   TRUE if the element should not receive Selectify (hidden/disabled).
+   */
+  public function isSelectHiddenOrDisabled(array $element): bool;
+
+  /**
+   * Checks if a select is in an excluded context (toolbar, modal, off-canvas).
+   *
+   * @param array $element
+   *   The form element array.
+   *
+   * @return bool
+   *   TRUE if the element is in a context where Selectify should be skipped.
+   */
+  public function isSelectInExcludedContext(array $element): bool;
+
+  /**
+   * Checks if a select element should be skipped (single source for skip rules).
+   *
+   * Combines third-party library, hidden/disabled, and context checks.
+   * Call after integration-specific checks (#ajax, #key_column, etc.).
+   *
+   * @param array $element
+   *   The form element array.
+   *
+   * @return bool
+   *   TRUE if Selectify should skip this select.
+   */
+  public function shouldSkipSelectElement(array $element): bool;
+
 }

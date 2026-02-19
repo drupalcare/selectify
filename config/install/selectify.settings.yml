@@ -15,3 +15,7 @@ apply_site_wide: true
 global_selectify_widget: selectify_dropdown
 disable_views_widgets: false
 disabled_pages: admin/appearance/settings/gin
+enable_form_api_selects: false
+form_api_widget: selectify_dropdown
+form_api_widget_map: []
+widget_for_filters: []

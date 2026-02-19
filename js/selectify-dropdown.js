@@ -6,7 +6,7 @@
  * Website: https://www.flashwebcenter.com
  * Developer: Alaa Haddad https://www.alaahaddad.com.
  */
-((Drupal, once) => {
+((Drupal, once, drupalSettings) => {
   'use strict';
   const type = 'dropdown';
   /**
@@ -15,15 +15,23 @@
   Drupal.behaviors.selectifySelectDropdown = {
     attach: (context) => {
       once('selectifyMultiSelectDropdown', '.wrapper-selectify .selectify-dropdown-widget', context).forEach((selectifySelect) => {
+        const constants = Drupal.selectify?.constants || {};
+        const initDelay = constants.INIT_DELAY || 10;
         setTimeout(() => {
           // Retrieve the target ID from the data attribute.
           const targetId = selectifySelect.getAttribute('data-target-id');
           if (!targetId) {
+            if (drupalSettings?.selectify?.debug) {
+              console.warn('[Selectify] Dropdown widget missing data-target-id attribute');
+            }
             return;
           }
           // Locate the corresponding hidden <select> element by its ID.
           const nativeSelect = document.getElementById(targetId);
           if (!nativeSelect || nativeSelect.tagName !== 'SELECT') {
+            if (drupalSettings?.selectify?.debug) {
+              console.warn('[Selectify] Native select element not found:', targetId);
+            }
             return;
           }
           initializeSelectifyDropdown(selectifySelect, nativeSelect);
@@ -45,7 +53,7 @@
             selectifySelect.setAttribute('aria-controls', dropdownId);
           }
           Drupal.selectify.injectAriaLabelledBy();
-        }, 10);
+        }, initDelay);
       });
     }
   };
@@ -88,7 +96,8 @@
       });
     });
     // Handle "Clear All" functionality.
-    once('clearAllTags', clearAllButton).forEach(() => {
+    if (clearAllButton) {
+      once('clearAllTags', clearAllButton).forEach(() => {
       clearAllButton.addEventListener('click', () => {
         // Unselect all options in the hidden <select> element.
         nativeSelect.querySelectorAll('option').forEach(option => (option.selected = false));
@@ -113,10 +122,13 @@
 
         // Return focus to the main trigger
         if (selectedDisplay && typeof selectedDisplay.focus === 'function') {
-          setTimeout(() => selectedDisplay.focus(), 100);
+          const constants = Drupal.selectify?.constants || {};
+          const focusDelay = constants.FOCUS_DELAY || 100;
+          setTimeout(() => selectedDisplay.focus(), focusDelay);
         }
       });
-    });
+      });
+    }
     // Enable keyboard navigation.
     Drupal.selectify.handleKeyboardNavigation(selectifySelect, dropdownMenu, selectedDisplay, type);
     // After basic setup, always sync visible state to hidden select.
@@ -124,4 +136,4 @@
     Drupal.selectify.syncHiddenSelect(nativeSelect, selectedValues);
     Drupal.selectify.updateSelectedDisplay(type, nativeSelect, selectedDisplay, clearAllButton);
   }
-})(Drupal, once);
+})(Drupal, once, drupalSettings);

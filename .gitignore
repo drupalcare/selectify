@@ -61,3 +61,6 @@
 /drupal.phar
 /drupal
 .DS_Store
+
+# Personal/marketing files not part of the module
+homepage-drupal.html

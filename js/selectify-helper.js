@@ -6,10 +6,22 @@
  * Website: https://www.flashwebcenter.com
  * Developer: Alaa Haddad https://www.alaahaddad.com.
  */
-((Drupal) => {
+((Drupal, drupalSettings) => {
   'use strict';
   // Ensure Drupal.selectify namespace exists
   Drupal.selectify = Drupal.selectify || {};
+  
+  /**
+   * Debug logging helper (only logs if debug mode is enabled).
+   *
+   * @param {string} message - The message to log.
+   * @param {...*} args - Additional arguments to log.
+   */
+  const debugLog = (message, ...args) => {
+    if (drupalSettings?.selectify?.debug) {
+      console.warn('[Selectify]', message, ...args);
+    }
+  };
   /**
    * Handles selection limits for multi-select components.
    * Shows a message with animation when the max selection limit is reached.
@@ -37,12 +49,14 @@
 
     function showMaxSelectionMessage() {
       if (maxSelectionMessage) {
+        const constants = Drupal.selectify?.constants || {};
+        const dismissDelay = constants.MESSAGE_AUTO_DISMISS || 3000;
         maxSelectionMessage.classList.remove('hide');
         maxSelectionMessage.classList.add('show');
         setTimeout(() => {
           maxSelectionMessage.classList.remove('show');
           maxSelectionMessage.classList.add('hide');
-        }, 3000);
+        }, dismissDelay);
       }
     }
     if (type === 'checkbox') {
@@ -283,14 +297,11 @@
   };
   /**
    * Updates the displayed selected options.
-   */
-  /**
-   * Updates the displayed selected options.
    *
    * @param {string} type - The type of selectify component (e.g., "tags", "searchable", "dropdown", "checkbox", "dual").
    * @param {HTMLElement} nativeSelect - The hidden <select> element.
    * @param {HTMLElement} selectedDisplay - The display area for selected options.
-   * @param {HTMLElement} clearAllButton - The button to clear all selected options.
+   * @param {HTMLElement|null} clearAllButton - The button to clear all selected options.
    */
   Drupal.selectify.updateSelectedDisplay = (type, nativeSelect, selectedDisplay, clearAllButton) => {
     const selectedValues = Drupal.selectify.getSelectedValues(nativeSelect);
@@ -351,6 +362,7 @@
     // Announce selection change to screen readers
     if (selectWidget) {
       Drupal.selectify.announceSelectionChange(selectWidget, selectedValues.length);
+      selectWidget.setAttribute('aria-busy', 'false');
     }
   };
   /**
@@ -359,7 +371,7 @@
    * @param {HTMLElement} nativeSelect - The hidden <select> element.
    * @param {HTMLElement} selectedDisplay - The display area for selected options.
    * @param {HTMLElement|null} placeholder - The placeholder text element.
-   * @param {HTMLElement} arrowIcon - The dropdown arrow element.
+   * @param {HTMLElement|null} arrowIcon - The dropdown arrow element (may be null if not in DOM).
    * @param {string[]} selectedValues - The selected option values.
    */
   Drupal.selectify.renderSelectifyDropdown = (nativeSelect, selectedDisplay, placeholder, arrowIcon, selectedValues) => {
@@ -383,7 +395,11 @@
         }
       });
 
-      arrowIcon.parentNode.insertBefore(wrapper, arrowIcon);
+      if (arrowIcon && arrowIcon.parentNode) {
+        arrowIcon.parentNode.insertBefore(wrapper, arrowIcon);
+      } else {
+        selectedDisplay.appendChild(wrapper);
+      }
     }
   };
 
@@ -393,7 +409,7 @@
    * @param {HTMLElement} nativeSelect - The hidden <select> element.
    * @param {HTMLElement} selectedDisplay - The display area for selected options.
    * @param {HTMLElement|null} placeholder - The placeholder text element.
-   * @param {HTMLElement} arrowIcon - The dropdown arrow element.
+   * @param {HTMLElement|null} arrowIcon - The dropdown arrow element (may be null if not in DOM).
    * @param {string[]} selectedValues - The selected option values.
    */
   Drupal.selectify.renderSelectifySearchTags = (nativeSelect, selectedDisplay, placeholder, arrowIcon, selectedValues) => {
@@ -437,7 +453,11 @@
         }
       });
 
-      arrowIcon.parentNode.insertBefore(wrapper, arrowIcon);
+      if (arrowIcon && arrowIcon.parentNode) {
+        arrowIcon.parentNode.insertBefore(wrapper, arrowIcon);
+      } else {
+        selectedDisplay.appendChild(wrapper);
+      }
     }
   };
 
@@ -446,7 +466,7 @@
    *
    * @param {HTMLElement} nativeSelect - The hidden <select> element.
    * @param {HTMLElement} selectedDisplay - The display area for selected options.
-   * @param {HTMLElement} arrowIcon - The dropdown arrow element.
+   * @param {HTMLElement|null} arrowIcon - The dropdown arrow element (may be null if not in DOM).
    * @param {string[]} selectedValues - The selected option values.
    */
   Drupal.selectify.renderSelectifyDropdownCheckbox = (nativeSelect, selectedDisplay, arrowIcon, selectedValues) => {
@@ -470,11 +490,12 @@
       selectedDisplay.appendChild(wrapper);
     }
 
-    // Clone and append the dropdown arrow
-    const arrowClone = document.createElement('span');
-    arrowClone.className = 'selectify-dorpdown-arrow';
-    arrowClone.innerHTML = arrowIcon.innerHTML;
-    selectedDisplay.appendChild(arrowClone);
+    // Clone and append the dropdown arrow.
+    if (arrowIcon) {
+      const arrowClone = arrowIcon.cloneNode(true);
+      arrowClone.className = 'selectify-dorpdown-arrow';
+      selectedDisplay.appendChild(arrowClone);
+    }
   };
   /**
    * Renders the selected values inside the multi-select header (for dual-list selects).
@@ -602,7 +623,9 @@ Drupal.selectify.toggleMultiSelectOption = function(type, nativeSelect, optionEl
     if (option) {
       option.selected = false;
     }
-    const dropdownMenu = selectedDisplay.closest('.selectify-select').querySelector('.selectify-available-display');
+    const wrapper = selectedDisplay.closest('.selectify-select');
+    const dropdownMenu = wrapper ? wrapper.querySelector('.selectify-available-display') : null;
+    if (!dropdownMenu) return;
     const optionElement = dropdownMenu.querySelector(`.selectify-available-one-option[data-value="${value}"]`);
     if (optionElement) {
       optionElement.classList.remove('s-selected', 's-hidden'); // Remove both classes correctly
@@ -649,6 +672,7 @@ Drupal.selectify.toggleMultiSelectOption = function(type, nativeSelect, optionEl
    * @param {HTMLElement} selectifySelect - The main Selectify wrapper element.
    * @param {HTMLElement} dropdownMenu - The dropdown menu element.
    * @param {HTMLElement} selectedDisplay - The display area for selected options.
+   * @param {string} type - The type of selectify component.
    */
   Drupal.selectify.handleKeyboardNavigation = (selectifySelect, dropdownMenu, selectedDisplay, type) => {
     // Ensure keyboard navigation event is only bound once per dropdown.
@@ -732,6 +756,10 @@ Drupal.selectify.toggleMultiSelectOption = function(type, nativeSelect, optionEl
   };
   /**
    * Updates selected state and applies "hidden" (for types like tags that remove selected items).
+   *
+   * @param {HTMLElement} optionElement - The option element to update.
+   * @param {boolean} isSelected - Whether the option is selected.
+   * @param {string} type - The type of selectify component.
    */
   Drupal.selectify.updateOptionState = (optionElement, isSelected, type) => {
     if (!optionElement || !type) {
@@ -780,6 +808,9 @@ Drupal.selectify.toggleMultiSelectOption = function(type, nativeSelect, optionEl
 
   /**
    * Ensures aria-labelledby is added when a <label> exists before .wrapper-selectify.
+   *
+   * This function scans all Selectify widgets and adds appropriate aria-labelledby
+   * attributes when a label element is found preceding the widget wrapper.
    */
   Drupal.selectify.injectAriaLabelledBy = function () {
     document.querySelectorAll('.selectify-select').forEach(widget => {
@@ -808,7 +839,9 @@ Drupal.selectify.toggleMultiSelectOption = function(type, nativeSelect, optionEl
 
   /**
    * Announces selection changes to screen readers.
+   *
    * Debounced to prevent announcement spam during rapid selections.
+   * Uses a live region to announce the current selection count.
    *
    * @param {HTMLElement} selectWidget - The main Selectify widget element.
    * @param {number} count - Number of selected items.
@@ -825,10 +858,12 @@ Drupal.selectify.toggleMultiSelectOption = function(type, nativeSelect, optionEl
         clearTimeout(announcementTimer);
       }
 
-      // Wait 500ms after last change before announcing
+      // Wait for debounce delay after last change before announcing
+      const constants = Drupal.selectify?.constants || {};
+      const debounceDelay = constants.ANNOUNCEMENT_DEBOUNCE || 500;
       announcementTimer = setTimeout(() => {
         liveRegion.textContent = Drupal.t('@count selected', {'@count': count});
-      }, 500);
+      }, debounceDelay);
     };
   })();
 
@@ -843,4 +878,4 @@ Drupal.selectify.toggleMultiSelectOption = function(type, nativeSelect, optionEl
       });
     }
   });
-})(Drupal);
+})(Drupal, drupalSettings);

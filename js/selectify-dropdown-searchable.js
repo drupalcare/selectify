@@ -6,26 +6,44 @@
  * Website: https://www.flashwebcenter.com
  * Developer: Alaa Haddad https://www.alaahaddad.com.
  */
-((Drupal, once) => {
+((Drupal, once, drupalSettings) => {
   'use strict';
   const type = 'searchable';
   /**
    * Drupal behavior for custom multi-select searchable dropdowns.
    */
   Drupal.behaviors.selectifySelectSearchable = {
+    detach: (context, settings, trigger) => {
+      if (trigger !== 'unload') {
+        return;
+      }
+      (context.querySelectorAll ? context.querySelectorAll('.selectify-dropdown-searchable-widget') : []).forEach((el) => {
+        const display = el.querySelector('.dual-selected, .selectify-select-trigger');
+        if (display && display._selectifyObserver) {
+          display._selectifyObserver.disconnect();
+          display._selectifyObserver = null;
+        }
+      });
+    },
     attach: (context) => {
       once('selectifyMultiSelectSearchable', '.selectify-dropdown-searchable-widget', context).forEach((selectifySelect) => {
+        const constants = Drupal.selectify?.constants || {};
+        const initDelay = constants.INIT_DELAY || 10;
         setTimeout(() => {
           // Retrieve the target ID from the data attribute.
           const targetId = selectifySelect.getAttribute('data-target-id');
           if (!targetId) {
-
+            if (drupalSettings?.selectify?.debug) {
+              console.warn('[Selectify] Searchable widget missing data-target-id attribute');
+            }
             return;
           }
           // Locate the corresponding hidden <select> element by its ID.
           const nativeSelect = document.getElementById(targetId);
           if (!nativeSelect || nativeSelect.tagName !== 'SELECT') {
-
+            if (drupalSettings?.selectify?.debug) {
+              console.warn('[Selectify] Native select element not found:', targetId);
+            }
             return;
           }
           initializeSelectifySearchable(selectifySelect, nativeSelect);
@@ -47,12 +65,15 @@
             selectifySelect.setAttribute('aria-controls', dropdownId);
           }
           Drupal.selectify.injectAriaLabelledBy();
-        }, 10);
+        }, initDelay);
       });
     }
   };
   /**
    * Initializes the searchable multi-select dropdown.
+   *
+   * @param {HTMLElement} selectifySelect - The Selectify wrapper element.
+   * @param {HTMLElement} nativeSelect - The hidden native <select> element.
    */
   function initializeSelectifySearchable(selectifySelect, nativeSelect) {
     const selectedDisplay = selectifySelect.querySelector('.selectify-selected-display');
@@ -79,12 +100,16 @@
         Drupal.selectify.openDropdown(dropdownMenu, selectedDisplay);
         // Focus the search input when the dropdown opens.
         if (searchInput) {
-          setTimeout(() => searchInput.focus(), 100);
+          const constants = Drupal.selectify?.constants || {};
+          const focusDelay = constants.FOCUS_DELAY || 100;
+          setTimeout(() => searchInput.focus(), focusDelay);
         }
       }
     });
     // Handle search filtering with debounce for performance.
     if (searchInput) {
+      const constants = Drupal.selectify?.constants || {};
+      const debounceDelay = constants.SEARCH_DEBOUNCE || 150;
       let searchTimer = null;
       searchInput.addEventListener('input', function() {
         const searchTerm = this.value.toLowerCase();
@@ -126,7 +151,7 @@
         [...textOptions, ...numberOptions, ...dateOptions, ...emailOptions, ...entityOptions, ...otherOptions].forEach(option => {
           option.classList.remove('s-hidden');
         });
-        }, 150);
+        }, debounceDelay);
       });
     }
     // Handle option selection.
@@ -140,8 +165,9 @@
       });
     });
     // Handle "Clear All" functionality.
-    once('clearAllSearchable', clearAllButton).forEach(() => {
-      clearAllButton.addEventListener('click', () => {
+    if (clearAllButton) {
+      once('clearAllSearchable', clearAllButton).forEach(() => {
+        clearAllButton.addEventListener('click', () => {
         // Unselect all options in the hidden <select> element.
         nativeSelect.querySelectorAll('option').forEach(option => (option.selected = false));
         // Remove all selected items from the display.
@@ -165,10 +191,13 @@
 
         // Return focus to the main trigger
         if (selectedDisplay && typeof selectedDisplay.focus === 'function') {
-          setTimeout(() => selectedDisplay.focus(), 100);
+          const constants = Drupal.selectify?.constants || {};
+          const focusDelay = constants.FOCUS_DELAY || 100;
+          setTimeout(() => selectedDisplay.focus(), focusDelay);
         }
       });
     });
+    }
     // Add keyboard support for remove tag buttons
     selectedDisplay.querySelectorAll('.remove-tag').forEach(btn => {
       btn.addEventListener('keydown', (event) => {
@@ -217,4 +246,4 @@
     Drupal.selectify.syncHiddenSelect(nativeSelect, selectedValues);
     Drupal.selectify.updateSelectedDisplay(type, nativeSelect, selectedDisplay, clearAllButton);
   }
-})(Drupal, once);
+})(Drupal, once, drupalSettings);

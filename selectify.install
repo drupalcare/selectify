@@ -7,8 +7,53 @@
 
 /**
  * Implements hook_uninstall().
+ *
+ * Removes all config and state so that reinstalling the module starts with
+ * default values. Any new config or state keys added in future must be
+ * cleared here.
  */
 function selectify_uninstall(): void {
-  // Clean up module configuration on uninstall.
-  \Drupal::configFactory()->getEditable('selectify.settings')->delete();
+  $config_factory = \Drupal::configFactory();
+  $state = \Drupal::state();
+
+  // Remove all module configuration (user settings).
+  $config_factory->getEditable('selectify.settings')->delete();
+
+  // Remove all module state (e.g. discovered forms list).
+  $state->delete('selectify.form_api_discovered_forms');
+}
+
+/**
+ * Add Form API select element configuration settings.
+ */
+function selectify_update_10001(): void {
+  $config = \Drupal::configFactory()->getEditable('selectify.settings');
+  $changed = FALSE;
+  if ($config->get('enable_form_api_selects') === NULL) {
+    $config->set('enable_form_api_selects', FALSE);
+    $config->set('form_api_widget', 'selectify_dropdown');
+    $changed = TRUE;
+  }
+  if ($config->get('form_api_widget_map') === NULL) {
+    $config->set('form_api_widget_map', []);
+    $changed = TRUE;
+  }
+  if ($config->get('widget_for_filters') === NULL) {
+    $config->set('widget_for_filters', []);
+    $changed = TRUE;
+  }
+  if ($changed) {
+    $config->save(TRUE);
+  }
+}
+
+/**
+ * Remove deprecated form_api_excluded_forms config (additional excluded form IDs).
+ */
+function selectify_update_10002(): void {
+  $config = \Drupal::configFactory()->getEditable('selectify.settings');
+  if ($config->get('form_api_excluded_forms') !== NULL) {
+    $config->clear('form_api_excluded_forms');
+    $config->save(TRUE);
+  }
 }

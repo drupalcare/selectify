@@ -18,27 +18,30 @@
       const ginColorScheme = settings.selectify.gin.colorScheme;
       const ginAccentColor = settings.selectify.gin.accentColor;
 
-      // Watch for color scheme changes (Gin uses MutationObserver)
-      const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-          if (mutation.attributeName === 'data-gin-color-scheme') {
-            const newScheme = document.documentElement.getAttribute('data-gin-color-scheme');
+      // Watch for color scheme changes — only create one observer.
+      once('selectifyGinObserver', 'html', context).forEach(function(html) {
+        const observer = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            if (mutation.attributeName === 'data-gin-color-scheme') {
+              const newScheme = document.documentElement.getAttribute('data-gin-color-scheme');
 
-            // Dispatch custom event for color scheme change
-            document.dispatchEvent(new CustomEvent('selectifyGinColorSchemeChange', {
-              detail: {
-                colorScheme: newScheme,
-                accentColor: ginAccentColor
-              }
-            }));
-          }
+              document.dispatchEvent(new CustomEvent('selectifyGinColorSchemeChange', {
+                detail: {
+                  colorScheme: newScheme,
+                  accentColor: ginAccentColor
+                }
+              }));
+            }
+          });
         });
-      });
 
-      // Start observing the html element for attribute changes
-      observer.observe(document.documentElement, {
-        attributes: true,
-        attributeFilter: ['data-gin-color-scheme']
+        observer.observe(document.documentElement, {
+          attributes: true,
+          attributeFilter: ['data-gin-color-scheme']
+        });
+
+        // Store reference for cleanup on detach.
+        html._selectifyGinObserver = observer;
       });
 
       // Add body class based on initial color scheme
@@ -48,6 +51,17 @@
           body.classList.add('selectify-gin-accent-' + ginAccentColor);
         }
       });
+    },
+
+    detach: function (context, settings, trigger) {
+      if (trigger !== 'unload') {
+        return;
+      }
+      const html = document.documentElement;
+      if (html._selectifyGinObserver) {
+        html._selectifyGinObserver.disconnect();
+        html._selectifyGinObserver = null;
+      }
     }
   };
 
@@ -61,9 +75,6 @@
     // Update body classes
     document.body.classList.remove('selectify-gin-dark', 'selectify-gin-light', 'selectify-gin-auto');
     document.body.classList.add('selectify-gin-' + newScheme);
-
-    // Optional: Trigger any necessary re-renders or updates
-    console.log('Selectify adjusted for Gin ' + newScheme + ' mode');
   });
 
 })(Drupal, drupalSettings, once);
