@@ -102,4 +102,8 @@ body.selectify-color-disabled input.selectify-checkbox[type="checkbox"] {
   background: transparent !important;
 }
 
+/* Fix Selectify dropdown clipping in Field UI (Manage form display). */
+:where(*) .gin-table-scroll-wrapper,
+:is(#extra-specificity-hack, [data-drupal-admin-styles]) .gin-table-scroll-wrapper {
+  overflow: visible!important;
 }
