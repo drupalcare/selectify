@@ -37,7 +37,15 @@ class SelectifyWebformElementAlterTest extends KernelTestBase {
    * {@inheritdoc}
    */
   protected function setUp(): void {
-    parent::setUp();
+    try {
+      parent::setUp();
+    }
+    catch (\PHPUnit\Framework\Exception $e) {
+      if (str_contains($e->getMessage(), "Unavailable module") && str_contains($e->getMessage(), 'webform')) {
+        $this->markTestSkipped('Webform module is not available.');
+      }
+      throw $e;
+    }
     $this->installConfig(['selectify', 'selectify_webform']);
     // Apply site-wide dropdown so tests that expect styling receive it.
     $this->config('selectify_webform.settings')

@@ -31,6 +31,8 @@ class SelectifyFormAlterTest extends KernelTestBase {
   protected function setUp(): void {
     parent::setUp();
     $this->installConfig(['selectify']);
+    // Ensure "Additional pages to disable" does not match in tests (clear path).
+    $this->config('selectify.settings')->set('disabled_pages', '')->save();
   }
 
   /**
@@ -62,7 +64,7 @@ class SelectifyFormAlterTest extends KernelTestBase {
 
     selectify_form_alter($form, $form_state, 'test_form');
 
-    $classes = $form['my_select']['#attributes']['class'];
+    $classes = $form['my_select']['#attributes']['class'] ?? [];
     $this->assertContains('selectify-apply-dropdown', $classes);
     $this->assertContains('selectify-form-api', $classes);
   }
@@ -84,7 +86,7 @@ class SelectifyFormAlterTest extends KernelTestBase {
     selectify_form_alter($form, $form_state, 'test_form');
 
     // Should still have tags, not dropdown.
-    $classes = $form['my_select']['#attributes']['class'];
+    $classes = $form['my_select']['#attributes']['class'] ?? [];
     $this->assertContains('selectify-apply-tags', $classes);
     $this->assertNotContains('selectify-apply-dropdown', $classes);
   }
@@ -148,7 +150,7 @@ class SelectifyFormAlterTest extends KernelTestBase {
 
     selectify_form_alter($form, $form_state, 'nested_test_form');
 
-    $classes = $form['wrapper']['nested_select']['#attributes']['class'];
+    $classes = $form['wrapper']['nested_select']['#attributes']['class'] ?? [];
     $this->assertContains('selectify-apply-searchable', $classes);
     $this->assertContains('selectify-form-api', $classes);
   }
@@ -223,7 +225,7 @@ class SelectifyFormAlterTest extends KernelTestBase {
       $form_state = new FormState();
       selectify_form_alter($form, $form_state, 'test_form_' . $widget);
 
-      $classes = $form['my_select']['#attributes']['class'];
+      $classes = $form['my_select']['#attributes']['class'] ?? [];
       $this->assertContains($expected_class, $classes, "Widget $widget should add class $expected_class");
     }
   }
@@ -529,7 +531,7 @@ class SelectifyFormAlterTest extends KernelTestBase {
       'Select with #ajax callback should be skipped.');
 
     // Normal select SHOULD be styled.
-    $normal_classes = $form['normal_select']['#attributes']['class'];
+    $normal_classes = $form['normal_select']['#attributes']['class'] ?? [];
     $this->assertContains('selectify-apply-dropdown', $normal_classes,
       'Normal select without #ajax should be styled.');
   }

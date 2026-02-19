@@ -36,6 +36,7 @@ class SelectifyViewsNoConflictTest extends KernelTestBase {
   protected function setUp(): void {
     parent::setUp();
     $this->installConfig(['selectify']);
+    $this->config('selectify.settings')->set('disabled_pages', '')->save();
   }
 
   /**
@@ -91,7 +92,7 @@ class SelectifyViewsNoConflictTest extends KernelTestBase {
 
     selectify_form_alter($form, $form_state, 'node_article_edit_form');
 
-    $classes = $form['field_select']['#attributes']['class'];
+    $classes = $form['field_select']['#attributes']['class'] ?? [];
     $this->assertContains('selectify-apply-tags', $classes);
     $this->assertNotContains('selectify-apply-dropdown', $classes,
       'Form API alter should not override Selectify field widget styling.');
@@ -139,7 +140,7 @@ class SelectifyViewsNoConflictTest extends KernelTestBase {
     $this->assertNotContains('selectify-form-api', $field_classes);
 
     // The plain select SHOULD be styled.
-    $lang_classes = $form['language']['#attributes']['class'];
+    $lang_classes = $form['language']['#attributes']['class'] ?? [];
     $this->assertContains('selectify-apply-dropdown', $lang_classes,
       'Plain form API select without #key_column should be styled.');
     $this->assertContains('selectify-form-api', $lang_classes);
@@ -174,7 +175,7 @@ class SelectifyViewsNoConflictTest extends KernelTestBase {
     selectify_form_alter($form, $form_state, 'mixed_form');
 
     // Select should be styled.
-    $select_classes = $form['my_select']['#attributes']['class'];
+    $select_classes = $form['my_select']['#attributes']['class'] ?? [];
     $this->assertContains('selectify-apply-dropdown', $select_classes);
 
     // Radios should NOT be touched by form_alter (they use preprocess hooks).
@@ -217,7 +218,8 @@ class SelectifyViewsNoConflictTest extends KernelTestBase {
     selectify_form_alter($form, $form_state, 'type_test_form');
 
     // Only the select should have selectify classes.
-    $this->assertContains('selectify-form-api', $form['my_select']['#attributes']['class']);
+    $select_classes = $form['my_select']['#attributes']['class'] ?? [];
+    $this->assertContains('selectify-form-api', $select_classes);
 
     foreach (['my_textfield', 'my_checkbox', 'my_radios', 'my_textarea'] as $key) {
       $classes = $form[$key]['#attributes']['class'] ?? [];
