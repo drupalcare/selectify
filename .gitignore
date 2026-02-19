@@ -62,5 +62,15 @@
 /drupal
 .DS_Store
 
+# Node (stylelint, etc.)
+node_modules/
+
+# IDE and OS
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
 # Personal/marketing files not part of the module
 homepage-drupal.html

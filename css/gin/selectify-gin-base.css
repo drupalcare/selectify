@@ -26,20 +26,16 @@ input.selectify-checkbox[type="checkbox"] {
    Selectify toggle circle and checkmark icon */
 input.selectify-checkbox.form-boolean[type="checkbox"]::before,
 input.selectify-radio.form-boolean[type="radio"]::before {
-  inset-block-start: 0 !important;
-  inset-inline-start: 0 !important;
-  inset-block-end: auto !important;
-  inset-inline-end: auto !important;
-  mask-image: none !important;
-  -webkit-mask-image: none !important;
   clip-path: none !important;
+  mask-image: none !important;
+  inset-block: 0 auto !important;
+  inset-inline: 0 auto !important;
 }
 
 input.selectify-checkbox.form-boolean[type="checkbox"]::after,
 input.selectify-radio.form-boolean[type="radio"]::after {
-  mask-image: none !important;
-  -webkit-mask-image: none !important;
   clip-path: none !important;
+  mask-image: none !important;
 }
 
 .wrapper-selectify > .selectify-select {
@@ -48,15 +44,15 @@ input.selectify-radio.form-boolean[type="radio"]::after {
 }
 
 .selectify-selected-display {
+  min-height: calc(var(--input-padding-vertical) * 2 + var(--input-line-height));
+  border: 1px solid var(--gin-border-color-form-element);
+  border-radius: var(--gin-border-m);
+  background-color: var(--gin-bg-input);
   color: var(--selectify-select-color, var(--gin-color-text));
+  font-size: var(--input-font-size);
   line-height: var(--input-line-height);
   padding-block: calc(var(--input-padding-vertical) - 1px);
   padding-inline: var(--input-padding-horizontal);
-  min-height: calc(var(--input-padding-vertical) * 2 + var(--input-line-height));
-  background-color: var(--gin-bg-input);
-  border: 1px solid var(--gin-border-color-form-element);
-  border-radius: var(--gin-border-m);
-  font-size: var(--input-font-size);
 }
 
 .selectify-selected-one-option {
@@ -78,9 +74,9 @@ body .selectify-select-dropdowns .selectify-selected-display {
 .selectify-available-display,
 .selectify-selected-display,
 .selectify-select-dropdowns .options-inner .selectify-select-footer {
+  border-color: var(--selectify-select-border-color, var(--gin-border-color-form-element));
   background: var(--selectify-select-bg, var(--gin-bg-input));
   color: var(--selectify-select-color, var(--gin-color-text));
-  border-color: var(--selectify-select-border-color, var(--gin-border-color-form-element));
 }
 
 body .selectify-clear-all,

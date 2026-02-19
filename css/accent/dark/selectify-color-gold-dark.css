@@ -45,7 +45,7 @@
   --selectify-select-focus-border-color: #f59e0b;
   --selectify-select-disabled-bg: linear-gradient(180deg, #181714 0%, #1e1c17 100%);
   --selectify-select-arrow-color: #f59e0b;
-  --selectify-dropdown-shadow: 0px 4px 14px rgba(245, 158, 11, 0.25);
+  --selectify-dropdown-shadow: 0 4px 14px rgb(245 158 11 / 25%);
   --selectify-option-hover-bg: linear-gradient(180deg, #1e1c17 0%, #262217 100%);
   --selectify-option-active-bg: linear-gradient(180deg, #222017 0%, #2a2418 100%);
 }

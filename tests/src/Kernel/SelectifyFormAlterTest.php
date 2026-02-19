@@ -57,6 +57,7 @@ class SelectifyFormAlterTest extends KernelTestBase {
     $this->config('selectify.settings')
       ->set('enable_form_api_selects', TRUE)
       ->set('form_api_widget', 'selectify_dropdown')
+      ->set('form_api_widget_map', [['form_id' => 'test_form', 'widget' => 'selectify_dropdown']])
       ->save();
 
     $form = $this->buildTestForm();
@@ -76,6 +77,7 @@ class SelectifyFormAlterTest extends KernelTestBase {
     $this->config('selectify.settings')
       ->set('enable_form_api_selects', TRUE)
       ->set('form_api_widget', 'selectify_dropdown')
+      ->set('form_api_widget_map', [['form_id' => 'test_form', 'widget' => 'selectify_dropdown']])
       ->save();
 
     $form = $this->buildTestForm();
@@ -132,6 +134,7 @@ class SelectifyFormAlterTest extends KernelTestBase {
     $this->config('selectify.settings')
       ->set('enable_form_api_selects', TRUE)
       ->set('form_api_widget', 'selectify_searchable')
+      ->set('form_api_widget_map', [['form_id' => 'nested_test_form', 'widget' => 'selectify_searchable']])
       ->save();
 
     $form = [
@@ -162,6 +165,7 @@ class SelectifyFormAlterTest extends KernelTestBase {
     $this->config('selectify.settings')
       ->set('enable_form_api_selects', TRUE)
       ->set('form_api_widget', 'selectify_dropdown')
+      ->set('form_api_widget_map', [['form_id' => 'test_form', 'widget' => 'selectify_dropdown']])
       ->save();
 
     $form = $this->buildTestForm();
@@ -180,6 +184,11 @@ class SelectifyFormAlterTest extends KernelTestBase {
   public function testFormAlterSingleMultiClasses(): void {
     $this->config('selectify.settings')
       ->set('enable_form_api_selects', TRUE)
+      ->set('form_api_widget', 'selectify_dropdown')
+      ->set('form_api_widget_map', [
+        ['form_id' => 'test_form_single', 'widget' => 'selectify_dropdown'],
+        ['form_id' => 'test_form_multi', 'widget' => 'selectify_dropdown'],
+      ])
       ->save();
 
     // Single select.
@@ -213,9 +222,11 @@ class SelectifyFormAlterTest extends KernelTestBase {
     ];
 
     foreach ($widgets as $widget => $expected_class) {
+      $form_id = 'test_form_' . $widget;
       $this->config('selectify.settings')
         ->set('enable_form_api_selects', TRUE)
         ->set('form_api_widget', $widget)
+        ->set('form_api_widget_map', [['form_id' => $form_id, 'widget' => $widget]])
         ->save();
 
       // Clear the helper's cached config.
@@ -223,7 +234,7 @@ class SelectifyFormAlterTest extends KernelTestBase {
 
       $form = $this->buildTestForm();
       $form_state = new FormState();
-      selectify_form_alter($form, $form_state, 'test_form_' . $widget);
+      selectify_form_alter($form, $form_state, $form_id);
 
       $classes = $form['my_select']['#attributes']['class'] ?? [];
       $this->assertContains($expected_class, $classes, "Widget $widget should add class $expected_class");
@@ -352,10 +363,11 @@ class SelectifyFormAlterTest extends KernelTestBase {
     $form = [
       '#type' => 'form',
       '#attached' => ['library' => []],
+      // Only 2 options — test module skips Selectify for simple selects.
       'simple_select' => [
         '#type' => 'select',
         '#title' => 'Simple Select',
-        '#options' => ['a' => 'A', 'b' => 'B'], // Only 2 options.
+        '#options' => ['a' => 'A', 'b' => 'B'],
       ],
     ];
     $form_state = new FormState();
@@ -405,6 +417,7 @@ class SelectifyFormAlterTest extends KernelTestBase {
   public function testFormAlterSkipsThirdPartyLibraries(): void {
     $this->config('selectify.settings')
       ->set('enable_form_api_selects', TRUE)
+      ->set('form_api_widget_map', [['form_id' => 'test_third_party_form', 'widget' => 'selectify_dropdown']])
       ->save();
 
     $form = [
@@ -453,6 +466,7 @@ class SelectifyFormAlterTest extends KernelTestBase {
   public function testFormAlterSkipsHiddenDisabledSelects(): void {
     $this->config('selectify.settings')
       ->set('enable_form_api_selects', TRUE)
+      ->set('form_api_widget_map', [['form_id' => 'test_hidden_form', 'widget' => 'selectify_dropdown']])
       ->save();
 
     $form = [
@@ -501,6 +515,7 @@ class SelectifyFormAlterTest extends KernelTestBase {
   public function testFormAlterSkipsAjaxSelects(): void {
     $this->config('selectify.settings')
       ->set('enable_form_api_selects', TRUE)
+      ->set('form_api_widget_map', [['form_id' => 'test_ajax_form', 'widget' => 'selectify_dropdown']])
       ->save();
 
     $form = [

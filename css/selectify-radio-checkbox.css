@@ -15,13 +15,12 @@
 #drupal-off-canvas input.selectify-checkbox[type="checkbox"]::after,
 #drupal-off-canvas input.selectify-radio[type="radio"]::before,
 #drupal-off-canvas input.selectify-radio[type="radio"]::after {
-  content: '' !important;
-  display: block !important;
   position: absolute !important;
-  opacity: 1 !important;
+  display: block !important;
   visibility: visible !important;
+  opacity: 1 !important;
+  content: '' !important;
   mask-image: none !important;
-  -webkit-mask-image: none !important;
 }
 
 /* ============================================
@@ -29,21 +28,19 @@
    ============================================ */
 input.selectify-radio[type="radio"],
 input.selectify-checkbox[type="checkbox"] {
-  all: unset;
-  appearance: none !important;
-  -webkit-appearance: none !important;
-  -moz-appearance: none !important;
-  cursor: pointer;
-  display: inline-block !important;
-  vertical-align: middle;
   position: relative !important;
+  display: inline-block !important;
   overflow: visible !important;
-  padding: 0 !important;
   margin: 0 !important;
+  padding: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
   box-sizing: border-box !important;
   background: transparent !important;
-  box-shadow: none !important;
-  outline: none !important;
+  vertical-align: middle;
+  cursor: pointer;
+  appearance: none !important;
+  all: unset;
 }
 
 input.selectify-radio[type="radio"] {
@@ -112,19 +109,16 @@ input.selectify-checkbox[type="checkbox"]::before {
 
 input.selectify-radio[type="radio"]::before,
 input.selectify-checkbox[type="checkbox"]::before {
-  content: "";
   position: absolute;
-  inset-block-start: 0 !important;
-  inset-inline-start: 0 !important;
-  inset-block-end: auto !important;
-  inset-inline-end: auto !important;
-  border: none !important;
-  scale: 1 1 !important;
-  box-shadow: none !important;
-  mask-image: none !important;
-  -webkit-mask-image: none !important;
-  clip-path: none !important;
   z-index: 1;
+  border: none !important;
+  box-shadow: none !important;
+  clip-path: none !important;
+  content: "";
+  mask-image: none !important;
+  inset-block: 0 auto !important;
+  inset-inline: 0 auto !important;
+  scale: 1 1 !important;
   will-change: translate, scale;
 }
 
@@ -146,24 +140,23 @@ input.selectify-checkbox[type="checkbox"]:hover::before {
    ============================================ */
 input.selectify-radio[type="radio"]::after,
 input.selectify-checkbox[type="checkbox"]::after {
-  content: "";
   position: absolute;
-  inset-block-start: 50%;
-  translate: 0 -50%;
+  z-index: 2;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 -960 960 960' fill='%2322c55e'%3E%3Cpath d='M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z'/%3E%3C/svg%3E");
-  background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
-  mask-image: none !important;
-  -webkit-mask-image: none !important;
-  clip-path: none !important;
+  background-size: contain;
+  opacity: 0;
   transition:
     opacity 0.25s ease,
     scale 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-  z-index: 2;
   pointer-events: none;
+  clip-path: none !important;
+  content: "";
+  mask-image: none !important;
+  inset-block-start: 50%;
+  translate: 0 -50%;
   will-change: opacity, scale;
-  opacity: 0;
   scale: 0.8;
 }
 
@@ -238,9 +231,9 @@ html[dir="rtl"] input.selectify-checkbox[type="checkbox"]:checked::before {
 /* Disabled states */
 input.selectify-radio[type="radio"]:disabled,
 input.selectify-checkbox[type="checkbox"]:disabled {
+  box-shadow: none;
   cursor: not-allowed;
   opacity: 0.6;
-  box-shadow: none;
 }
 
 /* Disabled unchecked - no icon needed */
@@ -277,47 +270,47 @@ input.selectify-checkbox[type="checkbox"] {
 
 input.selectify-radio[type="radio"]::before,
 input.selectify-checkbox[type="checkbox"]::before {
-  background: var(--selectify-checkbox-check-circle) !important;
   box-shadow: none;
+  background: var(--selectify-checkbox-check-circle) !important;
   transform: none !important;
 }
 
 input.selectify-radio[type="radio"]:checked,
 input.selectify-checkbox[type="checkbox"]:checked {
-  background: var(--selectify-checkbox-checked-bg) !important;
   box-shadow: none;
+  background: var(--selectify-checkbox-checked-bg) !important;
 }
 
 input.selectify-radio[type="radio"]:checked::before,
 input.selectify-checkbox[type="checkbox"]:checked::before {
-  background: var(--selectify-checkbox-checked-circle) !important;
   box-shadow: none;
+  background: var(--selectify-checkbox-checked-circle) !important;
 }
 
 input.selectify-radio[type="radio"]:disabled,
 input.selectify-checkbox[type="checkbox"]:disabled {
-  background: var(--selectify-checkbox-disabled-bg) !important;
   box-shadow: none;
+  background: var(--selectify-checkbox-disabled-bg) !important;
 }
 
 input.selectify-radio[type="radio"]:disabled::before,
-input.selectify-checkbox[type="checkbox"]::disabled::before {
-  background: var(--selectify-checkbox-disabled-circle) !important;
+input.selectify-checkbox[type="checkbox"]:disabled::before {
   box-shadow: none;
+  background: var(--selectify-checkbox-disabled-circle) !important;
 }
 
 /* Hover */
 input.selectify-checkbox[type="checkbox"]:hover,
 input.selectify-radio[type="radio"]:hover {
-  background: var(--selectify-checkbox-hover-bg) !important;
   border-color: var(--selectify-checkbox-hover-border-color) !important;
+  background: var(--selectify-checkbox-hover-bg) !important;
 }
 
 /* Active / pressed */
 input.selectify-checkbox[type="checkbox"]:active,
 input.selectify-radio[type="radio"]:active {
-  background: var(--selectify-checkbox-active-bg) !important;
   border-color: var(--selectify-checkbox-active-border-color) !important;
+  background: var(--selectify-checkbox-active-bg) !important;
 }
 
 /* Checked (adds explicit border variable for both) */
@@ -328,9 +321,10 @@ input.selectify-radio[type="radio"]:checked {
 
 /* Indeterminate (checkbox only) */
 input.selectify-checkbox[type="checkbox"]:indeterminate {
-  background: var(--selectify-checkbox-indeterminate-bg) !important;
   border-color: var(--selectify-checkbox-indeterminate-border-color) !important;
+  background: var(--selectify-checkbox-indeterminate-bg) !important;
 }
+
 input.selectify-checkbox[type="checkbox"]:indeterminate::after {
   background: var(--selectify-checkbox-indeterminate-bar) !important;
 }
@@ -344,8 +338,8 @@ input.selectify-radio[type="radio"]:disabled {
 /* Invalid (ARIA) */
 input.selectify-checkbox[type="checkbox"][aria-invalid="true"],
 input.selectify-radio[type="radio"][aria-invalid="true"] {
-  background: var(--selectify-checkbox-invalid-bg) !important;
   border-color: var(--selectify-checkbox-invalid-border-color) !important;
+  background: var(--selectify-checkbox-invalid-bg) !important;
 }
 
 /* ============================================
@@ -370,16 +364,15 @@ input.selectify-radio[type="radio"][aria-invalid="true"] {
 .selectify-radio-checkbox-square-small input.selectify-radio[type="radio"]::after,
 .selectify-radio-checkbox-square-medium input.selectify-radio[type="radio"]::after,
 .selectify-radio-checkbox-square-large input.selectify-radio[type="radio"]::after {
-  inset-inline-start: auto !important;
-  inset-inline-end: auto !important;
-  inset-block-start: auto !important;
-  left: 50% !important;
   top: 50% !important;
-  translate: none !important;
+  left: 50% !important;
   transform: translate(-50%, -50%) !important;
   transition:
     opacity 0.25s ease,
     scale 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  inset-inline: auto !important;
+  inset-block-start: auto !important;
+  translate: none !important;
 }
 
 /* Traditional - unchecked (fade out completely) */
@@ -400,14 +393,13 @@ input.selectify-radio[type="radio"][aria-invalid="true"] {
 .selectify-radio-checkbox-square-small input.selectify-radio[type="radio"]:checked::after,
 .selectify-radio-checkbox-square-medium input.selectify-radio[type="radio"]:checked::after,
 .selectify-radio-checkbox-square-large input.selectify-radio[type="radio"]:checked::after {
-  inset-inline-start: auto !important;
-  inset-inline-end: auto !important;
-  inset-block-start: auto !important;
-  left: 50% !important;
   top: 50% !important;
-  translate: none !important;
-  transform: translate(-50%, -50%) !important;
+  left: 50% !important;
   opacity: 1 !important;
+  transform: translate(-50%, -50%) !important;
+  inset-inline: auto !important;
+  inset-block-start: auto !important;
+  translate: none !important;
   scale: 1;
 }
 
@@ -428,16 +420,15 @@ input.selectify-radio[type="radio"][aria-invalid="true"] {
 .selectify-checkbox-checkbox-square-small input.selectify-checkbox[type="checkbox"]::after,
 .selectify-checkbox-checkbox-square-medium input.selectify-checkbox[type="checkbox"]::after,
 .selectify-checkbox-checkbox-square-large input.selectify-checkbox[type="checkbox"]::after {
-  inset-inline-start: auto !important;
-  inset-inline-end: auto !important;
-  inset-block-start: auto !important;
-  left: 50% !important;
   top: 50% !important;
-  translate: none !important;
+  left: 50% !important;
   transform: translate(-50%, -50%) !important;
   transition:
     opacity 0.25s ease,
     scale 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  inset-inline: auto !important;
+  inset-block-start: auto !important;
+  translate: none !important;
 }
 
 /* Traditional - unchecked (fade out completely) */
@@ -458,13 +449,12 @@ input.selectify-radio[type="radio"][aria-invalid="true"] {
 .selectify-checkbox-checkbox-square-small input.selectify-checkbox[type="checkbox"]:checked::after,
 .selectify-checkbox-checkbox-square-medium input.selectify-checkbox[type="checkbox"]:checked::after,
 .selectify-checkbox-checkbox-square-large input.selectify-checkbox[type="checkbox"]:checked::after {
-  inset-inline-start: auto !important;
-  inset-inline-end: auto !important;
-  inset-block-start: auto !important;
-  left: 50% !important;
   top: 50% !important;
-  translate: none !important;
-  transform: translate(-50%, -50%) !important;
+  left: 50% !important;
   opacity: 1 !important;
+  transform: translate(-50%, -50%) !important;
+  inset-inline: auto !important;
+  inset-block-start: auto !important;
+  translate: none !important;
   scale: 1;
 }

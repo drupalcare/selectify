@@ -1,7 +1,7 @@
 .selected-widget-row {
+  border-radius: 8px;
   background: transparent;
   border-left: 8px solid #28a745;
-  border-radius: 8px;
 }
 
 .selected-widget-row select {
@@ -16,19 +16,19 @@
 
 /* Fix table cell form elements - prevent wrapper from breaking layout */
 .selectify-settings-form table.responsive-enabled td {
-  vertical-align: middle;
   display: table-cell !important;
+  vertical-align: middle;
 }
 
 /* Remove form-item wrapper spacing in table cells */
 .selectify-settings-form table td .form-item--table-cell,
 .selectify-settings-form table td .form-type--select,
 .selectify-settings-form table td .form-item {
-  margin: 0 !important;
-  padding: 0 !important;
   display: block !important;
   width: 100% !important;
   max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 /* Hide labels in table cells */
@@ -37,26 +37,26 @@
 .selectify-settings-form table td .form-item .form-item__label {
   display: none !important;
   visibility: hidden !important;
-  height: 0 !important;
   overflow: hidden !important;
+  height: 0 !important;
 }
 
 /* Ensure select elements fill their container */
 .selectify-settings-form table td .form-item--table-cell select,
 .selectify-settings-form table td .form-type--select select,
 .selectify-settings-form table td .form-item select {
-  width: 100% !important;
-  margin: 0 !important;
   display: block !important;
-  box-sizing: border-box !important;
+  width: 100% !important;
   max-width: 100% !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
 }
 
 /* Ensure table cells maintain proper structure */
 .selectify-settings-form table.responsive-enabled tbody td {
   display: table-cell !important;
-  vertical-align: middle !important;
   white-space: nowrap;
+  vertical-align: middle !important;
 }
 
 .selectify-settings-form table.responsive-enabled tbody td:last-child {
@@ -73,11 +73,12 @@
 }
 
 .selectify-settings-form #edit-form-api-selects table tr td {
-  flex: 1 1 auto;
   min-width: 0;
+  flex: 1 1 auto;
 }
 
 /* Accent Color Radio Buttons - Colored Circle Interface */
+
 /* Hide the actual radio inputs - users click on the colored circles (labels) */
 .selectify-settings-form #edit-accent-color--wrapper input.form-radio,
 .selectify-settings-form #edit-accent-color--wrapper input.selectify-radio,
@@ -86,31 +87,31 @@
 .selectify-settings-form #edit-admin-accent-color--wrapper input.selectify-radio,
 .selectify-settings-form #edit-admin-accent-color--wrapper input[type="radio"] {
   position: absolute !important;
-  opacity: 0 !important;
+  visibility: hidden !important;
+  overflow: hidden !important;
   width: 0 !important;
   height: 0 !important;
   margin: 0 !important;
   padding: 0 !important;
   border: 0 !important;
+  opacity: 0 !important;
   clip: rect(0, 0, 0, 0) !important;
-  overflow: hidden !important;
-  visibility: hidden !important;
 }
 
 .selectify-settings-form #edit-accent-color--wrapper label.form-item__label,
 .selectify-settings-form #edit-admin-accent-color--wrapper label.form-item__label {
+  position: relative;
+  display: inline-flex;
+  overflow: visible;
   width: 32px;
   height: 32px;
+  border: 2px solid transparent;
   border-radius: 50%;
+  text-indent: -9999px;
   cursor: pointer;
-  display: inline-flex;
+  transition: transform 0.2s ease, border 0.2s ease, box-shadow 0.2s;
   align-items: center;
   justify-content: center;
-  border: 2px solid transparent;
-  transition: transform 0.2s ease, border 0.2s ease, box-shadow 0.2s;
-  position: relative;
-  text-indent: -9999px;
-  overflow: visible;
 }
 
 /* Individual Color Assignments */
@@ -141,8 +142,8 @@
 
 .selectify-settings-form #edit-accent-color--wrapper label[for="edit-accent-color-neutral"],
 .selectify-settings-form #edit-admin-accent-color--wrapper label[for="edit-admin-accent-color-neutral"] {
-  background-color: #f2f2f2;
   border: 2px solid #8d8d8d;
+  background-color: #f2f2f2;
 }
 
 .selectify-settings-form #edit-accent-color--wrapper label[for="edit-accent-color-slate"],
@@ -152,14 +153,14 @@
 
 .selectify-settings-form #edit-accent-color--wrapper label[for="edit-accent-color-none"],
 .selectify-settings-form #edit-admin-accent-color--wrapper label[for="edit-admin-accent-color-none"] {
-  background-color: #f2f2f2;
   border: 2px solid #8d8d8d;
+  background-color: #f2f2f2;
 }
 
 /* Default State */
 .selectify-settings-form #edit-accent-color--wrapper input.form-radio + label,
 .selectify-settings-form #edit-admin-accent-color--wrapper input.form-radio + label {
-  box-shadow: rgba(244, 67, 54, 0.7) 0 4px 16px;
+  box-shadow: rgb(244 67 54 / 70%) 0 4px 16px;
 }
 
 /* Checked State */
@@ -167,9 +168,9 @@
 .selectify-settings-form #edit-accent-color--wrapper input.selectify-checked + label,
 .selectify-settings-form #edit-admin-accent-color--wrapper input.form-radio:checked + label,
 .selectify-settings-form #edit-admin-accent-color--wrapper input.selectify-checked + label {
-  transform: scale(1.2);
-  box-shadow: rgba(76, 175, 80, 0.7) 0 8px 32px;
+  box-shadow: rgb(76 175 80 / 70%) 0 8px 32px;
   cursor: default;
+  transform: scale(1.2);
 }
 
 /* Checkmark on Selected */
@@ -177,15 +178,15 @@
 .selectify-settings-form #edit-accent-color--wrapper input.selectify-checked + label::after,
 .selectify-settings-form #edit-admin-accent-color--wrapper input.form-radio:checked + label::after,
 .selectify-settings-form #edit-admin-accent-color--wrapper input.selectify-checked + label::after {
-  content: "\2713";
-  font-size: 1.25rem;
-  color: white;
-  font-weight: bold;
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 1.25rem;
+  font-weight: bold;
   text-indent: 0;
+  transform: translate(-50%, -50%);
+  content: "\2713";
 }
 
 /* Dark Checkmark for Light Colors */
@@ -203,36 +204,36 @@
 /* Disabled State */
 .selectify-settings-form #edit-accent-color--wrapper input.form-radio:disabled + label,
 .selectify-settings-form #edit-admin-accent-color--wrapper input.form-radio:disabled + label {
-  cursor: default;
-  box-shadow: none;
   border: none;
+  box-shadow: none;
+  cursor: default;
   opacity: 0.6;
 }
 
 .selectify-settings-form #edit-accent-color--wrapper input.form-radio:disabled + label::after,
 .selectify-settings-form #edit-admin-accent-color--wrapper input.form-radio:disabled + label::after {
-  content: "" !important;
-  font-size: 0 !important;
   visibility: hidden !important;
+  font-size: 0 !important;
+  content: "" !important;
 }
 
 /* Tooltip for Accent Color Circles */
 .selectify-settings-form .accent-tooltip {
   position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
   bottom: -35px;
-  background-color: rgba(0, 0, 0, 0.75);
-  color: #fff;
-  font-size: 0.75rem;
+  left: 50%;
+  z-index: 10;
+  visibility: hidden;
   padding: 5px 8px;
   border-radius: 4px;
+  background-color: rgb(0 0 0 / 75%);
+  color: #fff;
+  font-size: 0.75rem;
   white-space: nowrap;
   opacity: 0;
-  visibility: hidden;
+  transform: translateX(-50%);
   transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
   pointer-events: none;
-  z-index: 10;
 }
 
 .selectify-settings-form #edit-accent-color .form-item--accent-color,
@@ -256,7 +257,7 @@
 }
 
 /* Tablet: 2 Columns */
-@media (min-width:768px) {
+@media (width >=768px) {
   .selectify-settings-form #edit-accent-color-mode--wrapper .form-radios,
   .selectify-settings-form #edit-admin-accent-color-mode--wrapper .form-radios,
   .selectify-settings-form #edit-radio-style--wrapper .form-radios,
@@ -272,7 +273,7 @@
 }
 
 /* Desktop: 3 Columns */
-@media (min-width:1024px) {
+@media (width >=1024px) {
   .selectify-settings-form #edit-accent-color-mode--wrapper .form-radios,
   .selectify-settings-form #edit-admin-accent-color-mode--wrapper .form-radios,
   .selectify-settings-form #edit-radio-style--wrapper .form-radios,
@@ -292,6 +293,6 @@
 .selectify-settings-form #edit-admin-accent-color--wrapper .form-radios {
   display: flex;
   flex-wrap: wrap;
-  gap: 0 24px;
   align-items: center;
+  gap: 0 24px;
 }

@@ -6,7 +6,7 @@
 .selectify-radio *,
 .selectify-checkbox * {
   --selectify-checkbox-border-color: #bef8ed;
-  --selectify-checkbox-bg: linear-gradient(180deg, #ffffff 0%, #f8fafc 50%, #f0fdfa 100%);
+  --selectify-checkbox-bg: linear-gradient(180deg, #fff 0%, #f8fafc 50%, #f0fdfa 100%);
   --selectify-checkbox-checked-bg: linear-gradient(180deg, #e6fffa 0%, #a7f3d0 50%, #a7f3d0 100%);
   --selectify-checkbox-check-circle: radial-gradient(circle at 50% 50%, #effffc 0%, #2dd4bf 100%);
   --selectify-checkbox-checked-circle: radial-gradient(circle at 50% 50%, #fff 30%, #14b8a6 100%);
@@ -17,7 +17,7 @@
      Extended Colors (Hover / Active / States)
      ============================================ */
   --selectify-checkbox-hover-border-color: #8edfd6;
-  --selectify-checkbox-hover-bg: linear-gradient(180deg, #ffffff 0%, #f3f8fb 60%, #e9fbf7 100%);
+  --selectify-checkbox-hover-bg: linear-gradient(180deg, #fff 0%, #f3f8fb 60%, #e9fbf7 100%);
   --selectify-checkbox-active-border-color: #0ea5a3;
   --selectify-checkbox-active-bg: linear-gradient(180deg, #edfdf9 0%, #d3f7ee 100%);
   --selectify-checkbox-checked-border-color: #10b981;
@@ -32,7 +32,7 @@
 
 .selectify-select,
 .selectify-select * {
-  --selectify-select-bg: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  --selectify-select-bg: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
   --selectify-select-border-color: #bef8ed;
   --selectify-select-focus-border: #14b8a6;
   --selectify-select-color: #1e293b;
@@ -40,7 +40,7 @@
   --selectify-select-focus-border-color: #0f766e;
   --selectify-select-disabled-bg: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%);
   --selectify-select-arrow-color: #0f766e;
-  --selectify-dropdown-shadow: 0px 4px 14px rgba(20, 184, 166, 0.08);
-  --selectify-option-hover-bg: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  --selectify-dropdown-shadow: 0 4px 14px rgb(20 184 166 / 8%);
+  --selectify-option-hover-bg: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
   --selectify-option-active-bg: linear-gradient(180deg, #f8fafc 0%, #f0fdfa 100%);
 }

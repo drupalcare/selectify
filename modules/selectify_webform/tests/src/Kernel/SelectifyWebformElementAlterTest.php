@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\selectify_webform\Kernel;
 
-use Drupal\webform\WebformInterface;
 use Drupal\Core\Form\FormState;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\KernelTests\KernelTestBase;
+use Drupal\webform\WebformInterface;
+use PHPUnit\Framework\Exception as PHPUnitException;
 
 /**
  * Tests Selectify Webform element alter integration.
@@ -19,6 +21,8 @@ use Drupal\KernelTests\KernelTestBase;
  * @requires module webform
  */
 class SelectifyWebformElementAlterTest extends KernelTestBase {
+
+  use StringTranslationTrait;
 
   /**
    * {@inheritdoc}
@@ -40,7 +44,7 @@ class SelectifyWebformElementAlterTest extends KernelTestBase {
     try {
       parent::setUp();
     }
-    catch (\PHPUnit\Framework\Exception $e) {
+    catch (PHPUnitException $e) {
       if (str_contains($e->getMessage(), "Unavailable module") && str_contains($e->getMessage(), 'webform')) {
         $this->markTestSkipped('Webform module is not available.');
       }

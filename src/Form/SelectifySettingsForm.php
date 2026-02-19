@@ -480,7 +480,6 @@ class SelectifySettingsForm extends ConfigFormBase {
       ];
     }
 
-
     // Show the built-in blocklist for transparency.
     $blocked = $selectify_helper->getInternalBlockedFormPatterns();
     $blocked_markup = '<code>' . implode('</code>, <code>', $blocked) . '</code>';

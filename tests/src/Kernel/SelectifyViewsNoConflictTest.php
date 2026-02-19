@@ -110,6 +110,7 @@ class SelectifyViewsNoConflictTest extends KernelTestBase {
     $this->config('selectify.settings')
       ->set('enable_form_api_selects', TRUE)
       ->set('form_api_widget', 'selectify_dropdown')
+      ->set('form_api_widget_map', [['form_id' => 'node_article_edit_form', 'widget' => 'selectify_dropdown']])
       ->save();
 
     $form = [
@@ -156,6 +157,7 @@ class SelectifyViewsNoConflictTest extends KernelTestBase {
       ->set('enable_form_api_selects', TRUE)
       ->set('enable_radio', TRUE)
       ->set('enable_checkbox', TRUE)
+      ->set('form_api_widget_map', [['form_id' => 'mixed_form', 'widget' => 'selectify_dropdown']])
       ->save();
 
     $form = [
@@ -190,6 +192,7 @@ class SelectifyViewsNoConflictTest extends KernelTestBase {
   public function testFormAlterOnlyStylesSelects(): void {
     $this->config('selectify.settings')
       ->set('enable_form_api_selects', TRUE)
+      ->set('form_api_widget_map', [['form_id' => 'type_test_form', 'widget' => 'selectify_dropdown']])
       ->save();
 
     $form = [

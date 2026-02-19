@@ -1,0 +1,14 @@
+{
+  "name": "selectify",
+  "description": "Selectify Drupal module",
+  "private": true,
+  "devDependencies": {
+    "stylelint": "^16.0.0",
+    "stylelint-config-standard": "^36.0.0",
+    "stylelint-order": "^6.0.0"
+  },
+  "scripts": {
+    "lint:css": "stylelint \"css/**/*.css\"",
+    "lint:css:fix": "stylelint \"css/**/*.css\" --fix"
+  }
+}

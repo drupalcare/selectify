@@ -1,9 +1,10 @@
 body .selectify-dropdown-checkbox-widget .selectify-available-one-option {
   cursor: default;
 }
+
 body .selectify-dropdown-checkbox-widget .selectify-available-one-option label {
+  padding: 0 6px !important;
   pointer-events: auto;
-  padding: 0 6px!important;
 }
 
 body .selectify-dropdown-checkbox-widget .selectify-available-one-option.s-selected label {

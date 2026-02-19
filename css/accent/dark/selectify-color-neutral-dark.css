@@ -7,17 +7,17 @@
 .selectify-checkbox * {
   /* Base */
   --selectify-checkbox-border-color: #76777b;
-  --selectify-checkbox-bg: linear-gradient(180deg, #1a1a1a 0%, #222222 50%, #2a2a2a 100%);
-  --selectify-checkbox-check-circle: radial-gradient(circle at 45% 45%, #cfcfcf 0%, #8a8a8a 55%, #222222 100%);
+  --selectify-checkbox-bg: linear-gradient(180deg, #1a1a1a 0%, #222 50%, #2a2a2a 100%);
+  --selectify-checkbox-check-circle: radial-gradient(circle at 45% 45%, #cfcfcf 0%, #8a8a8a 55%, #222 100%);
 
   /* Checked */
   --selectify-checkbox-checked-border-color: #bfbfbf;
-  --selectify-checkbox-checked-bg: linear-gradient(180deg, #222222 0%, #2a2a2a 50%, #303030 100%);
+  --selectify-checkbox-checked-bg: linear-gradient(180deg, #222 0%, #2a2a2a 50%, #303030 100%);
   --selectify-checkbox-checked-circle: radial-gradient(circle at 45% 45%, #efefef 0%, #cfcfcf 55%, #2a2a2a 100%);
 
   /* Disabled (matte gray neutrals, low contrast) */
   --selectify-checkbox-disabled-border-color: #5a5a5a;
-  --selectify-checkbox-disabled-bg: linear-gradient(180deg, #141414 0%, #1a1a1a 50%, #222222 100%);
+  --selectify-checkbox-disabled-bg: linear-gradient(180deg, #141414 0%, #1a1a1a 50%, #222 100%);
   --selectify-checkbox-disabled-circle: radial-gradient(circle at 45% 45%, #2a2a2a 0%, #3a3a3a 45%, #4a4a4a 100%);
 
   /* ============================================
@@ -26,7 +26,7 @@
   --selectify-checkbox-hover-border-color: #9a9a9a;
   --selectify-checkbox-hover-bg: linear-gradient(180deg, #1c1c1c 0%, #242424 60%, #2c2c2c 100%);
   --selectify-checkbox-active-border-color: #bfbfbf;
-  --selectify-checkbox-active-bg: linear-gradient(180deg, #222222 0%, #2c2c2c 100%);
+  --selectify-checkbox-active-bg: linear-gradient(180deg, #222 0%, #2c2c2c 100%);
   --selectify-checkbox-indeterminate-border-color: #a6a6a6;
   --selectify-checkbox-indeterminate-bg: linear-gradient(180deg, #202020 0%, #2a2a2a 100%);
   --selectify-checkbox-indeterminate-bar: #707070;
@@ -45,7 +45,7 @@
   --selectify-select-focus-border-color: #8a8a8a;
   --selectify-select-disabled-bg: linear-gradient(180deg, #141414 0%, #1a1a1a 100%);
   --selectify-select-arrow-color: #8a8a8a;
-  --selectify-dropdown-shadow: 0px 4px 14px rgba(0, 0, 0, 0.6);
+  --selectify-dropdown-shadow: 0 4px 14px rgb(0 0 0 / 60%);
   --selectify-option-hover-bg: linear-gradient(180deg, #1f1f1f 0%, #2a2a2a 100%);
   --selectify-option-active-bg: linear-gradient(180deg, #2a2a2a 0%, #3a3a3a 100%);
 }

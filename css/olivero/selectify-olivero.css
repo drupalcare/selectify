@@ -2,10 +2,10 @@
  * Selectify styles for Olivero theme
  */
 .wrapper-selectify {
-  color: var(--olivero-text);
   border: var(--details-border-size) solid var(--selectify-select-border-color, var(--color--gray-60));
   border-radius: var(--details-border-size-radius);
   background-color: whitesmoke;
+  color: var(--olivero-text);
 }
 
 .field--widget-selectify-dual .wrapper-selectify {
@@ -32,14 +32,14 @@ input.selectify-checkbox[type="checkbox"] {
 .selectify-select-dropdowns .selectify-selected-display {
   max-width: 100%;
   height: var(--sp3);
-  color: var(--selectify-select-color, var(--color--gray-60));
-  border-color: var(--selectify-select-border-color, var(--color--gray-60));
   border-radius: var(--border-radius);
+  border-color: var(--selectify-select-border-color, var(--color--gray-60));
   background-color: var(--color--white);
   background-image: none;
-  font-family: inherit;
+  color: var(--selectify-select-color, var(--color--gray-60));
   font-size: inherit;
   appearance: none;
+  font-family: inherit;
 }
 
 body .selectify-select.selectify-select-dropdowns .search-input input {

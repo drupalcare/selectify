@@ -2,28 +2,28 @@
   --selectify-select-border-radius: 0.25rem;
   --selectify-select-padding: 0.75rem 0.875rem;
   --selectify-select-font-size: 1rem;
-  --selectify-select-bg: #ffffff;
+  --selectify-select-bg: #fff;
   --selectify-select-border-color: #cfd8dc;
   --selectify-select-color: #37474f;
   --selectify-select-hover-bg: #f5f5f5;
   --selectify-select-focus-border: #1976d2;
   --selectify-select-disabled-bg: #eceff1;
   --selectify-select-arrow-color: #607d8b;
-  --selectify-dropdown-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  --selectify-dropdown-shadow: 0 4px 12px rgb(0 0 0 / 10%);
   --selectify-option-hover-bg: #e3f2fd;
   --selectify-option-active-bg: #bbdefb;
 }
 
 body .selectify-select,
 body .wrapper-selectify {
-  background: transparent;
   border: none;
+  background: transparent;
 }
 
 body .selectify-select,
 body .selectify-select * {
-  color: var(--selectify-select-color, var(--r-tx));
   border-color: var(--selectify-select-border-color, var(--r-br));
+  color: var(--selectify-select-color, var(--r-tx));
 }
 
 body .selectify-select .selectify-selected-one-option {
@@ -49,15 +49,15 @@ body .selectify-select .selectify-selected-display {
 body .selectify-select .search-input input {
   width: calc(100% - 16px);
   margin: 0 auto;
-  border-radius: 0.25rem;
   border: 1px solid var(--selectify-select-border-color, var(--r-br));
-  box-shadow: none!important;
+  border-radius: 0.25rem;
+  box-shadow: none !important;
 }
 
 body .dual-available,
 body .dual-selected {
-  background: var(--selectify-select-bg, var(--r-bg));
   border: 1px solid var(--selectify-select-border-color, var(--r-br));
+  background: var(--selectify-select-bg, var(--r-bg));
 }
 
 body .selectify-select .selectify-available-display {
@@ -75,16 +75,16 @@ body .selectify-select .search-input input:focus,
 body .selectify-select .search-input input:focus-visible,
 body .selectify-select .selectify-available-display *:focus,
 body .selectify-select .selectify-available-display *:focus-visible{
+  border-color: var(--selectify-select-focus-border, var(--r-br));
   outline: 2px solid var(--selectify-select-focus-border, var(--r-br));
   outline-offset: -2px;
-  border-color: var(--selectify-select-focus-border, var(--r-br));
   box-shadow: var(--selectify-dropdown-shadow, unset);
 }
 
 body .selectify-select:disabled {
-  cursor: not-allowed;
-  background: var(--selectify-select-disabled-bg, var(--r-bg));
   border-color: var(--selectify-select-border-color, var(--r-br));
+  background: var(--selectify-select-disabled-bg, var(--r-bg));
+  cursor: not-allowed;
 }
 
 body .selectify-available-one-option {
@@ -94,15 +94,15 @@ body .selectify-available-one-option {
 }
 
 body .selectify-selected-display:hover {
-  background: var(--selectify-select-hover-bg, var(--r-bg));
   border-color: var(--selectify-select-focus-border, var(--r-br));
+  background: var(--selectify-select-hover-bg, var(--r-bg));
 }
 
 body .selectify-clear-all:hover,
 body .selectify-selected-one-option.dual-item:hover,
 body .selectify-available-one-option:hover {
-  background: var(--selectify-select-hover-bg, var(--r-bg));
   border-color: var(--selectify-select-focus-border, var(--r-br));
+  background: var(--selectify-select-hover-bg, var(--r-bg));
   transform: translateY(2px);
 }
 
