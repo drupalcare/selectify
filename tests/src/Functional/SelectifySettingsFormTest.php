@@ -52,7 +52,6 @@ class SelectifySettingsFormTest extends BrowserTestBase {
     $this->assertSession()->statusCodeEquals(200);
     $this->assertSession()->pageTextContains('Form API Select Elements');
     $this->assertSession()->fieldExists('enable_form_api_selects');
-    $this->assertSession()->fieldExists('form_api_widget');
   }
 
   /**
@@ -63,7 +62,6 @@ class SelectifySettingsFormTest extends BrowserTestBase {
 
     $edit = [
       'enable_form_api_selects' => TRUE,
-      'form_api_widget' => 'selectify_searchable',
     ];
     $this->submitForm($edit, 'Save configuration');
 
@@ -72,7 +70,6 @@ class SelectifySettingsFormTest extends BrowserTestBase {
     // Verify config was persisted.
     $config = $this->config('selectify.settings');
     $this->assertTrue($config->get('enable_form_api_selects'));
-    $this->assertEquals('selectify_searchable', $config->get('form_api_widget'));
   }
 
   /**
@@ -82,7 +79,6 @@ class SelectifySettingsFormTest extends BrowserTestBase {
     // First enable.
     $this->config('selectify.settings')
       ->set('enable_form_api_selects', TRUE)
-      ->set('form_api_widget', 'selectify_tags')
       ->save();
 
     // Then disable via the form.
@@ -102,7 +98,6 @@ class SelectifySettingsFormTest extends BrowserTestBase {
   public function testDefaultValues(): void {
     $config = $this->config('selectify.settings');
     $this->assertFalse($config->get('enable_form_api_selects'));
-    $this->assertEquals('selectify_dropdown', $config->get('form_api_widget'));
   }
 
 }

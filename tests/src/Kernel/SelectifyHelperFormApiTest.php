@@ -56,26 +56,10 @@ class SelectifyHelperFormApiTest extends KernelTestBase {
 
     $result = $helper->getFormApiConfig();
     $this->assertIsArray($result);
-    $this->assertEquals('selectify_dropdown', $result['widget']);
     $this->assertArrayHasKey('widget_map', $result);
+    $this->assertArrayHasKey('css_selector_rules', $result);
     // Built-in blocklist still excludes settings form.
     $this->assertTrue($helper->isFormExcluded('selectify_settings_form'));
-  }
-
-  /**
-   * Tests that widget config is returned correctly.
-   */
-  public function testFormApiWidgetConfig(): void {
-    $config = $this->config('selectify.settings');
-    $config->set('enable_form_api_selects', TRUE)
-      ->set('form_api_widget', 'selectify_searchable')
-      ->save();
-
-    $helper = $this->container->get('selectify.helper');
-    $result = $helper->getFormApiConfig();
-
-    $this->assertIsArray($result);
-    $this->assertEquals('selectify_searchable', $result['widget']);
   }
 
   /**

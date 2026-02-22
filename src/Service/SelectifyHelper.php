@@ -365,8 +365,7 @@ class SelectifyHelper implements SelectifyHelperInterface {
       return FALSE;
     }
 
-    // Per-form widget map: each entry contains a form_id and a widget. This
-    // allows specific forms to use different widgets than the global default.
+    // Per-form widget map: each entry contains a form_id and a widget.
     $map_raw = $config->get('form_api_widget_map') ?? [];
     $widget_map = [];
     if (is_array($map_raw)) {
@@ -379,8 +378,8 @@ class SelectifyHelper implements SelectifyHelperInterface {
     }
 
     return [
-      'widget' => $config->get('form_api_widget') ?? 'selectify_dropdown',
       'widget_map' => $widget_map,
+      'css_selector_rules' => $this->getCssSelectorRules(),
     ];
   }
 
@@ -643,6 +642,247 @@ class SelectifyHelper implements SelectifyHelperInterface {
         }
       }
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isSelectEligibleForStyling(array $element): bool {
+    // Skip selects with AJAX callbacks — replacing these breaks
+    // AJAX-dependent form rebuilds (e.g. dependent dropdowns).
+    if (!empty($element['#ajax'])) {
+      return FALSE;
+    }
+
+    // Skip field widget selects (Category 2). Core's OptionsWidgetBase
+    // sets #key_column on every field widget select element.
+    if (isset($element['#key_column'])) {
+      return FALSE;
+    }
+
+    // Skip per shared rules (third-party libs, hidden/disabled, context).
+    if ($this->shouldSkipSelectElement($element)) {
+      return FALSE;
+    }
+
+    // Skip selects already styled by another integration.
+    $existing = (array) ($element['#attributes']['class'] ?? []);
+    foreach ($existing as $cls) {
+      if (is_string($cls) && str_starts_with($cls, 'selectify-apply-')) {
+        return FALSE;
+      }
+    }
+
+    return TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function applyWidgetStyling(array &$element, string $widget, ?string $accent_library): bool {
+    $widget_classes = $this->getWidgetClasses();
+    $widget_libraries = $this->getWidgetLibraries();
+
+    if (!isset($widget_classes[$widget]) || !isset($widget_libraries[$widget])) {
+      return FALSE;
+    }
+
+    $element['#attributes']['class'][] = $widget_classes[$widget];
+    $element['#attributes']['class'][] = 'selectify-form-api';
+
+    $is_multiple = !empty($element['#multiple']);
+    $element['#wrapper_attributes']['class'][] = $is_multiple ? 'selectify-multi' : 'selectify-single';
+
+    foreach ($widget_libraries[$widget] as $library) {
+      $element['#attached']['library'][] = $library;
+    }
+
+    if ($accent_library) {
+      $element['#attached']['library'][] = $accent_library;
+    }
+
+    return TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCssSelectorRules(): array {
+    $config = $this->getConfig();
+    $rules_raw = $config->get('css_selector_widget_map') ?? [];
+    if (!is_array($rules_raw)) {
+      return [];
+    }
+
+    $rules = [];
+    foreach ($rules_raw as $entry) {
+      if (!is_array($entry)) {
+        continue;
+      }
+      $selector = $entry['selector'] ?? '';
+      $widget = $entry['widget'] ?? '';
+      if (!empty($selector) && !empty($widget) && is_string($selector) && is_string($widget)) {
+        // Defense-in-depth: skip selectors that are too long or contain
+        // control characters. Config may be loaded from YAML or set
+        // programmatically, bypassing form validation.
+        if (strlen($selector) > 255 || preg_match('/[\x00-\x1F\x7F<>]/', $selector)) {
+          continue;
+        }
+        $rules[] = [
+          'selector' => $selector,
+          'widget' => $widget,
+        ];
+      }
+    }
+    return $rules;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function elementMatchesCssSelector(array $element, string $key, string $selector): bool {
+    // Strip leading "select" tag name if present.
+    $sel = preg_replace('/^\s*select\s*/i', '', trim($selector));
+    if ($sel === '' || $sel === NULL) {
+      // Bare "select" matches all select elements.
+      return TRUE;
+    }
+
+    // Resolve the element's classes.
+    $element_classes = [];
+    if (!empty($element['#attributes']['class']) && is_array($element['#attributes']['class'])) {
+      $element_classes = $element['#attributes']['class'];
+    }
+
+    // Parse and check each part of the selector. We process left-to-right:
+    // #id, .class, [attr op "value"]. All parts must match.
+    $remaining = $sel;
+
+    while ($remaining !== '') {
+      // Match #id shorthand.
+      if (preg_match('/^#([\w-]+)/', $remaining, $m)) {
+        $element_id = $this->resolveElementAttribute($element, 'id', $key);
+        if ($element_id !== $m[1]) {
+          return FALSE;
+        }
+        $remaining = substr($remaining, strlen($m[0]));
+        continue;
+      }
+
+      // Match .class shorthand.
+      if (preg_match('/^\.([\w-]+)/', $remaining, $m)) {
+        if (!in_array($m[1], $element_classes, TRUE)) {
+          return FALSE;
+        }
+        $remaining = substr($remaining, strlen($m[0]));
+        continue;
+      }
+
+      // Match attribute selector [attr], [attr="val"], [attr^="val"],
+      // [attr$="val"], [attr*="val"].
+      if (preg_match('/^\[(\w+)(?:([~|^$*]?)=\s*["\']([^"\']*)["\'])?\]/', $remaining, $m)) {
+        $attr_name = $m[1];
+        $operator = $m[2] ?? '';
+        $attr_value = $m[3] ?? '';
+
+        // Resolve the attribute value from the element.
+        $actual = $this->resolveElementAttribute($element, $attr_name, $key);
+
+        if (!$this->matchAttributeValue($actual, $operator, $attr_value)) {
+          return FALSE;
+        }
+        $remaining = substr($remaining, strlen($m[0]));
+        continue;
+      }
+
+      // Unknown syntax — no match.
+      return FALSE;
+    }
+
+    return TRUE;
+  }
+
+  /**
+   * Resolves an attribute value from a form element for CSS selector matching.
+   *
+   * @param array $element
+   *   The form element array.
+   * @param string $attr_name
+   *   The attribute name (e.g., 'id', 'class', 'name').
+   * @param string $key
+   *   The element key in the parent form array.
+   *
+   * @return string
+   *   The resolved attribute value.
+   */
+  private function resolveElementAttribute(array $element, string $attr_name, string $key): string {
+    switch ($attr_name) {
+      case 'id':
+        if (!empty($element['#attributes']['id']) && is_string($element['#attributes']['id'])) {
+          return $element['#attributes']['id'];
+        }
+        if (!empty($element['#id']) && is_string($element['#id'])) {
+          return $element['#id'];
+        }
+        if (is_string($key) && $key !== '') {
+          return 'edit-' . str_replace('_', '-', $key);
+        }
+        return '';
+
+      case 'name':
+        if (!empty($element['#attributes']['name']) && is_string($element['#attributes']['name'])) {
+          return $element['#attributes']['name'];
+        }
+        if (!empty($element['#name']) && is_string($element['#name'])) {
+          return $element['#name'];
+        }
+        if (is_string($key) && $key !== '') {
+          return $key;
+        }
+        return '';
+
+      case 'class':
+        $classes = $element['#attributes']['class'] ?? [];
+        if (is_array($classes)) {
+          return implode(' ', $classes);
+        }
+        return is_string($classes) ? $classes : '';
+
+      default:
+        // Check #attributes first, then data-* attributes.
+        if (isset($element['#attributes'][$attr_name]) && is_string($element['#attributes'][$attr_name])) {
+          return $element['#attributes'][$attr_name];
+        }
+        return '';
+    }
+  }
+
+  /**
+   * Checks if an attribute value matches using a CSS attribute operator.
+   *
+   * @param string $actual
+   *   The actual attribute value.
+   * @param string $operator
+   *   The CSS operator (empty for =, or ^, $, *).
+   * @param string $expected
+   *   The expected value from the selector.
+   *
+   * @return bool
+   *   TRUE if the value matches.
+   */
+  private function matchAttributeValue(string $actual, string $operator, string $expected): bool {
+    if ($expected === '' && $operator === '') {
+      // [attr] — just check presence.
+      return $actual !== '';
+    }
+
+    return match ($operator) {
+      '', '=' => $actual === $expected,
+      '^' => str_starts_with($actual, $expected),
+      '$' => str_ends_with($actual, $expected),
+      '*' => str_contains($actual, $expected),
+      default => FALSE,
+    };
   }
 
 }

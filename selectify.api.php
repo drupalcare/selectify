@@ -35,7 +35,10 @@ function hook_selectify_widget_alter(string &$widget, array $context): void {
   if ($context['integration_type'] === 'form_api' && $context['form_id'] === 'my_custom_form') {
     // Check if the form has a select with many options.
     $form = &$context['form'];
-    foreach ($form as $key => $element) {
+    foreach ($form as $element) {
+      if (!is_array($element)) {
+        continue;
+      }
       if (isset($element['#type']) && $element['#type'] === 'select') {
         $options = $element['#options'] ?? [];
         if (count($options) > 50) {

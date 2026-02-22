@@ -1,76 +1,53 @@
-# gitignore template for Drupal 8 projects
-#
-# earlier versions of Drupal are tracked in `community/PHP/`
-#
-# follows official upstream conventions:
-# https://www.drupal.org/docs/develop/using-composer
+# ===================
+# Drupal contrib module .gitignore
+# ===================
 
-# Ignore configuration files that may contain sensitive information
-/web/sites/*/*settings*.php
-/web/sites/*/*services*.yml
-
-# Ignore paths that may contain user-generated content
-/web/sites/*/files
-/web/sites/*/public
-/web/sites/*/private
-/web/sites/*/files-public
-/web/sites/*/files-private
-
-# Ignore paths that may contain temporary files
-/web/sites/*/translations
-/web/sites/*/tmp
-/web/sites/*/cache
-
-# Ignore drupal core (if not versioning drupal sources)
-/web/vendor
-/web/core
-/web/modules/README.txt
-/web/profiles/README.txt
-/web/sites/development.services.yml
-/web/sites/example.settings.local.php
-/web/sites/example.sites.php
-/web/sites/README.txt
-/web/themes/README.txt
-/web/.csslintrc
-/web/.editorconfig
-/web/.eslintignore
-/web/.eslintrc.json
-/web/.gitattributes
-/web/.htaccess
-/web/.ht.router.php
-/web/autoload.php
-/web/composer.json
-/web/composer.lock
-/web/example.gitignore
-/web/index.php
-/web/INSTALL.txt
-/web/LICENSE.txt
-/web/README.txt
-/web/robots.txt
-/web/update.php
-/web/web.config
-
-# Ignore vendor dependencies and scripts
-/vendor
-/composer.phar
-/composer
-/robo.phar
-/robo
-/drush.phar
-/drush
-/drupal.phar
-/drupal
-.DS_Store
-
-# Node (stylelint, etc.)
+# ----- Node / npm (dev tooling only) -----
 node_modules/
+package-lock.json
 
-# IDE and OS
+# ----- IDE and editor files -----
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
+nbproject/
+.project
+.settings/
+.buildpath
 
-# Personal/marketing files not part of the module
+# ----- OS files -----
+.DS_Store
+Thumbs.db
+Desktop.ini
+._*
+
+# ----- Internal / planning docs (not part of the module) -----
+PLAN-*.md
+LOCAL-CI.md
 homepage-drupal.html
+
+# ----- AI / Claude -----
+.claude/
+CLAUDE.md
+.claude-*
+
+# ----- Composer (local dev) -----
+/vendor/
+composer.lock
+composer.phar
+
+# ----- Environment / secrets -----
+.env
+.env.*
+
+# ----- Test / CI artifacts -----
+.phpunit.result.cache
+.phpunit.cache/
+coverage/
+.phpcs-cache
+
+# ----- Build artifacts -----
+*.map
+scripts/run-ci-checks.sh

@@ -130,17 +130,6 @@ selectify.settings:
     enable_form_api_selects:
       type: boolean
       label: 'Enable Selectify for Form API select elements'
-    form_api_widget:
-      type: string
-      label: 'Form API widget type'
-      constraints:
-        Choice:
-          choices:
-            - selectify_dropdown
-            - selectify_tags
-            - selectify_searchable
-            - selectify_checkbox
-            - selectify_dual
     form_api_widget_map:
       type: sequence
       label: 'Per-form widget settings for Form API selects'
@@ -154,6 +143,27 @@ selectify.settings:
           widget:
             type: string
             label: 'Selected Widget Type'
+            constraints:
+              Choice:
+                choices:
+                  - selectify_dropdown
+                  - selectify_tags
+                  - selectify_searchable
+                  - selectify_checkbox
+                  - selectify_dual
+    css_selector_widget_map:
+      type: sequence
+      label: 'CSS selector rules for targeting specific select elements'
+      sequence:
+        type: mapping
+        label: 'CSS selector rule'
+        mapping:
+          selector:
+            type: string
+            label: 'CSS selector'
+          widget:
+            type: string
+            label: 'Widget type'
             constraints:
               Choice:
                 choices:

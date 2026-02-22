@@ -360,7 +360,7 @@ class SelectifySettingsForm extends ConfigFormBase {
     $form['form_api_selects'] = [
       '#type' => 'details',
       '#title' => $this->t('Form API Select Elements'),
-      '#description' => $this->t('Apply Selectify to plain &lt;select&gt; elements in regular Drupal forms (Form API). This covers any select that is not already handled by Views exposed filters, Webform submissions, or Field Widgets.<br><br><strong>Safety:</strong> Selectify maintains a built-in blocklist of AJAX-dependent admin forms that are always excluded (Field UI, Views UI, Layout Builder, Editor config, Media Library, etc.). Individual selects with <code>#ajax</code> callbacks are also automatically skipped.'),
+      '#description' => $this->t('Apply Selectify to plain &lt;select&gt; elements in regular Drupal forms (Form API). This covers any select that is not already handled by Views exposed filters, Webform submissions, or Field Widgets.<br><br><strong>Two ways to target selects:</strong><br>1. <strong>Per-form discovery</strong> &ndash; Enable the checkbox below, visit pages with forms, then return here to assign a widget to each discovered form.<br>2. <strong>CSS selector rules</strong> &ndash; Target specific selects by CSS selector (e.g. <code>select[id^="edit-parent"]</code>, <code>select.my-class</code>) and assign a widget per rule. CSS selector rules are evaluated first; any select already matched by a rule will not be overridden by the per-form widget.<br><br><strong>Safety:</strong> Selectify maintains a built-in blocklist of AJAX-dependent admin forms that are always excluded (Field UI, Views UI, Layout Builder, Editor config, Media Library, etc.). Individual selects with <code>#ajax</code> callbacks are also automatically skipped.'),
       '#open' => FALSE,
       '#weight' => 42,
     ];
@@ -372,18 +372,77 @@ class SelectifySettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('enable_form_api_selects'),
     ];
 
-    $form['form_api_selects']['form_api_widget'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Default widget style for Form API selects'),
-      '#description' => $this->t('This widget will be applied to all enabled Form API selects unless overridden per-form below.'),
-      '#options' => $this->getSelectifyWidgetOptions(),
-      '#default_value' => $config->get('form_api_widget') ?? 'selectify_dropdown',
+    // CSS selector rules: target specific selects by CSS selector.
+    $form['form_api_selects']['css_selector_configuration'] = [
+      '#type' => 'details',
+      '#title' => $this->t('CSS selector rules'),
+      '#description' => $this->t('Target specific select elements using CSS selectors. These rules are evaluated first &mdash; any select matched here will not be overridden by the per-form widget below.<br><strong>Supported selectors:</strong> <code>select#edit-type</code>, <code>select[id^="edit-parent"]</code>, <code>select[id*="schema"]</code>, <code>select.my-class</code>, <code>select[name="field_color"]</code>, <code>select[name^="field_"]</code><br><strong>Note:</strong> Drupal appends <code>--N</code> suffixes (e.g. <code>edit-admin-theme--2</code>) to HTML IDs during rendering, but selectors are matched <em>before</em> rendering. Use the base ID without the suffix (e.g. <code>select#edit-admin-theme</code>) or a starts-with selector (e.g. <code>select[id^="edit-admin-theme"]</code>). The <code>name</code> attribute (e.g. <code>select[name="admin_theme"]</code>) is always reliable. If the ID contains <code>--N</code> suffixes and you want to style all selects in that form, use the <strong>Per-form configuration</strong> below instead &mdash; it applies the widget to every eligible select in the form without needing to match individual IDs.'),
+      '#open' => FALSE,
       '#states' => [
         'visible' => [
           ':input[name="enable_form_api_selects"]' => ['checked' => TRUE],
         ],
       ],
     ];
+
+    $stored_css_rules = $config->get('css_selector_widget_map') ?? [];
+    if (!is_array($stored_css_rules)) {
+      $stored_css_rules = [];
+    }
+
+    $form['form_api_selects']['css_selector_configuration']['css_selector_rules'] = [
+      '#type' => 'table',
+      '#header' => [
+        $this->t('CSS Selector'),
+        $this->t('Selectify widget'),
+      ],
+      '#tree' => TRUE,
+    ];
+
+    // Build rows from stored rules plus empty rows for adding new rules.
+    $css_rows = [];
+    foreach ($stored_css_rules as $rule) {
+      if (!empty($rule['selector']) && !empty($rule['widget'])) {
+        $css_rows[] = [
+          'selector' => $rule['selector'],
+          'widget' => $rule['widget'],
+        ];
+      }
+    }
+    // Add empty rows so the user can add new rules.
+    for ($i = 0; $i < 5; $i++) {
+      $css_rows[] = ['selector' => '', 'widget' => 'none'];
+    }
+
+    // Rotate placeholder examples to showcase supported selectors.
+    $placeholders = [
+      $this->t('e.g. select#edit-type'),
+      $this->t('e.g. select[id^="edit-parent"]'),
+      $this->t('e.g. select[name="field_color"]'),
+      $this->t('e.g. select[name^="field_"]'),
+      $this->t('e.g. select.my-class'),
+    ];
+
+    foreach ($css_rows as $delta => $row) {
+      $placeholder = $placeholders[$delta % count($placeholders)];
+      $form['form_api_selects']['css_selector_configuration']['css_selector_rules'][$delta] = [
+        'selector' => [
+          '#type' => 'textfield',
+          '#title' => '',
+          '#default_value' => $row['selector'],
+          '#size' => 50,
+          '#maxlength' => 255,
+          '#placeholder' => $placeholder,
+        ],
+        'widget' => [
+          '#type' => 'select',
+          '#title' => '',
+          '#options' => array_merge(['none' => $this->t('None')], $this->getSelectifyWidgetOptions()),
+          '#default_value' => $row['widget'],
+          '#wrapper_attributes' => ['class' => ['form-item--table-cell']],
+        ],
+      ];
+    }
 
     // Per-form configuration (Views-like): list only discovered forms that
     // contain eligible select elements.
@@ -821,6 +880,43 @@ class SelectifySettingsForm extends ConfigFormBase {
   }
 
   /**
+   * Builds structured CSS selector rules from submitted table values.
+   *
+   * @param array $values
+   *   The submitted 'css_selector_rules' table values.
+   *
+   * @return array
+   *   Structured configuration entries.
+   */
+  protected function buildCssSelectorRulesConfig(array $values): array {
+    $result = [];
+    if (!is_array($values)) {
+      return $result;
+    }
+    foreach ($values as $row) {
+      if (!is_array($row)) {
+        continue;
+      }
+      $selector = trim($row['selector'] ?? '');
+      $widget = $row['widget'] ?? 'none';
+      if ($selector !== '' && is_string($widget) && $widget !== 'none' && $widget !== '') {
+        // Defense-in-depth: strip control characters and angle brackets even
+        // though validateForm() already rejects them. This guards against
+        // programmatic saves that bypass form validation.
+        $selector = preg_replace('/[\x00-\x1F\x7F<>]/', '', $selector);
+        if ($selector === '' || strlen($selector) > 255) {
+          continue;
+        }
+        $result[] = [
+          'selector' => $selector,
+          'widget' => $widget,
+        ];
+      }
+    }
+    return $result;
+  }
+
+  /**
    * Returns Webforms that contain select-like elements.
    *
    * Only Webforms with at least one element that will be styled by the
@@ -902,6 +998,72 @@ class SelectifySettingsForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
+  public function validateForm(array &$form, FormStateInterface $form_state): void {
+    parent::validateForm($form, $form_state);
+
+    // Validate CSS selector rules.
+    $css_rules_raw = $form_state->getValue('css_selector_rules', []);
+    if (!is_array($css_rules_raw)) {
+      return;
+    }
+
+    // Characters that are never valid in CSS selectors and indicate
+    // potential injection attempts or accidental input.
+    $forbidden_pattern = '/[<>&;{}()\\\\\/\x00-\x1F\x7F]/';
+
+    $rule_count = 0;
+    foreach ($css_rules_raw as $delta => $row) {
+      if (!is_array($row)) {
+        continue;
+      }
+      $selector = trim($row['selector'] ?? '');
+      $widget = $row['widget'] ?? 'none';
+
+      // Skip empty rows.
+      if ($selector === '' && $widget === 'none') {
+        continue;
+      }
+
+      // Selector filled but widget not selected.
+      if ($selector !== '' && ($widget === 'none' || $widget === '')) {
+        $form_state->setErrorByName(
+          "css_selector_rules][$delta][widget",
+          $this->t('CSS selector rule @num: please select a widget for selector <code>@selector</code>.', [
+            '@num' => $delta + 1,
+            '@selector' => $selector,
+          ])
+        );
+        continue;
+      }
+
+      // Reject forbidden characters.
+      if (preg_match($forbidden_pattern, $selector)) {
+        $form_state->setErrorByName(
+          "css_selector_rules][$delta][selector",
+          $this->t('CSS selector rule @num contains invalid characters. Only CSS selector syntax is allowed (e.g. <code>select[id^="edit-"]</code>).', [
+            '@num' => $delta + 1,
+          ])
+        );
+        continue;
+      }
+
+      $rule_count++;
+    }
+
+    // Limit total number of rules to prevent unbounded config growth.
+    if ($rule_count > 50) {
+      $form_state->setErrorByName(
+        'css_selector_rules',
+        $this->t('A maximum of 50 CSS selector rules is allowed. You have @count.', [
+          '@count' => $rule_count,
+        ])
+      );
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $config = $this->configFactory()->getEditable('selectify.settings');
 
@@ -922,8 +1084,7 @@ class SelectifySettingsForm extends ConfigFormBase {
       ->set('accent_color_mode', $form_state->getValue('accent_color_mode', $config->get('accent_color_mode', 'light')))
       ->set('admin_accent_color', $form_state->getValue('admin_accent_color', $config->get('admin_accent_color', 'neutral')))
       ->set('admin_accent_color_mode', $form_state->getValue('admin_accent_color_mode', $config->get('admin_accent_color_mode', 'light')))
-      ->set('enable_form_api_selects', (bool) $form_state->getValue('enable_form_api_selects', FALSE))
-      ->set('form_api_widget', $form_state->getValue('form_api_widget', 'selectify_dropdown'));
+      ->set('enable_form_api_selects', (bool) $form_state->getValue('enable_form_api_selects', FALSE));
 
     // Build Form API per-form widget map — guard against non-array values
     // which occur when the per-form section is hidden via #states or when
@@ -935,6 +1096,13 @@ class SelectifySettingsForm extends ConfigFormBase {
       $form_api_widgets_raw = [];
     }
     $config->set('form_api_widget_map', $this->buildFormApiWidgetMapConfig($form_api_widgets_raw));
+
+    // Build CSS selector rules from submitted table values.
+    $css_rules_raw = $form_state->getValue('css_selector_rules', []);
+    if (!is_array($css_rules_raw)) {
+      $css_rules_raw = [];
+    }
+    $config->set('css_selector_widget_map', $this->buildCssSelectorRulesConfig($css_rules_raw));
 
     // Retrieve values from form.
     $apply_site_wide = (bool) $form_state->getValue('apply_site_wide', FALSE);

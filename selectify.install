@@ -57,3 +57,27 @@ function selectify_update_10002(): void {
     $config->save(TRUE);
   }
 }
+
+/**
+ * Add CSS selector widget map configuration for Form API selects.
+ */
+function selectify_update_10003(): void {
+  $config = \Drupal::configFactory()->getEditable('selectify.settings');
+  if ($config->get('css_selector_widget_map') === NULL) {
+    $config->set('css_selector_widget_map', []);
+    $config->save(TRUE);
+  }
+}
+
+/**
+ * Remove deprecated form_api_widget default config key.
+ *
+ * Widget selection is now done exclusively per-form or per-CSS-selector.
+ */
+function selectify_update_10004(): void {
+  $config = \Drupal::configFactory()->getEditable('selectify.settings');
+  if ($config->get('form_api_widget') !== NULL) {
+    $config->clear('form_api_widget');
+    $config->save(TRUE);
+  }
+}

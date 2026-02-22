@@ -219,4 +219,69 @@ interface SelectifyHelperInterface {
    */
   public function shouldSkipSelectElement(array $element): bool;
 
+  /**
+   * Checks if a select element is eligible for Selectify styling.
+   *
+   * Single source of truth for all eligibility checks: #ajax, #key_column,
+   * third-party libraries, hidden/disabled, excluded contexts, and
+   * already-styled guard. Used by both the per-form walker and the CSS
+   * selector walker.
+   *
+   * @param array $element
+   *   The form element render array.
+   *
+   * @return bool
+   *   TRUE if the select can be styled, FALSE if it should be skipped.
+   */
+  public function isSelectEligibleForStyling(array $element): bool;
+
+  /**
+   * Applies Selectify widget styling to a single select element.
+   *
+   * Single source of truth for adding classes, wrapper attributes, and
+   * attaching libraries to a select element. Used by both the per-form
+   * walker and the CSS selector walker.
+   *
+   * @param array &$element
+   *   The form element render array (modified in place).
+   * @param string $widget
+   *   The widget machine name (e.g. 'selectify_dropdown').
+   * @param string|null $accent_library
+   *   Optional accent colour library to attach.
+   *
+   * @return bool
+   *   TRUE if styling was applied, FALSE if the widget is invalid.
+   */
+  public function applyWidgetStyling(array &$element, string $widget, ?string $accent_library): bool;
+
+  /**
+   * Returns CSS selector rules from configuration.
+   *
+   * Each rule maps a CSS selector string to a widget machine name.
+   *
+   * @return array
+   *   Array of rules, each with 'selector' and 'widget' keys.
+   */
+  public function getCssSelectorRules(): array;
+
+  /**
+   * Checks whether a form select element matches a CSS selector string.
+   *
+   * Supports simple CSS selectors targeting select element attributes:
+   * - ID: select#edit-type, select[id^="edit-parent"], select[id*="foo"]
+   * - Class: select.my-class
+   * - Attribute: select[name="field_color"], select[name^="field_"]
+   *
+   * @param array $element
+   *   The form element render array.
+   * @param string $key
+   *   The element key in the parent form array.
+   * @param string $selector
+   *   The CSS selector string.
+   *
+   * @return bool
+   *   TRUE if the element matches the selector.
+   */
+  public function elementMatchesCssSelector(array $element, string $key, string $selector): bool;
+
 }

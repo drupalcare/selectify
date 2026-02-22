@@ -11,6 +11,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   on matching paths (selects, radios, checkboxes). Field widgets (Manage Form
   Display) respect disabled pages and render plain selects when the current
   page matches.
+- **CSS selector rules** for Form API selects: target specific select elements
+  by CSS selector (e.g. `select#edit-type`, `select[name^="field_"]`) and
+  assign a widget per rule. Rules are evaluated before per-form configuration;
+  first matching rule wins. Up to 50 rules; validated and sanitized for safety.
 
 ### Fixed
 - Radio/checkbox styling and body classes no longer applied on pages listed in

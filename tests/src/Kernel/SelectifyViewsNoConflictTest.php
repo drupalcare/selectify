@@ -74,7 +74,6 @@ class SelectifyViewsNoConflictTest extends KernelTestBase {
   public function testFormAlterSkipsFieldWidgetSelectsWithClass(): void {
     $this->config('selectify.settings')
       ->set('enable_form_api_selects', TRUE)
-      ->set('form_api_widget', 'selectify_dropdown')
       ->save();
 
     $form = [
@@ -109,7 +108,6 @@ class SelectifyViewsNoConflictTest extends KernelTestBase {
   public function testFormAlterSkipsCoreFieldWidgetSelects(): void {
     $this->config('selectify.settings')
       ->set('enable_form_api_selects', TRUE)
-      ->set('form_api_widget', 'selectify_dropdown')
       ->set('form_api_widget_map', [['form_id' => 'node_article_edit_form', 'widget' => 'selectify_dropdown']])
       ->save();
 

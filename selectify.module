@@ -644,6 +644,28 @@ function selectify_form_alter(array &$form, FormStateInterface $form_state, stri
     _selectify_form_api_record_discovered_form($form_id);
   }
 
+  // Compute accent color library once for this request.
+  $selectifyConfig = $helper->getConfig();
+  $isAdmin = $helper->isAdminRoute();
+  $accent = $isAdmin
+    ? ($selectifyConfig->get('admin_accent_color') ?: 'neutral')
+    : ($selectifyConfig->get('accent_color') ?: 'neutral');
+  $accent_mode = $isAdmin
+    ? ($selectifyConfig->get('admin_accent_color_mode') ?: 'light')
+    : ($selectifyConfig->get('accent_color_mode') ?: 'light');
+  $accent_library = NULL;
+  if (!empty($accent) && $accent !== 'none' && $accent_mode !== 'none') {
+    $accent_library = "selectify/selectify-color-{$accent}-{$accent_mode}";
+  }
+
+  // CSS selector rules: apply per-element targeting first. Matched selects
+  // receive their rule's widget and are marked with selectify-apply-* so
+  // the per-form widget step (below) will not override them.
+  $css_rules = $config['css_selector_rules'] ?? [];
+  if (!empty($css_rules)) {
+    _selectify_apply_css_selector_rules($form, $helper, $css_rules, $accent_library);
+  }
+
   // Form API does not have a global "apply to all forms" mode. Only forms
   // explicitly configured in the per-form widget map will be styled.
   $widget = $config['widget_map'][$form_id] ?? 'none';
@@ -658,20 +680,6 @@ function selectify_form_alter(array &$form, FormStateInterface $form_state, stri
 
   if (empty($widget) || $widget === 'none') {
     return;
-  }
-
-  // Compute accent color library once for this request.
-  $selectifyConfig = $helper->getConfig();
-  $isAdmin = $helper->isAdminRoute();
-  $accent = $isAdmin
-    ? ($selectifyConfig->get('admin_accent_color') ?: 'neutral')
-    : ($selectifyConfig->get('accent_color') ?: 'neutral');
-  $accent_mode = $isAdmin
-    ? ($selectifyConfig->get('admin_accent_color_mode') ?: 'light')
-    : ($selectifyConfig->get('accent_color_mode') ?: 'light');
-  $accent_library = NULL;
-  if (!empty($accent) && $accent !== 'none' && $accent_mode !== 'none') {
-    $accent_library = "selectify/selectify-color-{$accent}-{$accent_mode}";
   }
 
   _selectify_apply_to_form_selects($form, $helper, $widget, $accent_library);
@@ -770,7 +778,85 @@ function _selectify_form_api_record_discovered_form(string $form_id): void {
 }
 
 /**
- * Recursively applies Selectify widget classes and libraries to select elements.
+ * Applies CSS selector rules to matching select elements in a form.
+ *
+ * Walks the form tree and checks each select against the configured CSS
+ * selector rules. When a match is found, the rule's widget is applied to
+ * that specific select. This runs before the per-form widget so that
+ * the already_styled guard prevents double-processing.
+ *
+ * @param array &$elements
+ *   The form array (or sub-array) to process.
+ * @param \Drupal\selectify\Service\SelectifyHelperInterface $helper
+ *   The selectify helper service.
+ * @param array $rules
+ *   Array of CSS selector rules, each with 'selector' and 'widget' keys.
+ * @param string|null $accent_library
+ *   Optional accent colour library to attach.
+ * @param int $depth
+ *   Current recursion depth (internal use).
+ */
+function _selectify_apply_css_selector_rules(array &$elements, $helper, array $rules, ?string $accent_library, int $depth = 0): void {
+  if ($depth > 50) {
+    return;
+  }
+
+  foreach (Element::children($elements) as $key) {
+    if (!is_array($elements[$key])) {
+      continue;
+    }
+
+    if (isset($elements[$key]['#type']) && $elements[$key]['#type'] === 'select') {
+      // Single eligibility check (shared with per-form walker).
+      if (!$helper->isSelectEligibleForStyling($elements[$key])) {
+        continue;
+      }
+
+      // Check each CSS selector rule for a match.
+      foreach ($rules as $rule) {
+        $selector = $rule['selector'] ?? '';
+        $rule_widget = $rule['widget'] ?? '';
+        if (empty($selector) || empty($rule_widget)) {
+          continue;
+        }
+
+        if ($helper->elementMatchesCssSelector($elements[$key], $key, $selector)) {
+          // Allow other modules to alter the element.
+          $element_context = [
+            'widget' => $rule_widget,
+            'form_id' => $elements['#form_id'] ?? NULL,
+            'element_key' => $key,
+            'integration_type' => 'form_api',
+            'css_selector' => $selector,
+          ];
+          \Drupal::moduleHandler()->alter('selectify_element', $elements[$key], $element_context);
+
+          if (!empty($elements[$key]['#selectify_skip'])) {
+            break;
+          }
+
+          // Single styling source (shared with per-form walker).
+          $helper->applyWidgetStyling($elements[$key], $rule_widget, $accent_library);
+
+          // First matching rule wins — stop checking further rules.
+          break;
+        }
+      }
+    }
+
+    // Recurse into children.
+    _selectify_apply_css_selector_rules(
+      $elements[$key],
+      $helper,
+      $rules,
+      $accent_library,
+      $depth + 1
+    );
+  }
+}
+
+/**
+ * Applies Selectify widget to form select elements recursively.
  *
  * Walks the form tree depth-first. Skips any select that already carries a
  * selectify-apply-* class (i.e. it was styled by a field widget or Views).
@@ -783,16 +869,19 @@ function _selectify_form_api_record_discovered_form(string $form_id): void {
  *   The widget machine name (e.g. 'selectify_dropdown').
  * @param string|null $accent_library
  *   Optional accent colour library to attach.
+ * @param int $depth
+ *   Current recursion depth (internal use).
  */
-function _selectify_apply_to_form_selects(array &$elements, $helper, string $widget, ?string $accent_library): void {
-  $widget_classes = $helper->getWidgetClasses();
-  $widget_libraries = $helper->getWidgetLibraries();
-
-  if (!isset($widget_classes[$widget]) || !isset($widget_libraries[$widget])) {
+function _selectify_apply_to_form_selects(
+  array &$elements,
+  $helper,
+  string $widget,
+  ?string $accent_library,
+  int $depth = 0,
+): void {
+  if ($depth > 50) {
     return;
   }
-
-  $target_class = $widget_classes[$widget];
 
   foreach (Element::children($elements) as $key) {
     if (!is_array($elements[$key])) {
@@ -801,68 +890,36 @@ function _selectify_apply_to_form_selects(array &$elements, $helper, string $wid
 
     // If this element is a select, apply the widget.
     if (isset($elements[$key]['#type']) && $elements[$key]['#type'] === 'select') {
-      // Skip selects that have an #ajax callback — replacing these breaks
-      // AJAX-dependent form rebuilds (e.g. dependent dropdowns).
-      if (!empty($elements[$key]['#ajax'])) {
+      // Single eligibility check (shared with CSS selector walker).
+      if (!$helper->isSelectEligibleForStyling($elements[$key])) {
         continue;
       }
 
-      // Skip field widget selects (Category 2). Core's OptionsWidgetBase
-      // sets #key_column on every field widget select element. This prevents
-      // Category 3 from re-styling selects that belong to field widgets,
-      // whether they use a Selectify widget or the default core widget.
-      if (isset($elements[$key]['#key_column'])) {
+      // Allow other modules to alter the element before Selectify processes it.
+      $element_context = [
+        'widget' => $widget,
+        'form_id' => $elements['#form_id'] ?? NULL,
+        'element_key' => $key,
+        'integration_type' => 'form_api',
+      ];
+      \Drupal::moduleHandler()->alter('selectify_element', $elements[$key], $element_context);
+
+      // Check if the element was marked to skip Selectify processing.
+      if (!empty($elements[$key]['#selectify_skip'])) {
         continue;
       }
 
-      // Skip selects per shared rules (third-party libs, hidden/disabled, context).
-      if ($helper->shouldSkipSelectElement($elements[$key])) {
-        continue;
-      }
-
-      $existing = (array) ($elements[$key]['#attributes']['class'] ?? []);
-      $already_styled = FALSE;
-      foreach ($existing as $cls) {
-        if (is_string($cls) && str_starts_with($cls, 'selectify-apply-')) {
-          $already_styled = TRUE;
-          break;
-        }
-      }
-
-      if (!$already_styled) {
-        // Allow other modules to alter the element before Selectify processes it.
-        $element_context = [
-          'widget' => $widget,
-          'form_id' => $elements['#form_id'] ?? NULL,
-          'element_key' => $key,
-          'integration_type' => 'form_api',
-        ];
-        \Drupal::moduleHandler()->alter('selectify_element', $elements[$key], $element_context);
-
-        // Check if the element was marked to skip Selectify processing.
-        if (!empty($elements[$key]['#selectify_skip'])) {
-          continue;
-        }
-
-        $elements[$key]['#attributes']['class'][] = $target_class;
-        $elements[$key]['#attributes']['class'][] = 'selectify-form-api';
-
-        $is_multiple = !empty($elements[$key]['#multiple']);
-        $elements[$key]['#wrapper_attributes']['class'][] = $is_multiple ? 'selectify-multi' : 'selectify-single';
-
-        // Attach widget libraries.
-        foreach ($widget_libraries[$widget] as $library) {
-          $elements[$key]['#attached']['library'][] = $library;
-        }
-
-        // Attach accent color library.
-        if ($accent_library) {
-          $elements[$key]['#attached']['library'][] = $accent_library;
-        }
-      }
+      // Single styling source (shared with CSS selector walker).
+      $helper->applyWidgetStyling($elements[$key], $widget, $accent_library);
     }
 
     // Recurse into children (containers, fieldsets, details, etc.).
-    _selectify_apply_to_form_selects($elements[$key], $helper, $widget, $accent_library);
+    _selectify_apply_to_form_selects(
+      $elements[$key],
+      $helper,
+      $widget,
+      $accent_library,
+      $depth + 1
+    );
   }
 }
