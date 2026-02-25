@@ -112,45 +112,12 @@
       const debounceDelay = constants.SEARCH_DEBOUNCE || 150;
       let searchTimer = null;
       searchInput.addEventListener('input', function() {
-        const searchTerm = this.value.toLowerCase();
+        const searchTerm = this.value;
         if (searchTimer) {
           clearTimeout(searchTimer);
         }
         searchTimer = setTimeout(() => {
-        let optionsArray = Array.from(selectifySelect.querySelectorAll('.selectify-available-one-option'));
-        // Filter options based on search input.
-        let filteredOptions = optionsArray.filter(option =>
-          option.textContent.trim().toLowerCase().includes(searchTerm)
-        );
-        // Separate options based on type.
-        let textOptions = [];
-        let numberOptions = [];
-        let emailOptions = [];
-        let dateOptions = [];
-        let entityOptions = [];
-        let otherOptions = [];
-        filteredOptions.forEach(option => {
-          const optionText = option.textContent.trim();
-          if (optionText.includes('@') && optionText.includes('.')) {
-            emailOptions.push(option);
-          } else if (!isNaN(parseFloat(optionText)) && isFinite(optionText)) {
-            numberOptions.push(option);
-          } else if (optionText.length >= 10 && optionText[4] === '-' && optionText[7] === '-') {
-            dateOptions.push(option);
-          } else if (optionText.startsWith("Node:") || optionText.startsWith("User:") || optionText.startsWith("Term:")) {
-            entityOptions.push(option);
-          } else {
-            textOptions.push(option);
-          }
-        });
-        // Sort only text alphabetically.
-        textOptions.sort((a, b) => a.textContent.trim().localeCompare(b.textContent.trim()));
-        // Hide all options before displaying the filtered ones.
-        optionsArray.forEach(option => option.classList.add('s-hidden'));
-        // Append sorted text, then original order for other types.
-        [...textOptions, ...numberOptions, ...dateOptions, ...emailOptions, ...entityOptions, ...otherOptions].forEach(option => {
-          option.classList.remove('s-hidden');
-        });
+          Drupal.selectify.filterSearchOptions(selectifySelect, searchTerm);
         }, debounceDelay);
       });
     }
@@ -179,6 +146,8 @@
         dropdownMenu.querySelectorAll('.selectify-available-one-option').forEach(option => {
           option.classList.remove('s-selected', 's-hidden'); // Unhide and unselect
         });
+        // Reset search filter.
+        Drupal.selectify.resetSearchFilter(dropdownMenu, searchInput);
         // Sync the hidden select field.
         Drupal.selectify.syncHiddenSelect(nativeSelect, []);
         // Update the UI to reflect the cleared selections.

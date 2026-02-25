@@ -143,6 +143,8 @@
   cursor: pointer;
   transition: all 0.3s ease;
   align-items: center;
+  line-height: 1;
+  font-size: 0.875rem;
 }
 
 .checkbox.selectify-select-dropdowns .selectify-available-one-option {

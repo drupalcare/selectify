@@ -49,6 +49,19 @@
          role="listbox"
          aria-label="{{ 'Available options'|t }}"
          {% if is_multiple %}aria-multiselectable="true"{% endif %}>
+      <div class="dual-search-input search-input">
+        <label for="search-{{ clean_field_name }}-available" class="visually-hidden">
+          {{ 'Filter available options'|t }}
+        </label>
+        {% include '@selectify/partials/svg/_manage_search.html.twig' %}
+        <input type="text"
+               class="dual-search-filter"
+               id="search-{{ clean_field_name }}-available"
+               placeholder="{{ 'Filter options'|t }}"
+               aria-label="{{ 'Filter available options'|t }}"
+               role="searchbox" />
+      </div>
+      <div class="selectify-search-status visually-hidden" role="status" aria-live="polite" aria-atomic="true"></div>
       <div class="options-inner">
       {% for option in options %}
         {% if option.value != '_none' or show_none %}
@@ -66,6 +79,9 @@
           </div>
         {% endif %}
       {% endfor %}
+      </div>
+      <div class="selectify-no-results s-search-hidden" role="status">
+        {{ 'No matching options found.'|t }}
       </div>
     </div>
     <div id="edit-{{ clean_field_name }}-selected"

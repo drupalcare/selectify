@@ -868,6 +868,147 @@ Drupal.selectify.toggleMultiSelectOption = function(type, nativeSelect, optionEl
   })();
 
   /**
+   * Normalizes text for diacritics-tolerant, case-insensitive comparison.
+   *
+   * Decomposes Unicode characters (NFD), strips combining marks (accents),
+   * and lowercases the result. This allows "cafe" to match "Café".
+   *
+   * @param {string} text - The text to normalize.
+   * @returns {string} - The normalized text.
+   */
+  Drupal.selectify.normalizeText = function(text) {
+    if (typeof text !== 'string') {
+      return '';
+    }
+    return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  };
+
+  /**
+   * Filters available options based on a search term.
+   *
+   * Categorizes matching options by type (text, number, email, date, entity)
+   * and sorts text options alphabetically. Non-matching options are hidden
+   * using the s-search-hidden class.
+   *
+   * Also updates the empty-state message and search status count if the
+   * corresponding elements exist in the container.
+   *
+   * @param {HTMLElement} container - The widget container to search within.
+   * @param {string} searchTerm - The search term to filter by.
+   */
+  Drupal.selectify.filterSearchOptions = function(container, searchTerm) {
+    const search = typeof searchTerm === 'string' ? searchTerm : '';
+    const normalizedSearch = Drupal.selectify.normalizeText(search);
+    let optionsArray = Array.from(container.querySelectorAll('.selectify-available-one-option'));
+    // Filter options based on normalized search input.
+    let filteredOptions = optionsArray.filter(option =>
+      Drupal.selectify.normalizeText(option.textContent.trim()).includes(normalizedSearch)
+    );
+    // Separate options based on type.
+    let textOptions = [];
+    let numberOptions = [];
+    let emailOptions = [];
+    let dateOptions = [];
+    let entityOptions = [];
+    let otherOptions = [];
+    filteredOptions.forEach(option => {
+      const optionText = option.textContent.trim();
+      if (optionText.includes('@') && optionText.includes('.')) {
+        emailOptions.push(option);
+      } else if (!isNaN(parseFloat(optionText)) && isFinite(optionText)) {
+        numberOptions.push(option);
+      } else if (optionText.length >= 10 && optionText[4] === '-' && optionText[7] === '-') {
+        dateOptions.push(option);
+      } else if (optionText.startsWith("Node:") || optionText.startsWith("User:") || optionText.startsWith("Term:")) {
+        entityOptions.push(option);
+      } else {
+        textOptions.push(option);
+      }
+    });
+    // Sort only text alphabetically.
+    textOptions.sort((a, b) => a.textContent.trim().localeCompare(b.textContent.trim()));
+    // Hide all options before displaying the filtered ones.
+    optionsArray.forEach(option => option.classList.add('s-search-hidden'));
+    // Show sorted text, then original order for other types.
+    const sortedVisible = [...textOptions, ...numberOptions, ...dateOptions, ...emailOptions, ...entityOptions, ...otherOptions];
+    sortedVisible.forEach(option => {
+      option.classList.remove('s-search-hidden');
+    });
+
+    // Count only non-hidden options (exclude items already selected via s-hidden).
+    const visibleCount = sortedVisible.filter(opt => !opt.classList.contains('s-hidden')).length;
+    const totalCount = optionsArray.filter(opt => !opt.classList.contains('s-hidden')).length;
+
+    // Show/hide empty state message.
+    const noResults = container.querySelector('.selectify-no-results');
+    if (noResults) {
+      noResults.classList.toggle('s-search-hidden', visibleCount > 0 || !normalizedSearch);
+    }
+
+    // Update search status for screen readers (aria-live region).
+    Drupal.selectify.announceSearchStatus(container, visibleCount, totalCount, normalizedSearch);
+  };
+  /**
+   * Announces search/filter status to screen readers.
+   *
+   * Debounced to prevent announcement spam during rapid typing.
+   * Uses an aria-live region to announce how many results are visible.
+   *
+   * @param {HTMLElement} container - The widget container.
+   * @param {number} visibleCount - Number of visible (filtered) options.
+   * @param {number} totalCount - Total number of available (non-selected) options.
+   * @param {string} searchTerm - The current normalized search term.
+   */
+  Drupal.selectify.announceSearchStatus = (function() {
+    let statusTimer = null;
+
+    return function(container, visibleCount, totalCount, searchTerm) {
+      const statusRegion = container.querySelector('.selectify-search-status');
+      if (!statusRegion) return;
+
+      if (statusTimer) {
+        clearTimeout(statusTimer);
+      }
+
+      const constants = Drupal.selectify?.constants || {};
+      const debounceDelay = constants.ANNOUNCEMENT_DEBOUNCE || 500;
+      statusTimer = setTimeout(() => {
+        if (!searchTerm) {
+          statusRegion.textContent = '';
+        } else {
+          statusRegion.textContent = Drupal.t('Showing @visible of @total options', {
+            '@visible': visibleCount,
+            '@total': totalCount
+          });
+        }
+      }, debounceDelay);
+    };
+  })();
+
+  /**
+   * Resets the search filter by clearing the input and removing s-search-hidden.
+   *
+   * @param {HTMLElement} container - The container with filterable options.
+   * @param {HTMLElement|null} searchInput - The search input element.
+   */
+  Drupal.selectify.resetSearchFilter = function(container, searchInput) {
+    if (searchInput) {
+      searchInput.value = '';
+    }
+    container.querySelectorAll('.selectify-available-one-option.s-search-hidden').forEach(option => {
+      option.classList.remove('s-search-hidden');
+    });
+    // Hide empty state and clear search status on reset.
+    const noResults = container.querySelector('.selectify-no-results');
+    if (noResults) {
+      noResults.classList.add('s-search-hidden');
+    }
+    const statusRegion = container.querySelector('.selectify-search-status');
+    if (statusRegion) {
+      statusRegion.textContent = '';
+    }
+  };
+  /**
    * Close any open dropdown when clicking outside.
    * Bound at module level (IIFE), so it only runs once per page load.
    */

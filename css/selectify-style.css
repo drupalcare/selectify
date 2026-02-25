@@ -47,6 +47,8 @@ body .selectify-select .selectify-selected-display {
 }
 
 body .selectify-select .search-input input {
+  line-height: 1;
+  font-size: 0.75rem;
   width: calc(100% - 16px);
   margin: 0 auto;
   border: 1px solid var(--selectify-select-border-color, var(--r-br));

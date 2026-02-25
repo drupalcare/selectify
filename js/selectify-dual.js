@@ -68,12 +68,28 @@
     const dropdownMenu = selectifySelect.querySelector('.dual-available');
     const options = selectifySelect.querySelectorAll('.dual-available-option');
     const clearAllButton = selectifySelect.querySelector('.dual-clear-all');
+    const searchInput = selectifySelect.querySelector('.dual-search-filter');
     if (!nativeSelect || nativeSelect.tagName !== 'SELECT') {
 
       return;
     }
     if (!selectedDisplay || !dropdownMenu || options.length === 0) {
       return;
+    }
+    // Handle search filtering with debounce for performance.
+    if (searchInput) {
+      const constants = Drupal.selectify?.constants || {};
+      const debounceDelay = constants.SEARCH_DEBOUNCE || 150;
+      let searchTimer = null;
+      searchInput.addEventListener('input', function() {
+        const searchTerm = this.value;
+        if (searchTimer) {
+          clearTimeout(searchTimer);
+        }
+        searchTimer = setTimeout(() => {
+          Drupal.selectify.filterSearchOptions(selectifySelect, searchTerm);
+        }, debounceDelay);
+      });
     }
     // Click event to select an item.
     once('selectifyDualEvents', dropdownMenu).forEach(() => {
@@ -133,6 +149,8 @@
           dropdownMenu.querySelectorAll('.selectify-available-one-option.s-hidden').forEach(option => {
             option.classList.remove('s-hidden');
           });
+          // Reset search filter.
+          Drupal.selectify.resetSearchFilter(dropdownMenu, searchInput);
           Drupal.selectify.syncHiddenSelect(nativeSelect, []);
           Drupal.selectify.updateSelectedDisplay(type, nativeSelect, selectedDisplay, clearAllButton);
           setTimeout(() => {

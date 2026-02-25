@@ -20,7 +20,8 @@
   box-sizing: border-box;
 }
 
-.s-hidden {
+.s-hidden,
+.s-search-hidden {
   display: none !important;
 }
 
@@ -274,6 +275,14 @@ body .selectify-clear-all span.icon {
   background: var(--selectify-skip-link-bg);
   color: var(--selectify-skip-link-color);
   text-decoration: none;
+}
+
+.selectify-no-results {
+  padding: 12px 16px;
+  color: var(--selectify-placeholder-color, #666);
+  font-size: 14px;
+  font-style: italic;
+  text-align: center;
 }
 
 .selectify-placeholder-option {

@@ -51,3 +51,4 @@ coverage/
 # ----- Build artifacts -----
 *.map
 scripts/run-ci-checks.sh
+ANALYSIS-dual-vs-dropdown-search.md

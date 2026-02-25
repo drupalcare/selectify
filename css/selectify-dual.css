@@ -28,18 +28,71 @@
   min-width: 180px;
   min-height: 220px;
   max-height: 500px;
-  padding: 12px 6px;
+  padding: 0 6px 12px 6px;
   border-radius: 6px;
   transition: border-color 0.2s ease-in-out;
   flex: 1;
   flex-direction: column;
 }
 
+.dual-selected {
+  padding-block-start: 12px;
+}
+
+.dual-search-input {
+  margin: 0 auto;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 12px 0;
+  background: transparent !important;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.dual-search-filter {
+  width: 100%!important;
+}
+
+.dual-search-input input {
+  width: 100%;
+  padding: 6px 10px 6px 34px;
+  border: 1px solid var(--selectify-select-border-color, var(--r-br));
+  border-radius: 4px;
+  outline: none;
+  font-size: 13px;
+  line-height: 1.4;
+  background: var(--selectify-select-bg, var(--r-bg));
+  color: var(--selectify-select-color, inherit);
+  transition: border-color 0.2s ease;
+}
+
+.dual-search-input .manage-search {
+  position: absolute;
+  top: 50%;
+  left: 9px;
+  width: 22px;
+  height: 22px;
+  opacity: 0.7;
+  transform: translateY(-55%);
+  pointer-events: none;
+}
+
+html[dir="rtl"] .dual-search-input .manage-search {
+  right: 18px;
+  left: initial;
+}
+
+html[dir="rtl"] .dual-search-input input {
+  padding: 6px 34px 6px 10px;
+}
+
 .dual-item {
   display: flex;
-  padding: 6px 12px;
-  font-size: 14px;
-  line-height: 1.4;
+  padding: 4px 8px;
+  font-size: 0.875rem;
+  line-height: 1;
   cursor: pointer;
   transition: background 0.2s ease, transform 0.1s ease;
   align-items: center;

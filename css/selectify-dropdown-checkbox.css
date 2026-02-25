@@ -2,8 +2,9 @@ body .selectify-dropdown-checkbox-widget .selectify-available-one-option {
   cursor: default;
 }
 
-body .selectify-dropdown-checkbox-widget .selectify-available-one-option label {
-  padding: 0 6px !important;
+body .selectify-available-one-option > .selectify-checkbox + label {
+  flex-grow:   1;
+  padding: 0 !important;
   pointer-events: auto;
 }
 
