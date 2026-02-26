@@ -4,13 +4,13 @@
 }
 
 .selectify-select-dual-list {
+  all: unset;
   position: relative;
   display: flex;
   width: 100%;
   padding: 12px;
   border-radius: 8px;
   flex-direction: column;
-  all: unset;
 }
 
 .dual-container {
@@ -52,7 +52,7 @@
 }
 
 .dual-search-filter {
-  width: 100%!important;
+  width: 100% !important;
 }
 
 .dual-search-input input {
@@ -133,7 +133,7 @@ html[dir="rtl"] .dual-available-option .dual-available-arrow {
   transform: rotate(180deg);
 }
 
-@media (width >=62rem) {
+@media (min-width:62rem) {
   .dual-available,
   .dual-selected {
     min-width: 220px;
@@ -141,15 +141,24 @@ html[dir="rtl"] .dual-available-option .dual-available-arrow {
 
 }
 
-@media (width >=75rem) {
+@media (min-width:75rem) {
   .dual-available,
   .dual-selected {
-    min-width: 300px;
+    min-width: 330px;
   }
 
 }
 
-@media (width <= 47.9988rem) {
+@media (max-width:47.9988rem) {
+  .dual-container .dual-available .dual-available-arrow,
+  .dual-container .dual-selected .dual-selected-arrow {
+    transform: rotate(90deg);
+  }
+
+  .selectify-multi {
+    width: 100%;
+  }
+
   .dual-container {
     flex-direction: column;
     gap: 8px;
