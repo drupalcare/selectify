@@ -449,12 +449,13 @@ input.selectify-radio[type="radio"][aria-invalid="true"] {
 .selectify-checkbox-checkbox-square-small input.selectify-checkbox[type="checkbox"]:checked::after,
 .selectify-checkbox-checkbox-square-medium input.selectify-checkbox[type="checkbox"]:checked::after,
 .selectify-checkbox-checkbox-square-large input.selectify-checkbox[type="checkbox"]:checked::after {
-  top: 50% !important;
-  left: 50% !important;
-  opacity: 1 !important;
-  transform: translate(-50%, -50%) !important;
-  inset-inline: auto !important;
+  inset-inline-start: auto !important;
+  inset-inline-end: auto !important;
   inset-block-start: auto !important;
+  left: 50% !important;
+  top: 50% !important;
   translate: none !important;
+  transform: translate(-50%, -50%) !important;
+  opacity: 1 !important;
   scale: 1;
 }
