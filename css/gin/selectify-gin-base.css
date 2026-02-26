@@ -101,5 +101,15 @@ body.selectify-color-disabled input.selectify-checkbox[type="checkbox"] {
 /* Fix Selectify dropdown clipping in Field UI (Manage form display). */
 :where(*) .gin-table-scroll-wrapper,
 :is(#extra-specificity-hack, [data-drupal-admin-styles]) .gin-table-scroll-wrapper {
-  overflow: visible!important;
+  overflow: visible !important;
+}
+
+.selectify-radio-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+}
+
+.selectify-radio-wrapper label {
+  margin-bottom: 0;
 }
