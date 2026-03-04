@@ -519,9 +519,9 @@
           itemDiv.className = 'selectify-selected-one-option dual-item';
           itemDiv.setAttribute('data-value', value);
 
-          const label = document.createElement('label');
-          label.className = 'label-option';
-          label.textContent = option.textContent;
+          const optionLabel = document.createElement('span');
+          optionLabel.className = 'option-label';
+          optionLabel.textContent = option.textContent;
 
           const arrowSpan = document.createElement('span');
           arrowSpan.className = 'dual-selected-arrow';
@@ -538,7 +538,7 @@
 
           svg.appendChild(path);
           arrowSpan.appendChild(svg);
-          itemDiv.appendChild(label);
+          itemDiv.appendChild(optionLabel);
           itemDiv.appendChild(arrowSpan);
           wrapper.appendChild(itemDiv);
         }

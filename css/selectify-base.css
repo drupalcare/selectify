@@ -87,11 +87,11 @@
 }
 
 .dual-list-option button,
-.dual-list-option label,
-.dual-list-option span,
+.dual-list-option .option-label,
 .selectify-available-one-option button,
-.selectify-available-one-option span,
-.selectify-available-one-option label {
+.selectify-available-one-option .option-label,
+.selectify-available-one-option label,
+.selectify-selected-one-option .option-label {
   pointer-events: none;
 }
 
@@ -104,6 +104,20 @@
   background: transparent;
   background-image: none !important;
   cursor: default;
+}
+
+.wrapper-selectify {
+  display: inline-block;
+  background: inherit;
+}
+
+.views-exposed-form .wrapper-selectify {
+  display: flex;
+  width: 100%;
+}
+
+.views-exposed-form label+.wrapper-selectify {
+  margin-top: 0;
 }
 
 .selectify-select-footer {
@@ -224,7 +238,9 @@ body .selectify-clear-all span.icon {
 }
 
 .selectify-selected-one-option label,
-.selectify-available-one-option label {
+.selectify-selected-one-option .option-label,
+.selectify-available-one-option label,
+.selectify-available-one-option .option-label {
   padding: 0 !important;
   line-height: 1.2;
   pointer-events: none;
@@ -246,7 +262,9 @@ body .selectify-clear-all span.icon {
 
 @media (width >= 36rem) {
   .selectify-selected-one-option label,
-  .selectify-available-one-option label {
+  .selectify-selected-one-option .option-label,
+  .selectify-available-one-option label,
+  .selectify-available-one-option .option-label {
     white-space: nowrap;
   }
 }

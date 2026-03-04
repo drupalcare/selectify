@@ -62,14 +62,7 @@ input.selectify-checkbox[type="checkbox"] {
 }
 
 .selectify-select-dropdowns .selectify-selected-one-option {
-  padding: .125em .75em;
-  border: 1px solid transparent;
-  border-radius: .75rem;
-  font-size: 0.75;
-  font-weight: 525;
-  font-variation-settings: initial;
-  line-height: 1.3;
-  vertical-align: .125em;
+  border: 1px solid var(--selectify-select-border-color, var(--input-border-color));
 }
 
 /* Reset Claro .form-boolean checkbox/radio pseudo-element styles

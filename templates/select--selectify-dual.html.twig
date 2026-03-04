@@ -95,7 +95,7 @@
         {% for selected in selected_options %}
 
         <div class="selectify-selected-one-option dual-item" data-value="{{ selected.value }}">
-          <label class="option-label">{{ selected.label }}</label>
+          <span class="option-label">{{ selected.label }}</span>
           <span class="dual-selected-arrow">
           {% include '@selectify/partials/svg/_arrow_circle_left.html.twig' %}
           </span>

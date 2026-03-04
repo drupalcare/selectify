@@ -89,8 +89,11 @@
     if (!selectedDisplay || !dropdownMenu || options.length === 0) {
       return;
     }
-    // Toggle dropdown open/close.
+    // Toggle dropdown open/close (ignore clicks on remove-tag so only removal runs).
     selectedDisplay.addEventListener('click', (event) => {
+      if (event.target.closest('.remove-tag')) {
+        return;
+      }
       event.preventDefault();
       event.stopPropagation();
       if (dropdownMenu.classList.contains('toggled')) {

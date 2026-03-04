@@ -47,13 +47,24 @@ body .selectify-select .selectify-selected-display {
 }
 
 body .selectify-select .search-input input {
+  padding: 6px 10px 6px 34px;
   line-height: 1;
   font-size: 0.75rem;
-  width: calc(100% - 16px);
   margin: 0 auto;
   border: 1px solid var(--selectify-select-border-color, var(--r-br));
+  background: var(--selectify-select-bg, var(--r-bg));
+  color: var(--selectify-select-color, var(--r-tx));
+  transition: border-color 0.2s ease;
   border-radius: 0.25rem;
   box-shadow: none !important;
+}
+
+body .selectify-select-dropdowns .search-input input {
+  width: calc(100% - 16px);
+}
+
+html[dir="rtl"] .selectify-select-dropdowns .search-input input {
+  padding: 0.5rem 2rem 0.5rem 0.75rem;
 }
 
 body .dual-available,
