@@ -1,13 +1,26 @@
-body .selectify-dropdown-checkbox-widget .selectify-available-one-option {
-  cursor: default;
+/* Whole row (checkbox + label) is clickable: use pointer for both (best practice). */
+body .selectify-dropdown-checkbox-widget .selectify-available-one-option,
+body .selectify-dropdown-checkbox-widget .selectify-available-one-option input[type="checkbox"],
+body .selectify-dropdown-checkbox-widget .selectify-available-one-option label {
+  cursor: pointer;
 }
 
 body .selectify-available-one-option > .selectify-checkbox + label {
-  flex-grow:   1;
+  flex-grow: 1;
   padding: 0 !important;
   pointer-events: auto;
 }
 
 body .selectify-dropdown-checkbox-widget .selectify-available-one-option.s-selected label {
   font-weight: bold;
+}
+
+/* Disabled options (e.g. max selections reached): not-allowed on whole row */
+body .selectify-dropdown-checkbox-widget .selectify-available-one-option input[type="checkbox"]:disabled,
+body .selectify-dropdown-checkbox-widget .selectify-available-one-option[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
+body .selectify-dropdown-checkbox-widget .selectify-available-one-option[aria-disabled="true"] label {
+  cursor: not-allowed;
 }

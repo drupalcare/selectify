@@ -21,7 +21,7 @@
 
 {% embed '@selectify/partials/_selectify-base.html.twig' %}
   {% block widget_content %}
-  <div class="selectify selectify-select selectify-select-dual-list selectify-dual-widget"
+  <div class="selectify selectify-select selectify-select-dual-list selectify-dual-widget{% if selectify_few_options %} selectify-few-options{% endif %}"
      tabindex="0"
      role="group"
      aria-labelledby="edit-{{ clean_field_name }}--label"

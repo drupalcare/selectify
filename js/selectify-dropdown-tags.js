@@ -30,41 +30,10 @@
         const constants = Drupal.selectify?.constants || {};
         const initDelay = constants.INIT_DELAY || 10;
         setTimeout(() => {
-          // Retrieve the target ID from the data attribute.
-          const targetId = selectifySelect.getAttribute('data-target-id');
-          if (!targetId) {
-            if (drupalSettings?.selectify?.debug) {
-              console.warn('[Selectify] Tags widget missing data-target-id attribute');
-            }
-            return;
-          }
-          // Locate the corresponding hidden <select> element by its ID.
-          const nativeSelect = document.getElementById(targetId);
-          if (!nativeSelect || nativeSelect.tagName !== 'SELECT') {
-            if (drupalSettings?.selectify?.debug) {
-              console.warn('[Selectify] Native select element not found:', targetId);
-            }
-            return;
-          }
-          initializeSelectifyTags(selectifySelect, nativeSelect);
-          let maxSelections = selectifySelect.getAttribute('data-max-selections');
-          maxSelections = maxSelections === 'null' ? null : parseInt(maxSelections, 10);
-          Drupal.selectify.handleSelectionLimit(
-            type
-            , selectifySelect
-            , nativeSelect
-            , maxSelections
-            , '.selectify-available-one-option'
-          );
-          const dropdownMenu = selectifySelect.querySelector('.selectify-available-display');
-          if (dropdownMenu) {
-            // Generate a unique ID for the dropdown if not already set.
-            const dropdownId = `${targetId}-dropdown`;
-            dropdownMenu.setAttribute('id', dropdownId);
-            // Set aria-controls on selectifySelect
-            selectifySelect.setAttribute('aria-controls', dropdownId);
-          }
-          Drupal.selectify.injectAriaLabelledBy();
+          Drupal.selectify.bootstrapWidget(selectifySelect, 'Tags', type, {
+            initFn: (sel, native) => initializeSelectifyTags(sel, native),
+            dropdownPanelSelector: '.selectify-available-display',
+          });
         }, initDelay);
       });
     }
@@ -117,34 +86,15 @@
     if (clearAllButton) {
       once('clearAllTags', clearAllButton).forEach(() => {
         clearAllButton.addEventListener('click', () => {
-        // Unselect all options in the hidden <select> element.
-        nativeSelect.querySelectorAll('option').forEach(option => (option.selected = false));
-        // Remove all selected items from the display.
-        const multiTagContainer = selectedDisplay.querySelector('.selectify-selected-options');
-        if (multiTagContainer) {
-          multiTagContainer.innerHTML = ''; // Clear selected items but keep the structure.
-        }
-        // Ensure dropdown items are fully reset
-        dropdownMenu.querySelectorAll('.selectify-available-one-option').forEach(option => {
-          option.classList.remove('s-selected', 's-hidden'); // Unhide and unselect
+          Drupal.selectify.executeClear(type, selectifySelect, nativeSelect, selectedDisplay, clearAllButton, dropdownMenu, {
+            onDeselectAll: (menu, selDisplay) => {
+              const container = selDisplay.querySelector('.selectify-selected-options');
+              if (container) container.innerHTML = '';
+              menu.querySelectorAll('.selectify-available-one-option').forEach((opt) => opt.classList.remove('s-selected', 's-hidden'));
+            },
+            focusTarget: () => selectedDisplay,
+          });
         });
-        // Sync the hidden select field.
-        Drupal.selectify.syncHiddenSelect(nativeSelect, []);
-        // Update the UI to reflect the cleared selections.
-        Drupal.selectify.updateSelectedDisplay(type, nativeSelect, selectedDisplay, clearAllButton);
-        // Ensure changes are registered.
-        setTimeout(() => {
-          nativeSelect.dispatchEvent(new Event('change', { bubbles: true }));
-          nativeSelect.dispatchEvent(new Event('input', { bubbles: true }));
-        }, 0);
-
-        // Return focus to the main trigger
-        if (selectedDisplay && typeof selectedDisplay.focus === 'function') {
-          const constants = Drupal.selectify?.constants || {};
-          const focusDelay = constants.FOCUS_DELAY || 100;
-          setTimeout(() => selectedDisplay.focus(), focusDelay);
-        }
-      });
       });
     }
     // Add keyboard support for remove tag buttons

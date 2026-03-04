@@ -18,41 +18,11 @@
         const constants = Drupal.selectify?.constants || {};
         const initDelay = constants.INIT_DELAY || 10;
         setTimeout(() => {
-          // Retrieve the target ID from the data attribute.
-          const targetId = selectifySelect.getAttribute('data-target-id');
-          if (!targetId) {
-            if (drupalSettings?.selectify?.debug) {
-              console.warn('[Selectify] Dual widget missing data-target-id attribute');
-            }
-            return;
-          }
-          // Locate the corresponding hidden <select> element by its ID.
-          const nativeSelect = document.getElementById(targetId);
-          if (!nativeSelect || nativeSelect.tagName !== 'SELECT') {
-            if (drupalSettings?.selectify?.debug) {
-              console.warn('[Selectify] Native select element not found:', targetId);
-            }
-            return;
-          }
-          initializeSelectifyDual(selectifySelect, nativeSelect);
-          let maxSelections = selectifySelect.getAttribute('data-max-selections');
-          maxSelections = maxSelections === 'null' ? null : parseInt(maxSelections, 10);
-          Drupal.selectify.handleSelectionLimit(
-            type
-            , selectifySelect
-            , nativeSelect
-            , maxSelections
-            , '.selectify-available-one-option'
-          );
-          const dropdownMenu = selectifySelect.querySelector('.selectify-available-display');
-          if (dropdownMenu) {
-            // Generate a unique ID for the dropdown if not already set.
-            const dropdownId = `${targetId}-dropdown`;
-            dropdownMenu.setAttribute('id', dropdownId);
-            // Set aria-controls on selectifySelect
-            selectifySelect.setAttribute('aria-controls', dropdownId);
-          }
-          Drupal.selectify.injectAriaLabelledBy();
+          // Dual uses .dual-available for the options panel (not .selectify-available-display).
+          Drupal.selectify.bootstrapWidget(selectifySelect, 'Dual', type, {
+            initFn: (sel, native) => initializeSelectifyDual(sel, native),
+            dropdownPanelSelector: '.dual-available',
+          });
         }, initDelay);
       });
     }
@@ -135,36 +105,19 @@
         nativeSelect.dispatchEvent(new Event('change'));
       }
     });
-    // "Clear All" Button Logic.
+    // "Clear All" Button Logic (dual-specific: remove selected items from right panel, reset available panel, reset search).
     if (clearAllButton) {
       once('clearAllDual', clearAllButton).forEach(() => {
         clearAllButton.addEventListener('click', () => {
-          nativeSelect.querySelectorAll('option').forEach(option => {
-            option.selected = false;
+          Drupal.selectify.executeClear(type, selectifySelect, nativeSelect, selectedDisplay, clearAllButton, dropdownMenu, {
+            onDeselectAll: (menu, selDisplay) => {
+              selDisplay.querySelectorAll('.selectify-selected-one-option').forEach((item) => item.remove());
+              menu.querySelectorAll('.selectify-available-one-option.s-selected').forEach((opt) => opt.classList.remove('s-selected'));
+              menu.querySelectorAll('.selectify-available-one-option.s-hidden').forEach((opt) => opt.classList.remove('s-hidden'));
+              Drupal.selectify.resetSearchFilter(menu, searchInput);
+            },
+            focusTarget: (widget) => widget.querySelector('.dual-available'),
           });
-          selectedDisplay.querySelectorAll('.selectify-selected-one-option').forEach(item => item.remove());
-          dropdownMenu.querySelectorAll('.selectify-available-one-option.s-selected').forEach(option => {
-            option.classList.remove('s-selected');
-          });
-          dropdownMenu.querySelectorAll('.selectify-available-one-option.s-hidden').forEach(option => {
-            option.classList.remove('s-hidden');
-          });
-          // Reset search filter.
-          Drupal.selectify.resetSearchFilter(dropdownMenu, searchInput);
-          Drupal.selectify.syncHiddenSelect(nativeSelect, []);
-          Drupal.selectify.updateSelectedDisplay(type, nativeSelect, selectedDisplay, clearAllButton);
-          setTimeout(() => {
-            nativeSelect.dispatchEvent(new Event('change', { bubbles: true }));
-            nativeSelect.dispatchEvent(new Event('input', { bubbles: true }));
-          }, 0);
-
-          // Return focus to the dual available list
-          const availableList = selectifySelect.querySelector('.dual-available');
-          if (availableList && typeof availableList.focus === 'function') {
-            const constants = Drupal.selectify?.constants || {};
-            const focusDelay = constants.FOCUS_DELAY || 100;
-            setTimeout(() => availableList.focus(), focusDelay);
-          }
         });
       });
     }

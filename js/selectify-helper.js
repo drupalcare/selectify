@@ -23,6 +23,99 @@
     }
   };
   /**
+   * Reports init failure (only when debug is on). Use in widget bootstrap.
+   *
+   * @param {string} widgetName - Widget name for the log (e.g. "Dropdown", "Dual").
+   * @param {string} message - Failure message.
+   */
+  Drupal.selectify.reportInitFailure = (widgetName, message) => {
+    debugLog(`${widgetName}: ${message}`);
+  };
+  /**
+   * Shared widget bootstrap: resolve native select, run init, selection limit, dropdown id/aria.
+   * Call from each behavior after once(selector, context). Keeps dual and dropdown widgets
+   * consistent; dual passes dropdownPanelSelector '.dual-available', others '.selectify-available-display'.
+   *
+   * @param {HTMLElement} selectifySelect - The widget wrapper (already matched by once).
+   * @param {string} widgetName - Name for debug messages (e.g. "Dropdown", "Dual", "Tags").
+   * @param {string} type - Widget type: 'dropdown'|'tags'|'searchable'|'checkbox'|'dual'.
+   * @param {Object} options - Bootstrap options.
+   * @param {function(HTMLElement, HTMLSelectElement)} options.initFn - (selectifySelect, nativeSelect) runs widget-specific init.
+   * @param {string} [options.dropdownPanelSelector] - Selector for the dropdown/available panel to set id and aria-controls (e.g. '.selectify-available-display' or '.dual-available').
+   * @param {string} [options.itemSelector='.selectify-available-one-option'] - Selector for selectable options (handleSelectionLimit).
+   */
+  Drupal.selectify.bootstrapWidget = (selectifySelect, widgetName, type, options) => {
+    const targetId = selectifySelect.getAttribute('data-target-id');
+    if (!targetId) {
+      Drupal.selectify.reportInitFailure(widgetName, 'missing data-target-id attribute');
+      return;
+    }
+    const nativeSelect = document.getElementById(targetId);
+    if (!nativeSelect || nativeSelect.tagName !== 'SELECT') {
+      Drupal.selectify.reportInitFailure(widgetName, `native select element not found: ${targetId}`);
+      return;
+    }
+    if (options.initFn) {
+      options.initFn(selectifySelect, nativeSelect);
+    }
+    let maxSelections = selectifySelect.getAttribute('data-max-selections');
+    maxSelections = maxSelections === 'null' ? null : parseInt(maxSelections, 10);
+    const itemSelector = options.itemSelector || '.selectify-available-one-option';
+    Drupal.selectify.handleSelectionLimit(type, selectifySelect, nativeSelect, maxSelections, itemSelector);
+    if (options.dropdownPanelSelector) {
+      const panel = selectifySelect.querySelector(options.dropdownPanelSelector);
+      if (panel) {
+        panel.setAttribute('id', `${targetId}-dropdown`);
+        selectifySelect.setAttribute('aria-controls', `${targetId}-dropdown`);
+      }
+    }
+    Drupal.selectify.injectAriaLabelledBy();
+  };
+  /**
+   * Shared "Clear All" handler: clear to "All" or deselect all, update UI, dispatch events, focus.
+   * Dual and dropdown widgets pass their own onDeselectAll and focusTarget so behavior stays correct.
+   *
+   * @param {string} type - Widget type: 'dropdown'|'tags'|'searchable'|'checkbox'|'dual'.
+   * @param {HTMLElement} selectifySelect - The widget wrapper.
+   * @param {HTMLSelectElement} nativeSelect - The hidden <select>.
+   * @param {HTMLElement} selectedDisplay - The display area for selected options.
+   * @param {HTMLElement|null} clearAllButton - The Clear button (for updateSelectedDisplay).
+   * @param {HTMLElement|null} dropdownMenu - The available-options panel (for onDeselectAll).
+   * @param {Object} options - Clear options.
+   * @param {function(HTMLElement, HTMLElement, HTMLSelectElement)} [options.onDeselectAll] - (dropdownMenu, selectedDisplay, nativeSelect) widget-specific DOM reset when deselecting all.
+   * @param {function(HTMLElement): (HTMLElement|null)} [options.focusTarget] - (selectifySelect) return element to focus after clear (e.g. selected display or dual available list).
+   */
+  Drupal.selectify.executeClear = (type, selectifySelect, nativeSelect, selectedDisplay, clearAllButton, dropdownMenu, options) => {
+    const targetValues = Drupal.selectify.getClearTargetValues(nativeSelect, selectifySelect);
+    if (targetValues.length > 0) {
+      nativeSelect.querySelectorAll('option').forEach((opt) => {
+        opt.selected = (opt.value === 'All');
+      });
+      Drupal.selectify.syncHiddenSelect(nativeSelect, targetValues);
+    } else {
+      nativeSelect.querySelectorAll('option').forEach((opt) => {
+        opt.selected = false;
+      });
+      if (options.onDeselectAll && dropdownMenu) {
+        options.onDeselectAll(dropdownMenu, selectedDisplay, nativeSelect);
+      }
+      Drupal.selectify.syncHiddenSelect(nativeSelect, []);
+    }
+    Drupal.selectify.updateSelectedDisplay(type, nativeSelect, selectedDisplay, clearAllButton);
+    setTimeout(() => {
+      nativeSelect.dispatchEvent(new Event('change', { bubbles: true }));
+      nativeSelect.dispatchEvent(new Event('input', { bubbles: true }));
+    }, 0);
+    const constants = Drupal.selectify?.constants || {};
+    const focusDelay = constants.FOCUS_DELAY || 100;
+    if (options.focusTarget) {
+      const el = options.focusTarget(selectifySelect);
+      if (el && typeof el.focus === 'function') {
+        setTimeout(() => el.focus(), focusDelay);
+      }
+    }
+  };
+  /**
    * Handles selection limits for multi-select components.
    * Shows a message with animation when the max selection limit is reached.
    *
@@ -63,11 +156,15 @@
       const items = selectifySelect.querySelectorAll('.selectify-available-one-option input[type="checkbox"]');
       once('selectifyCheckboxLimit', items).forEach((item) => {
         item.addEventListener('change', function() {
-          // For maxSelections=1, uncheck all other checkboxes when checking a new one
+          // For maxSelections=1, uncheck all other checkboxes when checking a new one (click-to-switch, like other widgets)
           if (maxSelections === 1 && this.checked) {
             items.forEach(i => {
               if (i !== this && i.checked) {
                 i.checked = false;
+                const parent = i.closest('.selectify-available-one-option');
+                if (parent) {
+                  parent.classList.remove('s-selected');
+                }
               }
             });
           }
@@ -81,12 +178,12 @@
             return;
           }
           const selectedValues = selectedItems.map(i => i.value);
-          // **Ensure unchecked checkboxes get disabled when max selection is reached**
+          // **Disable unchecked checkboxes only when max selection is reached (and multi-select). For single (maxSelections=1), never disable so user can click another to switch.**
           let shouldShowMessage = false;
           items.forEach(i => {
             if (!i.checked) {
               const wasEnabled = !i.disabled;
-              const isDisabled = selectedCount >= maxSelections;
+              const isDisabled = maxSelections > 1 && selectedCount >= maxSelections;
               i.disabled = isDisabled;
 
               // Show message when first disabling (transition from enabled to disabled)
@@ -354,7 +451,8 @@
       });
     }
     // Toggle "has-selections" on parent — CSS controls Clear All visibility.
-    // Exclude placeholder values: _none (entity fields) and All (Views exposed filters).
+    // Show Clear only when user has a non-placeholder selection (_none, All, empty).
+    // After clicking Clear, selection becomes placeholder or empty → button hides.
     if (selectWidget) {
       const hasRealSelections = selectedValues.filter(v => v !== '_none' && v !== 'All' && v !== '').length > 0;
       selectWidget.classList.toggle('has-selections', hasRealSelections);
@@ -665,6 +763,21 @@ Drupal.selectify.toggleMultiSelectOption = function(type, nativeSelect, optionEl
       }
     }
     return selectedValues;
+  };
+  /**
+   * For "Clear All": single-select with an "All" option should reset to "All", not empty.
+   *
+   * @param {HTMLSelectElement} nativeSelect - The hidden <select> element.
+   * @param {HTMLElement} selectWidget - The Selectify widget wrapper (for data-multiple).
+   * @returns {string[]} [] to deselect all, or ['All'] to select the "All" option.
+   */
+  Drupal.selectify.getClearTargetValues = (nativeSelect, selectWidget) => {
+    const isMultiple = selectWidget && selectWidget.getAttribute('data-multiple') === 'true';
+    if (isMultiple) {
+      return [];
+    }
+    const hasAll = Array.from(nativeSelect.options).some(opt => opt.value === 'All');
+    return hasAll ? ['All'] : [];
   };
   /**
    * Handles keyboard navigation for multi-select components.

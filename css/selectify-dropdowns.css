@@ -160,10 +160,6 @@
   background: var(--selectify-select-bg, var(--r-bg));
 }
 
-.selectify-select-dropdowns .options-inner .selectify-select-footer button {
-  padding: 4px 8px;
-}
-
 /* RTL: arrow icon flip only (layout uses logical properties) */
 html[dir="rtl"] .selectify-select-dropdowns .selectify-dorpdown-arrow {
   transform: rotate(180deg);

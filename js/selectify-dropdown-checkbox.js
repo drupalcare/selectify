@@ -15,40 +15,10 @@
         const constants = Drupal.selectify?.constants || {};
         const initDelay = constants.INIT_DELAY || 10;
         setTimeout(() => {
-          // Retrieve the target ID from data attribute.
-          const targetId = selectifySelect.getAttribute('data-target-id');
-          if (!targetId) {
-            if (drupalSettings?.selectify?.debug) {
-              console.warn('[Selectify] Checkbox widget missing data-target-id attribute');
-            }
-            return;
-          }
-          // Locate the corresponding hidden <select> element by its ID.
-          const nativeSelect = document.getElementById(targetId);
-          if (!nativeSelect || nativeSelect.tagName !== 'SELECT') {
-            if (drupalSettings?.selectify?.debug) {
-              console.warn('[Selectify] Native select element not found:', targetId);
-            }
-            return;
-          }
-          initializeSelectifyCheckbox(selectifySelect, nativeSelect);
-          let maxSelections = selectifySelect.getAttribute('data-max-selections');
-          maxSelections = maxSelections === 'null' ? null : parseInt(maxSelections, 10);
-          Drupal.selectify.handleSelectionLimit(
-            type
-            , selectifySelect
-            , nativeSelect
-            , maxSelections
-            , '.selectify-available-one-option'
-          );
-          const dropdownMenu = selectifySelect.querySelector('.selectify-available-display');
-          if (dropdownMenu) {
-            // Generate a unique ID for the dropdown if not already set.
-            const dropdownId = `${targetId}-dropdown`;
-            dropdownMenu.setAttribute('id', dropdownId);
-            // Set aria-controls on selectifySelect
-            selectifySelect.setAttribute('aria-controls', dropdownId);
-          }
+          Drupal.selectify.bootstrapWidget(selectifySelect, 'Checkbox', type, {
+            initFn: (sel, native) => initializeSelectifyCheckbox(sel, native),
+            dropdownPanelSelector: '.selectify-available-display',
+          });
         }, initDelay);
       });
     }
@@ -114,32 +84,22 @@
     });
     // Handle "Clear All" functionality.
     if (clearAllButton) {
-      clearAllButton.addEventListener('click', () => {
-        // Unselect all options in the hidden select
-        nativeSelect.querySelectorAll('option').forEach(option => option.selected = false);
-        // Uncheck all checkboxes
-        options.forEach(opt => {
-          opt.checked = false;
-          opt.disabled = false;
+      once('clearAllCheckbox', clearAllButton).forEach(() => {
+        clearAllButton.addEventListener('click', () => {
+          Drupal.selectify.executeClear(type, selectifySelect, nativeSelect, selectedDisplay, clearAllButton, dropdownMenu, {
+            onDeselectAll: (menu) => {
+              options.forEach((opt) => {
+                opt.checked = false;
+                opt.disabled = false;
+              });
+              options.forEach((opt) => {
+                const parentOption = opt.closest('.selectify-available-one-option');
+                if (parentOption) parentOption.classList.remove('s-selected');
+              });
+            },
+            focusTarget: () => selectedDisplay,
+          });
         });
-        // Remove .s-selected and .s-hidden from parent elements
-        options.forEach(opt => {
-          const parentOption = opt.closest('.selectify-available-one-option');
-          if (parentOption) {
-            parentOption.classList.remove('s-selected');
-          }
-        });
-        // Sync hidden select and update UI
-        Drupal.selectify.syncHiddenSelect(nativeSelect, []);
-        Drupal.selectify.updateSelectedDisplay(type, nativeSelect, selectedDisplay, clearAllButton);
-        nativeSelect.dispatchEvent(new Event('change'));
-
-        // Return focus to the main trigger
-        if (selectedDisplay && typeof selectedDisplay.focus === 'function') {
-          const constants = Drupal.selectify?.constants || {};
-          const focusDelay = constants.FOCUS_DELAY || 100;
-          setTimeout(() => selectedDisplay.focus(), focusDelay);
-        }
       });
     }
     // Enable keyboard navigation.

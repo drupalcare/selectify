@@ -191,6 +191,31 @@ function selectify_preprocess_select__selectify_dual(&$variables) {
 }
 
 /**
+ * Flattens select #options to a list of all option keys (handles optgroups).
+ *
+ * Works for flat options (Views, Webform, Field UI) and nested optgroup
+ * structure so the same logic applies across all form types.
+ *
+ * @param array $options
+ *   The #options array (value => label or group => [value => label, ...]).
+ *
+ * @return array
+ *   List of option value keys.
+ */
+function _selectify_flatten_option_keys(array $options): array {
+  $keys = [];
+  foreach ($options as $key => $value) {
+    if (is_array($value)) {
+      $keys = array_merge($keys, _selectify_flatten_option_keys($value));
+    }
+    else {
+      $keys[] = $key;
+    }
+  }
+  return $keys;
+}
+
+/**
  * Common preprocessing logic for all Selectify widgets.
  */
 function _selectify_preprocess_widget(array &$variables) {
@@ -285,6 +310,16 @@ function _selectify_preprocess_widget(array &$variables) {
   if ($variables['unique_id']) {
     $variables['attributes']->setAttribute('id', $variables['unique_id']);
   }
+
+  // Hide Clear when 1–3 options (e.g. Sort by, Order); show when 4+ for better UI.
+  // Works for all form types: Views, Webform, Field UI, entity forms. Flatten
+  // so optgroup-based #options are counted correctly if ever used.
+  $options = $element['#options'] ?? [];
+  $selectable_keys = _selectify_flatten_option_keys($options);
+  $selectable_keys = array_filter($selectable_keys, function ($key) {
+    return $key !== '_none' && $key !== 'All' && $key !== '';
+  });
+  $variables['selectify_few_options'] = count($selectable_keys) <= 3;
 }
 
 /**

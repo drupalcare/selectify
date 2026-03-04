@@ -21,7 +21,7 @@
 
 {% embed '@selectify/partials/_selectify-base.html.twig' %}
   {% block widget_content %}
-  <div class="selectify selectify-select selectify-select-dropdowns selectify-dropdown-tags-widget"
+  <div class="selectify selectify-select selectify-select-dropdowns selectify-dropdown-tags-widget{% if selectify_few_options %} selectify-few-options{% endif %}"
      tabindex="0"
      role="combobox"
      aria-controls="edit-{{ clean_field_name }}-dropdown"
