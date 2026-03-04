@@ -1,13 +1,6 @@
 /**
  * Selectify styles specific to Gin admin theme
  */
-body .selectify-select.selectify-select-dropdowns .search-input input {
-  width: calc(100% - 10px);
-  margin: 0 5px;
-  padding: 8px 12px 8px 38px;
-  line-height: 1.5;
-}
-
 body .dual-available,
 body .dual-selected,
 body .selectify-available-display,
@@ -44,7 +37,7 @@ input.selectify-radio.form-boolean[type="radio"]::after {
 }
 
 .selectify-selected-display {
-  min-height: calc(var(--input-padding-vertical) * 2 + var(--input-line-height));
+  min-block-size: calc(var(--input-padding-vertical) * 2 + var(--input-line-height));
   border: 1px solid var(--gin-border-color-form-element);
   border-radius: var(--gin-border-m);
   background-color: var(--gin-bg-input);
@@ -85,7 +78,7 @@ body .selectify-select .selectify-selected-display {
 }
 
 body .selectify-select-dropdowns .selectify-selected-display {
-  min-height: calc(var(--input-padding-vertical) * 2 + var(--input-line-height));
+  min-block-size: calc(var(--input-padding-vertical) * 2 + var(--input-line-height));
   border-radius: var(--gin-border-m);
 }
 
@@ -111,5 +104,5 @@ body.selectify-color-disabled input.selectify-checkbox[type="checkbox"] {
 }
 
 .selectify-radio-wrapper label {
-  margin-bottom: 0;
+  margin-block-end: 0;
 }

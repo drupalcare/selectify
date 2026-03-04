@@ -52,3 +52,4 @@ coverage/
 *.map
 scripts/run-ci-checks.sh
 ANALYSIS-dual-vs-dropdown-search.md
+docs/CSS-RTL-LTR-MODERNIZATION-PLAN.md

@@ -1,7 +1,7 @@
 .selected-widget-row {
   border-radius: 8px;
   background: transparent;
-  border-left: 8px solid #28a745;
+  border-inline-start: 8px solid #28a745;
 }
 
 .selected-widget-row select {
@@ -10,7 +10,7 @@
 }
 
 .selectify-settings-form {
-  max-width: 1400px;
+  max-inline-size: 1400px;
   margin: 0 auto;
 }
 
@@ -25,8 +25,8 @@
 .selectify-settings-form table td .form-type--select,
 .selectify-settings-form table td .form-item {
   display: block !important;
-  width: 100% !important;
-  max-width: 100% !important;
+  inline-size: 100% !important;
+  max-inline-size: 100% !important;
   margin: 0 !important;
   padding: 0 !important;
 }
@@ -38,7 +38,7 @@
   display: none !important;
   visibility: hidden !important;
   overflow: hidden !important;
-  height: 0 !important;
+  block-size: 0 !important;
 }
 
 /* Ensure select elements fill their container */
@@ -46,9 +46,9 @@
 .selectify-settings-form table td .form-type--select select,
 .selectify-settings-form table td .form-item select {
   display: block !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  margin: 0 !important;
+  inline-size: 100% !important;
+  max-inline-size: 100% !important;
+  margin-inline: 0 !important;
   box-sizing: border-box !important;
 }
 
@@ -73,7 +73,7 @@
 }
 
 .selectify-settings-form #edit-form-api-selects table tr td {
-  min-width: 0;
+  min-inline-size: 0;
   flex: 1 1 auto;
 }
 
@@ -89,8 +89,8 @@
   position: absolute !important;
   visibility: hidden !important;
   overflow: hidden !important;
-  width: 0 !important;
-  height: 0 !important;
+  inline-size: 0 !important;
+  block-size: 0 !important;
   margin: 0 !important;
   padding: 0 !important;
   border: 0 !important;
@@ -103,8 +103,8 @@
   position: relative;
   display: inline-flex;
   overflow: visible;
-  width: 32px;
-  height: 32px;
+  inline-size: 32px;
+  block-size: 32px;
   border: 2px solid transparent;
   border-radius: 50%;
   text-indent: -9999px;
@@ -179,8 +179,8 @@
 .selectify-settings-form #edit-admin-accent-color--wrapper input.form-radio:checked + label::after,
 .selectify-settings-form #edit-admin-accent-color--wrapper input.selectify-checked + label::after {
   position: absolute;
-  top: 50%;
-  left: 50%;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
   color: white;
   font-size: 1.25rem;
   font-weight: bold;
@@ -220,11 +220,14 @@
 /* Tooltip for Accent Color Circles */
 .selectify-settings-form .accent-tooltip {
   position: absolute;
-  bottom: -35px;
-  left: 50%;
+  inset-block-end: -35px;
+  inset-inline-start: 50%;
   z-index: 10;
   visibility: hidden;
-  padding: 5px 8px;
+  padding-block-start: 5px;
+  padding-inline-end: 8px;
+  padding-block-end: 5px;
+  padding-inline-start: 8px;
   border-radius: 4px;
   background-color: rgb(0 0 0 / 75%);
   color: #fff;

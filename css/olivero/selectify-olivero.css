@@ -9,11 +9,11 @@
 }
 
 .field--widget-selectify-dual .wrapper-selectify {
-  width: 100%;
+  inline-size: 100%;
 }
 
 .field--widget-selectify-dual .selectify-select-dual-list {
-  width: auto;
+  inline-size: auto;
   border-radius: 0;
 }
 
@@ -30,8 +30,8 @@ input.selectify-checkbox[type="checkbox"] {
 }
 
 .selectify-select-dropdowns .selectify-selected-display {
-  max-width: 100%;
-  height: var(--sp3);
+  max-inline-size: 100%;
+  block-size: var(--sp3);
   border-radius: var(--border-radius);
   border-color: var(--selectify-select-border-color, var(--color--gray-60));
   background-color: var(--color--white);
@@ -40,13 +40,6 @@ input.selectify-checkbox[type="checkbox"] {
   font-size: inherit;
   appearance: none;
   font-family: inherit;
-}
-
-body .selectify-select.selectify-select-dropdowns .search-input input {
-  width: calc(100% - 10px);
-  margin: 0 5px;
-  padding: 8px 12px 8px 38px;
-  line-height: 1.5;
 }
 
 .selectify-select-dropdowns .options-inner .selectify-select-footer {

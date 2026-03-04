@@ -1,13 +1,13 @@
 .wrapper-selectify-dual-widget {
   display: block;
-  width: 100%;
+  inline-size: 100%;
 }
 
 .selectify-select-dual-list {
   all: unset;
   position: relative;
   display: flex;
-  width: 100%;
+  inline-size: 100%;
   padding: 12px;
   border-radius: 8px;
   flex-direction: column;
@@ -25,54 +25,42 @@
 .dual-selected {
   display: flex;
   overflow-y: auto;
-  min-width: 180px;
-  min-height: 220px;
-  max-height: 500px;
-  padding: 0 6px 12px 6px;
-  border-radius: 6px;
+  min-inline-size: 180px;
+  min-block-size: 220px;
+  max-block-size: 500px;
+  padding: 12px;
+  border-radius: 0.25rem;
   transition: border-color 0.2s ease-in-out;
   flex: 1;
   flex-direction: column;
 }
 
-.dual-selected {
-  padding-block-start: 12px;
-}
-
 .dual-search-input {
   margin: 0 auto;
   position: sticky;
-  top: 0;
+  inset-block-start: 0;
   z-index: 1;
-  padding: 12px 0;
+  padding: 0;
+  padding-block-end: 12px;
   background: transparent !important;
-  width: 100%;
+  inline-size: 100%;
   display: flex;
   align-items: center;
 }
 
 .dual-container input.dual-search-filter {
+  inline-size: 100%;
+}
+
+body .selectify-select .dual-search-input input {
   width: 100%;
+  --selectify-search-padding-inline-start: 32px;
+  margin: 0;
 }
 
-.dual-search-input .manage-search {
-  position: absolute;
-  top: 50%;
-  left: 9px;
-  width: 22px;
-  height: 22px;
-  opacity: 0.7;
-  transform: translateY(-55%);
-  pointer-events: none;
-}
-
-html[dir="rtl"] .dual-search-input .manage-search {
-  right: 18px;
-  left: initial;
-}
-
-html[dir="rtl"] .dual-search-input input {
-  padding: 6px 34px 6px 10px;
+.selectify-select-dual-list .search-input .manage-search {
+  inset-block-start: 2px;
+  inset-inline-start: 8px;
 }
 
 .dual-item {
@@ -95,27 +83,41 @@ body .dual-available-arrow {
   line-height: 0.8;
 }
 
+/* Dual pill radius: LTR available = rounded inline-end; selected = rounded inline-start. Order: start-start, start-end, end-end, end-start */
 .dual-available-option.dual-item {
-  margin-bottom: 2px;
+  margin-block-end: 2px;
   border: 1px dotted var(--selectify-select-border-color, transparent);
-  border-radius: 0 24px 24px 0;
+  border-start-start-radius: var(--selectify-dual-available-radius-start-start, 0);
+  border-start-end-radius: var(--selectify-dual-available-radius-start-end, 24px);
+  border-end-end-radius: var(--selectify-dual-available-radius-end-end, 24px);
+  border-end-start-radius: var(--selectify-dual-available-radius-end-start, 0);
   transition: all 0.2s ease;
 }
 
 .selectify-selected-one-option.dual-item {
-  margin-bottom: 2px;
+  margin-block-end: 2px;
   border: 1px solid var(--selectify-select-border-color, transparent);
-  border-radius: 24px 0 0 24px;
+  border-start-start-radius: var(--selectify-dual-selected-radius-start-start, 24px);
+  border-start-end-radius: var(--selectify-dual-selected-radius-start-end, 0);
+  border-end-end-radius: var(--selectify-dual-selected-radius-end-end, 0);
+  border-end-start-radius: var(--selectify-dual-selected-radius-end-start, 24px);
   flex-direction: row-reverse;
-  border-left: none;
+  border-inline-start: none;
 }
 
+/* RTL: swap pill radii so selected is rounded on the other side */
 html[dir="rtl"] .selectify-selected-one-option.dual-item {
-  border-radius: 0 24px 24px 0;
+  --selectify-dual-selected-radius-start-start: 0;
+  --selectify-dual-selected-radius-start-end: 24px;
+  --selectify-dual-selected-radius-end-end: 24px;
+  --selectify-dual-selected-radius-end-start: 0;
 }
 
 html[dir="rtl"] .dual-available-option.dual-item {
-  border-radius: 24px 0 0 24px;
+  --selectify-dual-available-radius-start-start: 24px;
+  --selectify-dual-available-radius-start-end: 0;
+  --selectify-dual-available-radius-end-end: 0;
+  --selectify-dual-available-radius-end-start: 24px;
   flex-direction: row;
 }
 
@@ -127,7 +129,7 @@ html[dir="rtl"] .dual-available-option .dual-available-arrow {
 @media (min-width:62rem) {
   .dual-available,
   .dual-selected {
-    min-width: 220px;
+    min-inline-size: 220px;
   }
 
 }
@@ -135,7 +137,7 @@ html[dir="rtl"] .dual-available-option .dual-available-arrow {
 @media (min-width:75rem) {
   .dual-available,
   .dual-selected {
-    min-width: 330px;
+    min-inline-size: 330px;
   }
 
 }
@@ -147,7 +149,7 @@ html[dir="rtl"] .dual-available-option .dual-available-arrow {
   }
 
   .selectify-multi {
-    width: 100%;
+    inline-size: 100%;
   }
 
   .dual-container {
@@ -157,7 +159,7 @@ html[dir="rtl"] .dual-available-option .dual-available-arrow {
 
   .dual-available,
   .dual-selected {
-    width: 100%;
+    inline-size: 100%;
   }
 
 }
