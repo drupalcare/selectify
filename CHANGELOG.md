@@ -23,6 +23,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Menu link title capitalization: "selectify Settings" → "Selectify Settings".
 - Menu link description updated for clarity.
 
+## [2.0.3] - 2026-02-22
+
+### Added
+- **Documentation (README and project page):**
+  - "Who is this for?" note for site builders, themers, and developers.
+  - Clear All button behavior: when shown (typically 4+ options), hidden for
+    small lists (e.g. Sort by, Order, Items per page), reset-to-"All" or
+    deselect-all, and hide-after-clear.
+  - RTL and LTR support: CSS logical properties for correct layout in both
+    directions.
+  - Form API per-element targeting: optional CSS selector rules documented.
+  - Modular JavaScript: helper, accessibility, render, and search scripts
+    described under Developer Features.
+- **Module description** (`selectify.info.yml`): expanded to mention five
+  dropdown widgets, RTL/LTR support, and WCAG 2.1 AA.
+- **Drupal project page** (`homepage-drupal.html`): aligned with README (who
+  it’s for, Key Features including RTL/LTR, Clear All, modular JS; Form API
+  per-element targeting; Theme Integration RTL/LTR).
+
+### Changed
+- README.md: removed duplicate/junk content from the top so the file starts
+  with the main project heading.
+
 ## [2.0.2] - 2026-02-17
 
 ### Added
