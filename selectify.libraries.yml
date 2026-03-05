@@ -17,13 +17,17 @@ selectify-dropdowns:
       css/selectify-dropdowns.css:  { weight: 0 }
 
 selectify-helper:
-  js:
-    js/selectify-helper.js: {}
   dependencies:
+    - selectify/selectify-base
     - core/drupal
     - core/drupal.ajax
     - core/drupalSettings
     - core/once
+  js:
+    js/selectify-helper.js: {}
+    js/selectify-accessibility.js: {}
+    js/selectify-search.js: {}
+    js/selectify-render.js: {}
 
 selectify-dropdown:
   css:

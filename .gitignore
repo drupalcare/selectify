@@ -54,3 +54,4 @@ scripts/run-ci-checks.sh
 ANALYSIS-dual-vs-dropdown-search.md
 docs/CSS-RTL-LTR-MODERNIZATION-PLAN.md
 docs/JS-CODE-QUALITY-ASSESSMENT.md
+docs/JS-HELPER-SPLIT-RECOMMENDATION.md

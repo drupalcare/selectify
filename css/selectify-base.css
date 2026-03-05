@@ -169,6 +169,10 @@
   display: none !important;
 }
 
+.selectify-select-dropdowns.selectify-few-options .options-inner {
+  overflow: hidden;
+}
+
 .options-inner,
 .selectify-selected-options.dual-inner {
   display: flex;

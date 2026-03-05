@@ -122,8 +122,8 @@ body .selectify-selected-display:hover {
 }
 
 body .selectify-clear-all:hover,
-body .selectify-selected-one-option.dual-item:hover,
-body .selectify-available-one-option:hover {
+body .selectify-available-one-option:hover,
+body .selectify-selected-one-option.dual-item:hover {
   border-color: var(--selectify-select-focus-border, var(--r-br));
   background: var(--selectify-select-hover-bg, var(--r-bg));
   transform: translateY(2px);
