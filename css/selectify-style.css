@@ -72,11 +72,6 @@ body .selectify-select .search-input input {
   box-shadow: none !important;
 }
 
-body .selectify-select-dropdowns .search-input input {
-  margin: 8px;
-  inline-size: calc(100% - 16px);
-}
-
 body .dual-available,
 body .dual-selected {
   border: 1px solid var(--selectify-select-border-color, var(--r-br));

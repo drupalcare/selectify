@@ -361,3 +361,9 @@ body .selectify-clear-all span.icon {
 .selectify-placeholder-option .dual-selected-arrow {
   display: none;
 }
+
+body .selectify-select.selectify-select-dropdowns .search-input input {
+  margin: 8px;
+  inline-size: calc(100% - 16px);
+  padding-inline-start: 36px;
+}
