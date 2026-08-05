@@ -7,7 +7,6 @@ selectify-base:
     js/selectify-base.js: { }
   dependencies:
     - core/drupal
-    - core/drupal.ajax
     - core/drupalSettings
     - core/once
 
@@ -20,7 +19,6 @@ selectify-helper:
   dependencies:
     - selectify/selectify-base
     - core/drupal
-    - core/drupal.ajax
     - core/drupalSettings
     - core/once
   js:
@@ -37,7 +35,6 @@ selectify-dropdown:
     js/selectify-dropdown.js: {}
   dependencies:
     - core/drupal
-    - core/drupal.ajax
     - core/drupalSettings
     - core/once
     - selectify/selectify-base
@@ -51,7 +48,6 @@ selectify-dropdown-checkbox:
     js/selectify-dropdown-checkbox.js: {}
   dependencies:
     - core/drupal
-    - core/drupal.ajax
     - core/drupalSettings
     - core/once
     - selectify/selectify-base
@@ -66,7 +62,6 @@ selectify-dropdown-searchable:
     js/selectify-dropdown-searchable.js: {}
   dependencies:
     - core/drupal
-    - core/drupal.ajax
     - core/drupalSettings
     - core/once
     - selectify/selectify-base
@@ -80,7 +75,6 @@ selectify-dropdown-tags:
     js/selectify-dropdown-tags.js: {}
   dependencies:
     - core/drupal
-    - core/drupal.ajax
     - core/drupalSettings
     - core/once
     - selectify/selectify-base
@@ -94,7 +88,6 @@ selectify-dual:
     js/selectify-dual.js: {}
   dependencies:
     - core/drupal
-    - core/drupal.ajax
     - core/drupalSettings
     - core/once
     - selectify/selectify-base
@@ -108,7 +101,6 @@ selectify-radio-checkbox:
     js/selectify-radio-checkbox.js: { }
   dependencies:
     - core/drupal
-    - core/drupal.ajax
     - core/drupalSettings
     - core/once
     - selectify/selectify-base
