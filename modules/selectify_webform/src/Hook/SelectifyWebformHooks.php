@@ -3,12 +3,32 @@
 namespace Drupal\selectify_webform\Hook;
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Extension\ModuleHandlerInterface;
+use Drupal\selectify\Service\SelectifyHelperInterface;
 use Drupal\Core\Hook\Attribute\Hook;
 
 /**
  * Hook implementations for selectify_webform.
  */
 class SelectifyWebformHooks {
+
+  /**
+   * Constructs the hook implementations.
+   *
+   * Injected rather than fetched: the container builds this class
+   * (autowire: true), so the static lookups the bot patch carried over from
+   * the .module file are unnecessary here. See the sibling class in the parent
+   * module for the full reasoning. Call sites are otherwise unchanged.
+   *
+   * @param \Drupal\selectify\Service\SelectifyHelperInterface $helper
+   *   Answers whether Selectify applies to a given element.
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $moduleHandler
+   *   Invokes this module's own alter hooks.
+   */
+  public function __construct(
+    protected readonly SelectifyHelperInterface $helper,
+    protected readonly ModuleHandlerInterface $moduleHandler,
+  ) {}
 
   /**
    * Implements hook_webform_element_alter().
@@ -44,13 +64,13 @@ class SelectifyWebformHooks {
         'integration_type' => 'webform',
         'webform' => $webform,
       ];
-      \Drupal::moduleHandler()->alter('selectify_widget', $widget, $context);
+      $this->moduleHandler->alter('selectify_widget', $widget, $context);
     }
     if (empty($widget) || $widget === 'none') {
       return;
     }
     /** @var \Drupal\selectify\Service\SelectifyHelper $helper */
-    $helper = \Drupal::service('selectify.helper');
+    $helper = $this->helper;
     // Direct select element.
     if ($element_type === 'select') {
       // Skip selects with AJAX callbacks.
@@ -78,7 +98,7 @@ class SelectifyWebformHooks {
         'integration_type' => 'webform',
         'webform' => $webform,
       ];
-      \Drupal::moduleHandler()->alter('selectify_element', $element, $element_context);
+      $this->moduleHandler->alter('selectify_element', $element, $element_context);
       // Check if the element was marked to skip Selectify processing.
       if (!empty($element['#selectify_skip'])) {
         return;
@@ -127,7 +147,7 @@ class SelectifyWebformHooks {
       return;
     }
     /** @var \Drupal\selectify\Service\SelectifyHelper $helper */
-    $helper = \Drupal::service('selectify.helper');
+    $helper = $this->helper;
     _selectify_webform_walk_composites($form, $helper, $widget);
   }
 

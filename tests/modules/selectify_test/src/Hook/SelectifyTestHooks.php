@@ -3,11 +3,24 @@
 namespace Drupal\selectify_test\Hook;
 
 use Drupal\Core\Hook\Attribute\Hook;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Hook implementations for selectify_test.
  */
 class SelectifyTestHooks {
+
+  /**
+   * Constructs the test hook implementations.
+   *
+   * @param \Symfony\Component\HttpFoundation\RequestStack $requestStack
+   *   Supplies the current request, which \Drupal::request() fetched before
+   *   this code moved into a container-built class.
+   */
+  public function __construct(
+    protected readonly RequestStack $requestStack,
+  ) {}
+
   /**
    * @file
    * Test module implementing Selectify alter hooks for Kernel tests.
@@ -45,7 +58,7 @@ class SelectifyTestHooks {
    */
   #[Hook('selectify_is_applicable_alter')]
   public function selectifyIsApplicableAlter(bool &$applicable, array $context): void {
-    $request = \Drupal::request();
+    $request = $this->requestStack->getCurrentRequest();
     if ($request && $request->query && $request->query->get('disable_selectify') === '1') {
       $applicable = FALSE;
     }

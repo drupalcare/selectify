@@ -2,10 +2,14 @@
 
 namespace Drupal\selectify\Hook;
 
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Template\Attribute;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Hook\Attribute\Hook;
+use Drupal\selectify\Service\SelectifyHelperInterface;
+use Drupal\selectify\Service\SelectifyStyleServiceInterface;
 
 /**
  * Hook implementations for selectify.
@@ -13,24 +17,56 @@ use Drupal\Core\Hook\Attribute\Hook;
 class SelectifyHooks {
 
   /**
+   * Constructs the hook implementations.
+   *
+   * INJECTED RATHER THAN FETCHED, and the reason is not style. The Project
+   * Update Bot's patch moved these hook bodies verbatim out of the .module
+   * file, where `\Drupal::service()` was the only option, into a class where
+   * it is not: the service container builds this class (autowire: true in
+   * selectify.services.yml), so every dependency can be handed to it.
+   * DrupalPractice flags each remaining static call, and it was right to —
+   * moving procedural code into a class without giving it constructor
+   * injection keeps the drawback of both shapes.
+   *
+   * The call sites below are otherwise untouched: each `\Drupal::service(...)`
+   * became `$this->...` and the local variable kept its name, so no logic in
+   * these hooks changed with this edit.
+   *
+   * @param \Drupal\selectify\Service\SelectifyHelperInterface $helper
+   *   Answers whether Selectify applies to the current page and element.
+   * @param \Drupal\selectify\Service\SelectifyStyleServiceInterface $styleService
+   *   Builds the body classes and inline style payload.
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
+   *   Reads selectify.settings.
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $moduleHandler
+   *   Invokes this module's own alter hooks, and checks for selectify_webform.
+   */
+  public function __construct(
+    protected readonly SelectifyHelperInterface $helper,
+    protected readonly SelectifyStyleServiceInterface $styleService,
+    protected readonly ConfigFactoryInterface $configFactory,
+    protected readonly ModuleHandlerInterface $moduleHandler,
+  ) {}
+
+  /**
    * Implements hook_preprocess_html().
    */
   #[Hook('preprocess_html')]
   public function preprocessHtml(&$variables) {
     /** @var \Drupal\selectify\Service\SelectifyHelper $helper */
-    $helper = \Drupal::service('selectify.helper');
+    $helper = $this->helper;
     // Check if current page is in the disabled pages list.
     if ($helper->isPageDisabled()) {
       return;
     }
-    $config = \Drupal::config('selectify.settings');
+    $config = $this->configFactory->get('selectify.settings');
     $radioEnabled = $config->get('enable_radio');
     $checkboxEnabled = $config->get('enable_checkbox');
     if (!$radioEnabled && !$checkboxEnabled) {
       return;
     }
     /** @var \Drupal\selectify\Service\SelectifyStyleService $styleService */
-    $styleService = \Drupal::service('selectify.style_service');
+    $styleService = $this->styleService;
     $bodyClasses = $styleService->getBodyClasses();
     if (!empty($bodyClasses)) {
       $classes = explode(' ', $bodyClasses);
@@ -124,7 +160,7 @@ class SelectifyHooks {
   #[Hook('preprocess_form_element')]
   public function preprocessFormElement(array &$variables): void {
     /** @var \Drupal\selectify\Service\SelectifyHelper $helper */
-    $helper = \Drupal::service('selectify.helper');
+    $helper = $this->helper;
     $config = $helper->getRadioCheckboxConfig();
     if ($config === FALSE) {
       return;
@@ -147,7 +183,7 @@ class SelectifyHooks {
   #[Hook('preprocess_input')]
   public function preprocessInput(array &$variables): void {
     /** @var \Drupal\selectify\Service\SelectifyHelper $helper */
-    $helper = \Drupal::service('selectify.helper');
+    $helper = $this->helper;
     $config = $helper->getRadioCheckboxConfig();
     if ($config === FALSE) {
       return;
@@ -170,7 +206,7 @@ class SelectifyHooks {
   #[Hook('page_attachments')]
   public function pageAttachments(array &$attachments) {
     /** @var \Drupal\selectify\Service\SelectifyHelper $helper */
-    $helper = \Drupal::service('selectify.helper');
+    $helper = $this->helper;
     $config = $helper->getRadioCheckboxConfig();
     if ($config === FALSE) {
       return;
@@ -194,7 +230,7 @@ class SelectifyHooks {
   #[Hook('page_attachments_alter')]
   public function pageAttachmentsAlter(array &$attachments): void {
     /** @var \Drupal\selectify\Service\SelectifyHelper $helper */
-    $helper = \Drupal::service('selectify.helper');
+    $helper = $this->helper;
     // Check if current page is in the disabled pages list.
     if ($helper->isPageDisabled()) {
       if (isset($attachments['#attached']['library'])) {
@@ -217,7 +253,7 @@ class SelectifyHooks {
     if ($radioEnabled || $checkboxEnabled) {
       $attachments['#attached']['library'][] = 'selectify/selectify-radio-checkbox';
       /** @var \Drupal\selectify\Service\SelectifyStyleService $styleService */
-      $styleService = \Drupal::service('selectify.style_service');
+      $styleService = $this->styleService;
       $inlineCSS = $styleService->getConfiguredInlineCss();
       if (!empty($inlineCSS)) {
         $attachments['#attached']['html_head'][] = [
@@ -313,7 +349,7 @@ class SelectifyHooks {
   public function preprocessViewsExposedForm(&$variables) {
     $form =& $variables['form'];
     /** @var \Drupal\selectify\Service\SelectifyHelper $helper */
-    $helper = \Drupal::service('selectify.helper');
+    $helper = $this->helper;
     if ($helper->isPageDisabled()) {
       return;
     }
@@ -360,7 +396,7 @@ class SelectifyHooks {
         'view_name' => $view && is_object($view) && method_exists($view, 'id') ? $view->id() : NULL,
         'display_id' => $view && is_object($view) && isset($view->current_display) ? $view->current_display : NULL,
       ];
-      \Drupal::moduleHandler()->alter('selectify_widget', $widget_to_apply, $context);
+      $this->moduleHandler->alter('selectify_widget', $widget_to_apply, $context);
     }
     // Apply global or per-view widget.
     if (!empty($widget_to_apply)) {
@@ -385,7 +421,7 @@ class SelectifyHooks {
   #[Hook('form_alter')]
   public function formAlter(array &$form, FormStateInterface $form_state, string $form_id): void {
     /** @var \Drupal\selectify\Service\SelectifyHelper $helper */
-    $helper = \Drupal::service('selectify.helper');
+    $helper = $this->helper;
     // Bail early if the feature is disabled or on a disabled admin route.
     $config = $helper->getFormApiConfig();
     if ($config === FALSE) {
@@ -402,7 +438,7 @@ class SelectifyHooks {
     }
     // Skip Webform submission forms if the selectify_webform submodule handles
     // them.
-    if (str_starts_with($form_id, 'webform_submission_') && \Drupal::moduleHandler()->moduleExists('selectify_webform')) {
+    if (str_starts_with($form_id, 'webform_submission_') && $this->moduleHandler->moduleExists('selectify_webform')) {
       return;
     }
     // Check built-in blocklist (always-excluded admin forms: Field UI,
@@ -417,7 +453,7 @@ class SelectifyHooks {
       'form' => &$form,
       'integration_type' => 'form_api',
     ];
-    \Drupal::moduleHandler()->alter('selectify_is_applicable', $applicable, $context);
+    $this->moduleHandler->alter('selectify_is_applicable', $applicable, $context);
     if (!$applicable) {
       return;
     }
@@ -455,7 +491,7 @@ class SelectifyHooks {
       'form' => &$form,
       'integration_type' => 'form_api',
     ];
-    \Drupal::moduleHandler()->alter('selectify_widget', $widget, $context);
+    $this->moduleHandler->alter('selectify_widget', $widget, $context);
     if (empty($widget) || $widget === 'none') {
       return;
     }
