@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\selectify_webform\Kernel;
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Drupal\Core\Form\FormState;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\KernelTests\KernelTestBase;
@@ -20,6 +22,8 @@ use PHPUnit\Framework\Exception as PHPUnitException;
  * @group selectify_webform
  * @requires module webform
  */
+#[Group('selectify_webform')]
+#[RunTestsInSeparateProcesses]
 class SelectifyWebformElementAlterTest extends KernelTestBase {
 
   use StringTranslationTrait;
@@ -41,6 +45,7 @@ class SelectifyWebformElementAlterTest extends KernelTestBase {
    * {@inheritdoc}
    */
   protected function setUp(): void {
+    parent::setUp();
     try {
       parent::setUp();
     }

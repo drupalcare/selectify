@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\selectify\Kernel;
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Drupal\Core\Form\FormState;
 use Drupal\KernelTests\KernelTestBase;
 
@@ -12,6 +14,8 @@ use Drupal\KernelTests\KernelTestBase;
  *
  * @group selectify
  */
+#[Group('selectify')]
+#[RunTestsInSeparateProcesses]
 class SelectifyFormAlterTest extends KernelTestBase {
 
   /**
@@ -31,7 +35,8 @@ class SelectifyFormAlterTest extends KernelTestBase {
   protected function setUp(): void {
     parent::setUp();
     $this->installConfig(['selectify']);
-    // Ensure "Additional pages to disable" does not match in tests (clear path).
+    // Ensure "Additional pages to disable" does not match in tests (clear
+    // path).
     $this->config('selectify.settings')->set('disabled_pages', '')->save();
   }
 
@@ -304,7 +309,8 @@ class SelectifyFormAlterTest extends KernelTestBase {
 
     selectify_form_alter($form, $form_state, 'selectify_test_form');
 
-    // The test module should change dropdown to searchable for selectify_test_form.
+    // The test module should change dropdown to searchable for
+    // selectify_test_form.
     $classes = $form['my_select']['#attributes']['class'] ?? [];
     $this->assertContains('selectify-apply-searchable', $classes,
       'hook_selectify_widget_alter() should change widget from dropdown to searchable.');

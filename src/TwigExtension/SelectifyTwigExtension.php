@@ -17,7 +17,7 @@ class SelectifyTwigExtension extends AbstractExtension {
    */
   public function getFilters(): array {
     return [
-      new TwigFilter('selectify_clean_id', [$this, 'cleanId']),
+      new TwigFilter('selectify_clean_id', $this->cleanId(...)),
     ];
   }
 

@@ -1,0 +1,5 @@
+
+services:
+  Drupal\selectify_webform\Hook\SelectifyWebformHooks:
+    class: Drupal\selectify_webform\Hook\SelectifyWebformHooks
+    autowire: true

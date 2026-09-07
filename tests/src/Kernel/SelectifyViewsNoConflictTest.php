@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\selectify\Kernel;
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Drupal\Core\Form\FormState;
 use Drupal\KernelTests\KernelTestBase;
 
@@ -17,6 +19,8 @@ use Drupal\KernelTests\KernelTestBase;
  *
  * @group selectify
  */
+#[Group('selectify')]
+#[RunTestsInSeparateProcesses]
 class SelectifyViewsNoConflictTest extends KernelTestBase {
 
   /**
@@ -99,8 +103,8 @@ class SelectifyViewsNoConflictTest extends KernelTestBase {
   }
 
   /**
-   * Tests that form_alter skips core field widget selects (OptionsSelectWidget).
-   *
+   * Tests that form_alter skips core field widget selects
+   * (OptionsSelectWidget).
    * Core's OptionsWidgetBase sets #key_column on every field widget select.
    * Category 3 must detect this and skip the element, even when the field
    * uses the default core widget (no selectify-apply-* class).

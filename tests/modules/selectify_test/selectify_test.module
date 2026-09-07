@@ -2,41 +2,36 @@
 
 /**
  * @file
+ */
+
+use Drupal\Core\Hook\Attribute\LegacyHook;
+use Drupal\selectify_test\Hook\SelectifyTestHooks;
+
+/**
+ * @file
  * Test module implementing Selectify alter hooks for Kernel tests.
  */
 
 /**
  * Implements hook_selectify_widget_alter().
  */
+#[LegacyHook]
 function selectify_test_selectify_widget_alter(string &$widget, array $context): void {
-  if ($context['integration_type'] === 'form_api' && $context['form_id'] === 'selectify_test_form') {
-    if ($widget === 'selectify_dropdown') {
-      $widget = 'selectify_searchable';
-    }
-  }
+  \Drupal::service(SelectifyTestHooks::class)->selectifyWidgetAlter($widget, $context);
 }
 
 /**
  * Implements hook_selectify_element_alter().
  */
+#[LegacyHook]
 function selectify_test_selectify_element_alter(array &$element, array $context): void {
-  $element['#attributes'] = $element['#attributes'] ?? [];
-  $element['#attributes']['data-selectify-test'] = 'altered';
-
-  if (isset($element['#type']) && $element['#type'] === 'select') {
-    $options = $element['#options'] ?? [];
-    if (count($options) <= 2) {
-      $element['#selectify_skip'] = TRUE;
-    }
-  }
+  \Drupal::service(SelectifyTestHooks::class)->selectifyElementAlter($element, $context);
 }
 
 /**
  * Implements hook_selectify_is_applicable_alter().
  */
+#[LegacyHook]
 function selectify_test_selectify_is_applicable_alter(bool &$applicable, array $context): void {
-  $request = \Drupal::request();
-  if ($request && $request->query && $request->query->get('disable_selectify') === '1') {
-    $applicable = FALSE;
-  }
+  \Drupal::service(SelectifyTestHooks::class)->selectifyIsApplicableAlter($applicable, $context);
 }

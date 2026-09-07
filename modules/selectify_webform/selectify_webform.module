@@ -9,6 +9,8 @@
  * webform_likert, and webform_mapping.
  */
 
+use Drupal\Core\Hook\Attribute\LegacyHook;
+use Drupal\selectify_webform\Hook\SelectifyWebformHooks;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 
@@ -97,89 +99,9 @@ function _selectify_webform_get_config(): array|false {
  * Intercepts each Webform element render array and applies Selectify styling
  * to select elements and composite elements containing selects.
  */
+#[LegacyHook]
 function selectify_webform_webform_element_alter(array &$element, FormStateInterface $form_state, array $context): void {
-  $config = _selectify_webform_get_config();
-  if ($config === FALSE) {
-    return;
-  }
-
-  $webform = $context['webform'] ?? NULL;
-  $element_type = $element['#type'] ?? '';
-
-  // Determine the effective widget for this Webform:
-  // - If apply_site_wide is enabled, always use the global widget.
-  // - Otherwise, look for a specific widget for this Webform ID.
-  //   If none is configured, do not style this element.
-  $widget = NULL;
-  $webform_id = $webform?->id() ?? '';
-  if (!empty($config['apply_site_wide'])) {
-    $widget = $config['global_widget'] ?? NULL;
-  }
-  elseif ($webform_id && !empty($config['widget_map'][$webform_id])) {
-    $widget = $config['widget_map'][$webform_id];
-  }
-
-  // Allow other modules to alter the widget selection.
-  if (!empty($widget) && $widget !== 'none') {
-    $context = [
-      'form_id' => $webform_id,
-      'element' => &$element,
-      'integration_type' => 'webform',
-      'webform' => $webform,
-    ];
-    \Drupal::moduleHandler()->alter('selectify_widget', $widget, $context);
-  }
-
-  if (empty($widget) || $widget === 'none') {
-    return;
-  }
-
-  /** @var \Drupal\selectify\Service\SelectifyHelper $helper */
-  $helper = \Drupal::service('selectify.helper');
-
-  // Direct select element.
-  if ($element_type === 'select') {
-    // Skip selects with AJAX callbacks.
-    if (!empty($element['#ajax'])) {
-      return;
-    }
-    // Skip field widget selects.
-    if (isset($element['#key_column'])) {
-      return;
-    }
-    // Skip date/time picker selects (year, month, day, hour, minute).
-    // These are part of a cohesive date picker UI and should remain grouped.
-    if (_selectify_webform_is_date_select($element)) {
-      return;
-    }
-    // Skip selects per shared rules (third-party libs, hidden/disabled, context).
-    if ($helper->shouldSkipSelectElement($element)) {
-      return;
-    }
-
-    // Allow other modules to alter the element before Selectify processes it.
-    $element_context = [
-      'widget' => $widget,
-      'webform_id' => $webform_id,
-      'integration_type' => 'webform',
-      'webform' => $webform,
-    ];
-    \Drupal::moduleHandler()->alter('selectify_element', $element, $element_context);
-
-    // Check if the element was marked to skip Selectify processing.
-    if (!empty($element['#selectify_skip'])) {
-      return;
-    }
-
-    _selectify_webform_style_select($element, $helper, $widget);
-    return;
-  }
-
-  // Composite element types — walk children to find nested selects.
-  $composites = _selectify_webform_composite_types();
-  if (in_array($element_type, $composites, TRUE)) {
-    _selectify_webform_walk_composites($element, $helper, $widget);
-  }
+  \Drupal::service(SelectifyWebformHooks::class)->webformElementAlter($element, $form_state, $context);
 }
 
 /**
@@ -189,40 +111,9 @@ function selectify_webform_webform_element_alter(array &$element, FormStateInter
  * couldn't reach (e.g. dynamically added elements). Skips elements already
  * styled.
  */
+#[LegacyHook]
 function selectify_webform_form_alter(array &$form, FormStateInterface $form_state, string $form_id): void {
-  if (!str_starts_with($form_id, 'webform_submission_')) {
-    return;
-  }
-
-  $config = _selectify_webform_get_config();
-  if ($config === FALSE) {
-    return;
-  }
-
-  $webform_id = '';
-  if (isset($form['#webform']) && is_object($form['#webform']) && method_exists($form['#webform'], 'id')) {
-    $webform_id = $form['#webform']->id() ?? '';
-  }
-  if ($webform_id === '' && preg_match('/^webform_submission_(.+)_(add|edit|api)_form$/', $form_id, $m)) {
-    $webform_id = $m[1];
-  }
-
-  $widget = NULL;
-  if (!empty($config['apply_site_wide'])) {
-    $widget = $config['global_widget'] ?? NULL;
-  }
-  elseif ($webform_id && !empty($config['widget_map'][$webform_id])) {
-    $widget = $config['widget_map'][$webform_id];
-  }
-
-  if (empty($widget) || $widget === 'none') {
-    return;
-  }
-
-  /** @var \Drupal\selectify\Service\SelectifyHelper $helper */
-  $helper = \Drupal::service('selectify.helper');
-
-  _selectify_webform_walk_composites($form, $helper, $widget);
+  \Drupal::service(SelectifyWebformHooks::class)->formAlter($form, $form_state, $form_id);
 }
 
 /**
@@ -368,7 +259,8 @@ function _selectify_webform_walk_composites(array &$elements, $helper, string $w
       if (_selectify_webform_is_date_select($elements[$key])) {
         continue;
       }
-      // Skip selects per shared rules (third-party libs, hidden/disabled, context).
+      // Skip selects per shared rules (third-party libs, hidden/disabled,
+      // context).
       if ($helper->shouldSkipSelectElement($elements[$key])) {
         continue;
       }

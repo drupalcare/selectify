@@ -23,3 +23,7 @@ services:
       - '@current_route_match'
 
   Drupal\selectify\Service\SelectifyHelperInterface: '@selectify.helper'
+
+  Drupal\selectify\Hook\SelectifyHooks:
+    class: Drupal\selectify\Hook\SelectifyHooks
+    autowire: true

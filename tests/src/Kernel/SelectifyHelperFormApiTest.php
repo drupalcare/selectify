@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\selectify\Kernel;
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Drupal\KernelTests\KernelTestBase;
 
 /**
@@ -11,6 +13,8 @@ use Drupal\KernelTests\KernelTestBase;
  *
  * @group selectify
  */
+#[Group('selectify')]
+#[RunTestsInSeparateProcesses]
 class SelectifyHelperFormApiTest extends KernelTestBase {
 
   /**

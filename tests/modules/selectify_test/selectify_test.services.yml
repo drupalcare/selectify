@@ -1,0 +1,5 @@
+
+services:
+  Drupal\selectify_test\Hook\SelectifyTestHooks:
+    class: Drupal\selectify_test\Hook\SelectifyTestHooks
+    autowire: true

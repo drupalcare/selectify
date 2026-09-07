@@ -43,18 +43,19 @@ function selectify_update_10001(): void {
     $changed = TRUE;
   }
   if ($changed) {
-    $config->save(TRUE);
+    $config->save();
   }
 }
 
 /**
- * Remove deprecated form_api_excluded_forms config (additional excluded form IDs).
+ * Remove deprecated form_api_excluded_forms config (additional excluded form
+ * IDs).
  */
 function selectify_update_10002(): void {
   $config = \Drupal::configFactory()->getEditable('selectify.settings');
   if ($config->get('form_api_excluded_forms') !== NULL) {
     $config->clear('form_api_excluded_forms');
-    $config->save(TRUE);
+    $config->save();
   }
 }
 
@@ -65,7 +66,7 @@ function selectify_update_10003(): void {
   $config = \Drupal::configFactory()->getEditable('selectify.settings');
   if ($config->get('css_selector_widget_map') === NULL) {
     $config->set('css_selector_widget_map', []);
-    $config->save(TRUE);
+    $config->save();
   }
 }
 
@@ -78,6 +79,6 @@ function selectify_update_10004(): void {
   $config = \Drupal::configFactory()->getEditable('selectify.settings');
   if ($config->get('form_api_widget') !== NULL) {
     $config->clear('form_api_widget');
-    $config->save(TRUE);
+    $config->save();
   }
 }
