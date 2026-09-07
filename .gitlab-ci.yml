@@ -23,12 +23,29 @@ include:
 # https://git.drupalcode.org/project/gitlab_templates/-/blob/main/includes/include.drupalci.variables.yml
 ################
 variables:
-  # Opt-in to test previous major Drupal version.
-  OPT_IN_TEST_PREVIOUS_MAJOR: 1
-  # Skip certain jobs for efficiency.
-  _SKIP_PHPSTAN: "0"
-  _SKIP_ESLINT: "0"
-  _SKIP_STYLELINT: "0"
+  # info.yml claims `^10 || ^11 || ^12`, so all three ends get a job.
+  #
+  # TWO SWITCHES ARE NEEDED PER VARIANT, NOT ONE. `OPT_IN_TEST_*` (default '0')
+  # creates the job; `_AUTORUN_*` (default 'none') decides whether it runs or
+  # sits behind a manual prerequisite. The previous-major opt-in below was here
+  # already WITHOUT its autorun, so that job had never actually run — a green
+  # pipeline with no coverage, which is worse than a missing job because it
+  # looks fine. This is the same omission that let cloudflare_purge 3.1.2 ship
+  # a class fatal to autoload on Drupal 10 (#3614126).
+  OPT_IN_TEST_PREVIOUS_MAJOR: '1'
+  _AUTORUN_PREVIOUS_MAJOR: 'all'
+  OPT_IN_TEST_PREVIOUS_MINOR: '1'
+  _AUTORUN_PREVIOUS_MINOR: 'all'
+  # Drupal 12. Nothing had ever loaded this module on 12 before this line.
+  OPT_IN_TEST_NEXT_MAJOR: '1'
+  _AUTORUN_NEXT_MAJOR: 'all'
+  # The three lines that stood here were `_SKIP_PHPSTAN`, `_SKIP_ESLINT` and
+  # `_SKIP_STYLELINT`. THE TEMPLATE DEFINES NO SUCH VARIABLES — the real names
+  # have no leading underscore (verified against
+  # gitlab_templates/includes/include.drupalci.variables.yml). All three were
+  # inert. They were set to "0", which is also the default, so nothing changed
+  # behaviour; they are dropped rather than corrected because setting a
+  # variable to its own default only invites the reader to think it matters.
 
 ################
 # Custom Jobs (Optional)
