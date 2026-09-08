@@ -731,7 +731,7 @@ class SelectifySettingsForm extends ConfigFormBase {
 
     $all_filters = $this->getExposedFilters();
     if (!empty($all_filters)) {
-      $stored_filters = $config->get('widget_for_filters', []);
+      $stored_filters = $config->get('widget_for_filters') ?? [];
       $grouped_displays = [];
 
       // Group displays by view.
@@ -1080,10 +1080,10 @@ class SelectifySettingsForm extends ConfigFormBase {
       ->set('checkbox_size', $form_state->getValue('checkbox_size', 'medium'))
       ->set('disable_on_admin_routes', (bool) $form_state->getValue('disable_on_admin_routes', FALSE))
       ->set('disabled_pages', $form_state->getValue('disabled_pages', ''))
-      ->set('accent_color', $form_state->getValue('accent_color', $config->get('accent_color', 'neutral')))
-      ->set('accent_color_mode', $form_state->getValue('accent_color_mode', $config->get('accent_color_mode', 'light')))
-      ->set('admin_accent_color', $form_state->getValue('admin_accent_color', $config->get('admin_accent_color', 'neutral')))
-      ->set('admin_accent_color_mode', $form_state->getValue('admin_accent_color_mode', $config->get('admin_accent_color_mode', 'light')))
+      ->set('accent_color', $form_state->getValue('accent_color', $config->get('accent_color') ?? 'neutral'))
+      ->set('accent_color_mode', $form_state->getValue('accent_color_mode', $config->get('accent_color_mode') ?? 'light'))
+      ->set('admin_accent_color', $form_state->getValue('admin_accent_color', $config->get('admin_accent_color') ?? 'neutral'))
+      ->set('admin_accent_color_mode', $form_state->getValue('admin_accent_color_mode', $config->get('admin_accent_color_mode') ?? 'light'))
       ->set('enable_form_api_selects', (bool) $form_state->getValue('enable_form_api_selects', FALSE));
 
     // Build Form API per-form widget map — guard against non-array values
@@ -1107,7 +1107,7 @@ class SelectifySettingsForm extends ConfigFormBase {
     // Retrieve values from form.
     $apply_site_wide = (bool) $form_state->getValue('apply_site_wide', FALSE);
     $disable_views_widgets = (bool) $form_state->getValue('disable_views_widgets', FALSE);
-    $global_widget = $form_state->getValue('global_selectify_widget', $config->get('global_selectify_widget', 'none'));
+    $global_widget = $form_state->getValue('global_selectify_widget', $config->get('global_selectify_widget') ?? 'none');
     $views_widgets = $form_state->getValue('selectify_widgets', []);
 
     // If disabling Views Select, clear everything.
@@ -1234,7 +1234,7 @@ class SelectifySettingsForm extends ConfigFormBase {
    */
   private function processViewsWidgetSettings(FormStateInterface $form_state, Config $config): array {
 
-    $stored_widgets = $config->get('widget_for_filters', []);
+    $stored_widgets = $config->get('widget_for_filters') ?? [];
     $views_data = $form_state->getValue('selectify_widgets', []);
 
     if (!empty($views_data) && is_array($views_data)) {

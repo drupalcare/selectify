@@ -4,7 +4,14 @@ parameters:
     - src/
     - selectify.module
   excludePaths:
-    - vendor/
+    # A contrib module has no vendor/ of its own -- composer installs into the
+    # SITE's vendor dir. PHPStan treats a non-existent excludePath as a fatal
+    # config error and analyses nothing, so without the (?) optional marker
+    # this job aborts everywhere the directory is absent, which is everywhere.
+    # Measured 2026-09-08: "Path .../selectify/vendor is neither a directory,
+    # nor a file path, nor a fnmatch pattern", 0 files analysed. vvj_core has
+    # carried the guarded form all along.
+    - vendor/ (?)
   drupal:
     drupal_root: '%currentWorkingDirectory%/../../..'
   ignoreErrors:
