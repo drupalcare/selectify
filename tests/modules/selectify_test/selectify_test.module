@@ -2,6 +2,7 @@
 
 /**
  * @file
+ * Hook implementations for the Selectify test fixture module.
  */
 
 use Drupal\Core\Hook\Attribute\LegacyHook;

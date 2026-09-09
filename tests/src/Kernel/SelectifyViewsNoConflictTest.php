@@ -103,9 +103,10 @@ class SelectifyViewsNoConflictTest extends KernelTestBase {
   }
 
   /**
-   * Tests that form_alter skips core field widget selects
-   * (OptionsSelectWidget).
-   * Core's OptionsWidgetBase sets #key_column on every field widget select.
+   * Tests that form_alter skips core field widget selects.
+   *
+   * Core's OptionsSelectWidget, via OptionsWidgetBase, sets #key_column on
+   * every field widget select.
    * Category 3 must detect this and skip the element, even when the field
    * uses the default core widget (no selectify-apply-* class).
    */

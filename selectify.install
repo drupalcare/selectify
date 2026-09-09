@@ -48,8 +48,9 @@ function selectify_update_10001(): void {
 }
 
 /**
- * Remove deprecated form_api_excluded_forms config (additional excluded form
- * IDs).
+ * Remove deprecated form_api_excluded_forms config.
+ *
+ * That setting held additional excluded form IDs and is no longer read.
  */
 function selectify_update_10002(): void {
   $config = \Drupal::configFactory()->getEditable('selectify.settings');

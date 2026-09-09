@@ -12,8 +12,6 @@ parameters:
     # nor a file path, nor a fnmatch pattern", 0 files analysed. vvj_core has
     # carried the guarded form all along.
     - vendor/ (?)
-  drupal:
-    drupal_root: '%currentWorkingDirectory%/../../..'
   ignoreErrors:
     # Allow static calls in .module file (Drupal hook pattern).
     - '#\Drupal calls should be avoided in classes#'
