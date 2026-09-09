@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Drupal\selectify\Plugin\Field\FieldWidget;
 
+use Drupal\Core\Field\Attribute\FieldWidget;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+
 /**
  * Plugin implementation of the 'selectify_dropdown_checkbox' widget.
  *
@@ -20,6 +23,12 @@ namespace Drupal\selectify\Plugin\Field\FieldWidget;
  *   multiple_values = TRUE
  * )
  */
+#[FieldWidget(
+  id: 'selectify_dropdown_checkbox',
+  label: new TranslatableMarkup('Selectify Dropdown With Checkbox'),
+  field_types: ['list_string', 'list_integer', 'list_float', 'entity_reference'],
+  multiple_values: TRUE,
+)]
 class SelectifyDropdownCheckboxWidget extends SelectifyWidgetBase {
 
   /**
