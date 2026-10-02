@@ -33,6 +33,7 @@ class SelectifyWebformElementAlterTest extends KernelTestBase {
    */
   protected static $modules = [
     'system',
+    'user',
     'field',
     'views',
     'path_alias',
