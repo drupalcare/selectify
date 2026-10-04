@@ -46,7 +46,9 @@ class SelectifyWebformElementAlterTest extends KernelTestBase {
    * {@inheritdoc}
    */
   protected function setUp(): void {
-    parent::setUp();
+    // parent::setUp() runs once, inside the try: that is where core throws
+    // "Unavailable module" when webform is not installed, and the skip below
+    // only works if that exception is not raised before the try block.
     try {
       parent::setUp();
     }
