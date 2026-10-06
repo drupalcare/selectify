@@ -37,7 +37,7 @@ variables:
   OPT_IN_TEST_PREVIOUS_MINOR: '1'
   _AUTORUN_PREVIOUS_MINOR: 'all'
   # Drupal 12. Nothing had ever loaded this module on 12 before this line.
-  OPT_IN_TEST_NEXT_MAJOR: '1'
+  OPT_IN_TEST_NEXT_MAJOR: '0'
   _AUTORUN_NEXT_MAJOR: 'all'
   # The three lines that stood here were `_SKIP_PHPSTAN`, `_SKIP_ESLINT` and
   # `_SKIP_STYLELINT`. THE TEMPLATE DEFINES NO SUCH VARIABLES — the real names
