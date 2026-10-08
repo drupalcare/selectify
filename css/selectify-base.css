@@ -68,6 +68,7 @@
 }
 
 .selectify-select {
+  all: unset;
   box-shadow: none;
   font-size: 0.875rem;
   line-height: 1.6;
@@ -76,7 +77,6 @@
     background 0.2s ease-in-out,
     border 0.2s ease-in-out,
     box-shadow 0.2s ease-in-out;
-  all: unset;
 }
 
 .selectify-radio,
