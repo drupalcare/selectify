@@ -2,13 +2,15 @@
 
 namespace Drupal\selectify_test\Hook;
 
+use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Hook\Attribute\Hook;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Hook implementations for selectify_test.
  */
-class SelectifyTestHooks {
+class SelectifyTestHooks implements ContainerInjectionInterface {
 
   /**
    * Constructs the test hook implementations.
@@ -20,6 +22,23 @@ class SelectifyTestHooks {
   public function __construct(
     protected readonly RequestStack $requestStack,
   ) {}
+
+  /**
+   * {@inheritdoc}
+   *
+   * Used only when the container has no service for this class: on a site
+   * updated from a release before the Hook services were declared (2.0.5),
+   * until its next cache rebuild. \Drupal::classResolver() then calls this.
+   * Dependencies are fetched by service ID, which the older containers hold.
+   * The constructor stays the source of truth; HookClassResolutionTest pins
+   * this method to it. Once the service exists, autowiring builds the class
+   * through the constructor and this method is not called.
+   */
+  public static function create(ContainerInterface $container): self {
+    return new self(
+      $container->get('request_stack'),
+    );
+  }
 
   /**
    * @file

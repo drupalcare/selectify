@@ -3,6 +3,7 @@
 namespace Drupal\selectify\Hook;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Template\Attribute;
@@ -10,11 +11,12 @@ use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Hook\Attribute\Hook;
 use Drupal\selectify\Service\SelectifyHelperInterface;
 use Drupal\selectify\Service\SelectifyStyleServiceInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Hook implementations for selectify.
  */
-class SelectifyHooks {
+class SelectifyHooks implements ContainerInjectionInterface {
 
   /**
    * Constructs the hook implementations.
@@ -47,6 +49,26 @@ class SelectifyHooks {
     protected readonly ConfigFactoryInterface $configFactory,
     protected readonly ModuleHandlerInterface $moduleHandler,
   ) {}
+
+  /**
+   * {@inheritdoc}
+   *
+   * Used only when the container has no service for this class: on a site
+   * updated from a release before the Hook services were declared (2.0.5),
+   * until its next cache rebuild. \Drupal::classResolver() then calls this.
+   * Dependencies are fetched by service ID, which the older containers hold.
+   * The constructor stays the source of truth; HookClassResolutionTest pins
+   * this method to it. Once the service exists, autowiring builds the class
+   * through the constructor and this method is not called.
+   */
+  public static function create(ContainerInterface $container): self {
+    return new self(
+      $container->get('selectify.helper'),
+      $container->get('selectify.style_service'),
+      $container->get('config.factory'),
+      $container->get('module_handler'),
+    );
+  }
 
   /**
    * Implements hook_preprocess_html().

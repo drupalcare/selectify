@@ -18,7 +18,7 @@ use Drupal\selectify_test\Hook\SelectifyTestHooks;
  */
 #[LegacyHook]
 function selectify_test_selectify_widget_alter(string &$widget, array $context): void {
-  \Drupal::service(SelectifyTestHooks::class)->selectifyWidgetAlter($widget, $context);
+  \Drupal::classResolver(SelectifyTestHooks::class)->selectifyWidgetAlter($widget, $context);
 }
 
 /**
@@ -26,7 +26,7 @@ function selectify_test_selectify_widget_alter(string &$widget, array $context):
  */
 #[LegacyHook]
 function selectify_test_selectify_element_alter(array &$element, array $context): void {
-  \Drupal::service(SelectifyTestHooks::class)->selectifyElementAlter($element, $context);
+  \Drupal::classResolver(SelectifyTestHooks::class)->selectifyElementAlter($element, $context);
 }
 
 /**
@@ -34,5 +34,5 @@ function selectify_test_selectify_element_alter(array &$element, array $context)
  */
 #[LegacyHook]
 function selectify_test_selectify_is_applicable_alter(bool &$applicable, array $context): void {
-  \Drupal::service(SelectifyTestHooks::class)->selectifyIsApplicableAlter($applicable, $context);
+  \Drupal::classResolver(SelectifyTestHooks::class)->selectifyIsApplicableAlter($applicable, $context);
 }
