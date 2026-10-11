@@ -36,8 +36,14 @@ variables:
   _AUTORUN_PREVIOUS_MAJOR: 'all'
   OPT_IN_TEST_PREVIOUS_MINOR: '1'
   _AUTORUN_PREVIOUS_MINOR: 'all'
-  # Drupal 12. Nothing had ever loaded this module on 12 before this line.
-  OPT_IN_TEST_NEXT_MAJOR: '0'
+  # Next major = core `main-dev`, which is Drupal 12 (12.0-dev, measured
+  # 2026-10-10 in core's Drupal.php and in this fleet's job logs). It was set
+  # to '0' on 2026-10-05 on the belief that it tested Drupal 13; it did not.
+  # `composer (next major)` was failing because drupal/webform (require-dev,
+  # for selectify_webform) does not declare the next core major, which the
+  # lenient list below handles. When core main moves to 13.x this job tests
+  # Drupal 13 instead, and Drupal 12 then needs its own coverage.
+  OPT_IN_TEST_NEXT_MAJOR: '1'
   _AUTORUN_NEXT_MAJOR: 'all'
   # The three lines that stood here were `_SKIP_PHPSTAN`, `_SKIP_ESLINT` and
   # `_SKIP_STYLELINT`. THE TEMPLATE DEFINES NO SUCH VARIABLES — the real names
@@ -51,3 +57,14 @@ variables:
 # Custom Jobs (Optional)
 # Add any custom testing jobs below if needed
 ################
+
+# drupal/webform ^6.3 declares `^10.3 || ^11.0`, so Composer cannot resolve it
+# against core main-dev (pipelines 954298-990556: "Your requirements could not
+# be resolved"). The lenient plugin ignores webform's core constraint in THIS
+# job only, as documented at
+# https://project.pages.drupalcode.org/gitlab_templates/jobs/composer/
+# ("Lenient support"); `phpunit (next major)` then amends webform's info.yml
+# so selectify_webform can be installed for its tests.
+composer (next major):
+  variables:
+    _LENIENT_ALLOW_LIST: 'webform'
