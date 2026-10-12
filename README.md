@@ -6,7 +6,7 @@ Selectify is a comprehensive Drupal module that revolutionizes form
 interactions by transforming standard HTML form elements into modern,
 accessible, and highly customizable components. Whether you're working with
 Radio buttons, Checkboxes, or Select lists, Selectify provides elegant
-solutions that enhance both visual appeal and usability without compromising
+solutions that improve both visual appeal and usability without compromising
 accessibility or functionality.
 
 This module transforms default form elements into custom-styled, interactive
@@ -32,7 +32,7 @@ form usability challenges by providing:
 
 - **Modern Visual Design** – Replace browser-default form elements with
   professionally styled components
-- **Enhanced Usability** – Intuitive interactions that make complex
+- **Improved usability** – Intuitive interactions that make complex
   selections simple and enjoyable
 - **Full Accessibility** – WCAG-compliant with comprehensive ARIA support
   and keyboard navigation
@@ -81,7 +81,7 @@ options:
 **Visual Styles:**
 - **Toggle Switch** – Modern sliding switch design for contemporary
   interfaces
-- **Traditional with Indicators** – Enhanced checkbox/radio with X/Checkmark
+- **Traditional with Indicators** – Checkbox/radio with X/Checkmark
   feedback
 
 **Shape Options:**
@@ -91,7 +91,7 @@ options:
 **Size Variants:**
 - **Small** – Compact design ideal for dense forms
 - **Medium** – Recommended default for most use cases
-- **Large** – Enhanced visibility for accessibility and touch interfaces
+- **Large** – Bigger targets for accessibility and touch interfaces
 
 **Advanced Features:**
 - **No jQuery** – Vanilla JavaScript for better performance and faster load
@@ -114,7 +114,7 @@ specific usability challenges:
 
 #### 1. Regular Dropdown
 
-Enhanced standard dropdown with modern styling and smooth animations:
+Standard dropdown with modern styling and smooth animations:
 - Click to open/close dropdown menu
 - Single or multi-select support
 - Displays selected option(s) in the trigger
@@ -219,7 +219,7 @@ control for admin and front-end:
 - **Indigo** – Deep, sophisticated purple-blue
 - **Teal** – Fresh, modern blue-green
 - **Gold** – Warm, prestigious yellow tones
-- **Coral** – Vibrant, friendly orange-pink
+- **Coral** – Bright, friendly orange-pink
 
 **Color Scopes:**
 - **Admin** – Controls Selectify colors on admin pages
@@ -364,7 +364,7 @@ For content entity fields, configure widgets through Manage Form Display:
 
 ### Form API Integration
 
-Selectify can enhance plain Drupal Form API select elements that aren't
+Selectify can upgrade plain Drupal Form API select elements that aren't
 handled by field widgets, Views, or Webforms. This includes custom forms,
 third-party module forms, and any form using `#type => 'select'`.
 
@@ -391,7 +391,7 @@ third-party module forms, and any form using `#type => 'select'`.
 
 ### Webform Integration
 
-The `selectify_webform` submodule extends Selectify to enhance Webform
+The `selectify_webform` submodule extends Selectify to work on Webform
 submission forms. Install it separately if you use the Webform module.
 
 **Installation:**
@@ -635,7 +635,7 @@ Each widget automatically receives CSS classes for theme-specific styling:
 
 ### Built-in Theme Support
 
-Seamless integration with popular Drupal themes:
+Integration with popular Drupal themes:
 - **Claro** – Drupal core admin theme styling
 - **Gin** – Modern admin theme with auto/light/dark mode support
 - **Olivero** – Drupal core frontend theme optimizations
@@ -829,13 +829,13 @@ Contributions welcome! Please:
 
 See [CHANGELOG.md](CHANGELOG.md) for a complete list of changes.
 
-### Recent Highlights
+### Recent changes
 
 **Version 2.0.2+ (Current Development):**
 - Form API integration with per-form configuration and automatic
   discovery
 - Webform submodule with site-wide and per-Webform configuration
-- Enhanced Views integration with improved per-View configuration UI
+- Views integration with improved per-View configuration UI
 - Comprehensive safety features including AJAX detection and built-in
   blocklists
 - Runtime form discovery with state storage management

@@ -38,7 +38,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
     described under Developer Features.
 - **Module description** (`selectify.info.yml`): expanded to mention five
   dropdown widgets, RTL/LTR support, and WCAG 2.1 AA.
-- **Drupal project page** (`homepage-drupal.html`): aligned with README (who
+- **Drupal project page** (`homepage-drupal.html`): in line with README (who
   it’s for, Key Features including RTL/LTR, Clear All, modular JS; Form API
   per-element targeting; Theme Integration RTL/LTR).
 
@@ -49,7 +49,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [2.0.2] - 2026-02-17
 
 ### Added
-- `SelectifyWidgetBase` abstract class — single source of truth for all widget
+- `SelectifyWidgetBase` abstract class: single source of truth for all widget
   constructor, dependency injection, and `formElement()` logic (~553 lines
   removed across the five widget classes).
 - `SelectifyHelper` service with per-request config caching, replacing ~15
@@ -74,7 +74,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `disable_views_widgets`.
 - Install/uninstall hooks in `selectify.install` for clean config removal.
 - 150ms debounce on searchable dropdown filter input for large option lists.
-- Independent admin and front-end color theme controls — separate
+- Independent admin and front-end color theme controls, separate
   `admin_accent_color` / `admin_accent_color_mode` config fields so admin pages
   and public pages can each use a different palette and mode.
 - "None" color mode option per scope that strips all Selectify colors, letting
@@ -95,24 +95,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `use` statements alphabetized per Drupal coding standards.
 
 ### Fixed
-- Entity reference fields with multiple bundles showing empty values — options
+- Entity reference fields with multiple bundles showing empty values: options
   sharing `value=""` caused duplicate selections.
-- Click-outside-to-close not working — `once()` on `document` (a Document node,
+- Click-outside-to-close not working: `once()` on `document` (a Document node,
   not an Element) returned an empty array, so the listener was never bound.
-- Dropdown open/close animation broken — `removeProperty()` requires kebab-case
+- Dropdown open/close animation broken: `removeProperty()` requires kebab-case
   but was called with camelCase, making cleanup a no-op for multi-word
   properties. Also added missing `transitionTimingFunction` and `boxSizing` to
   cleanup lists.
-- Toggle circle displaced in Claro/Gin admin themes — admin themes set
+- Toggle circle displaced in Claro/Gin admin themes. Admin themes set
   `top: 50%; left: 50%` on `.form-boolean::before`, leaking into Selectify
   toggle positioning. Added explicit `inset-block-start: 0` /
   `inset-inline-start: 0` resets with logical properties for RTL support.
-- Checkbox rendering broken in admin themes — Claro/Gin `mask-image` on
+- Checkbox rendering broken in admin themes: Claro/Gin `mask-image` on
   `.form-boolean::before` distorted toggle circles. Added `mask-image: none`,
   `-webkit-mask-image: none`, and `clip-path: none` resets.
 - Duplicate `document.addEventListener('click')` in four JS files (already
   handled globally in `selectify-helper.js`).
-- `MutationObserver` leak — previous observers not disconnected before creating
+- `MutationObserver` leak: previous observers not disconnected before creating
   new ones. Now stores and disconnects references.
 - `console.error` calls removed from production JS.
 - Type coercion bug in dual widget where `$max_selected === 1` (int vs string)
@@ -123,7 +123,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Duplicate PHPDoc block in `SelectifyStyleService`.
 
 ### Removed
-- Redundant optgroup flattening in preprocess — replaced by `isApplicable()`
+- Redundant optgroup flattening in preprocess: replaced by `isApplicable()`
   guard that prevents the unsupported configuration entirely.
 
 ## [1.0.0] - 2025-01-01
