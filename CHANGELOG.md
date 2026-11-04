@@ -15,12 +15,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   one focus ring style, forced-colors and reduced-motion support. Every
   `--selectify-*` variable keeps its name, so theme and site overrides keep
   working. On Olivero the grey box around each widget is gone.
-- **Accent palettes are calmer: solid fields, soft two-stop gradients, stronger
-  focus and lines.** All 14 accent files (7 colors, light and dark) and the
-  default colors used when no accent is set have new values in the same color
-  family. No variable was added, renamed or removed, and sites that override a
-  variable keep their override. Sites that rely on the old shipped values will
-  see the new, softer colors after updating.
+- **Better accent colors, for every site.** All 14 accent palettes (7 colors,
+  light and dark) and the default colors were retuned for comfort and
+  readability: solid fields, soft two-stop gradients, clearer focus rings and
+  lines. Each color stays in its own family, so the accent a site picked still
+  looks like itself, only more polished, with nothing to configure. No variable
+  was added, renamed or removed, and any color a site overrides stays exactly as
+  it is.
 - **Radio and checkbox toggles move smoothly ("Glide").** The knob is one solid
   color and slides without the overshoot bounce; the accent fills the track as
   it moves; the check mark rides the knob and draws in after it lands, in the
