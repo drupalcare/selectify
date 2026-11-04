@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-## [2.0.7] - 2026-11-03
+## [2.1.0] - 2026-11-03
 
 ### Changed
 - **The widgets have a modern look.** Dropdown, searchable, tags, dropdown
