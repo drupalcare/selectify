@@ -6,22 +6,56 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [2.0.7] - 2026-11-03
+
+### Changed
+- **The widgets have a modern look.** Dropdown, searchable, tags, dropdown
+  checkbox and dual list get rounded option rows with an accent bar on the
+  selected option, pill chips with a 24px remove button, a soft open animation,
+  one focus ring style, forced-colors and reduced-motion support. Every
+  `--selectify-*` variable keeps its name, so theme and site overrides keep
+  working. On Olivero the grey box around each widget is gone.
+- **Accent palettes are calmer: solid fields, soft two-stop gradients, stronger
+  focus and lines.** All 14 accent files (7 colors, light and dark) and the
+  default colors used when no accent is set have new values in the same color
+  family. No variable was added, renamed or removed, and sites that override a
+  variable keep their override. Sites that rely on the old shipped values will
+  see the new, softer colors after updating.
+- **Radio and checkbox toggles move smoothly ("Glide").** The knob is one solid
+  color and slides without the overshoot bounce; the accent fills the track as
+  it moves; the check mark rides the knob and draws in after it lands, in the
+  accent color instead of a fixed green. No grow on hover. Focus shows a ring
+  with a soft halo. Traditional (box) style gets the same check mark, drawn
+  in. Works right-to-left, in forced colors, and with reduced motion (instant).
+  The toggle no longer reads `--selectify-checkbox-check-circle`,
+  `--selectify-checkbox-checked-circle`, the `--selectify-*-transition-easing`
+  curve or the `--selectify-*-icon-left-unchecked` and
+  `--selectify-*-icon-right-checked` offsets; they are still defined.
+- The settings form is regrouped into three chapters (Look, Where Selectify
+  runs, Select widgets) with a header band and a live preview. Accent swatches
+  show their color name and can be reached by keyboard and screen reader.
+  Widget options use short names ("Dropdown", "Tags", ...) with a description
+  list; "Page Control Settings" is now "Pages". No setting, key or value
+  changed.
+- Settings form help texts and descriptions were reworded. Sites that
+  translate the admin interface need to translate the changed strings again.
+
+### Removed
+- The hover-only accent tooltip script (`js/selectify-settings-script.js`);
+  color names are now visible text.
+
 ### Added
-- "Additional pages to disable Selectify" now disables all Selectify features
-  on matching paths (selects, radios, checkboxes). Field widgets (Manage Form
-  Display) respect disabled pages and render plain selects when the current
-  page matches.
-- **CSS selector rules** for Form API selects: target specific select elements
-  by CSS selector (e.g. `select#edit-type`, `select[name^="field_"]`) and
-  assign a widget per rule. Rules are evaluated before per-form configuration;
-  first matching rule wins. Up to 50 rules; validated and sanitized for safety.
+- The dropdown checkbox field stays on one line: it names the first two
+  choices and counts the rest in a "+N" chip. Hovering the chip lists the
+  hidden choices, and screen readers hear "and N more".
+- Opt out per checkbox or radio: add `data-selectify-skip` to the element's
+  `#attributes` and Selectify leaves the input and its wrapper unstyled, for
+  modules that draw their own control (see `selectify.api.php`).
 
 ### Fixed
-- Radio/checkbox styling and body classes no longer applied on pages listed in
-  "Additional pages to disable Selectify" (previously only select widgets were
-  disabled).
-- Menu link title capitalization: "selectify Settings" → "Selectify Settings".
-- Menu link description updated for clarity.
+- The CSS passes the project's own stylelint configuration, which had never
+  been run. The property-order list now puts `all` first, so a fix can no
+  longer move `all: unset` below the declarations it would erase.
 
 ## [2.0.3] - 2026-02-22
 

@@ -461,6 +461,21 @@ function mymodule_selectify_is_applicable_alter(bool &$applicable, array $contex
 
 See `selectify.api.php` for complete hook documentation and examples.
 
+### Opting a checkbox or radio out of the toggle styling
+
+A module that draws its own checkbox or radio can keep Selectify's
+radio and checkbox styling off that one element. Add the
+`data-selectify-skip` attribute to the element's `#attributes`; Selectify
+then adds no class to the input or its wrapper, so none of its styles or
+behaviors apply.
+
+```php
+$form['my_toggle']['#attributes']['data-selectify-skip'] = 'true';
+```
+
+For a `checkboxes` or `radios` element, put the attribute on the parent:
+core copies its `#attributes` to every option.
+
 **Supported Elements:**
 - Direct `select` elements
 - Composite elements containing nested selects:
@@ -852,3 +867,7 @@ See [CHANGELOG.md](CHANGELOG.md) for a complete list of changes.
 
 This project is licensed under the GNU General Public License, version 2 or
 later: http://www.gnu.org/licenses/gpl-2.0.html
+
+The icons in `icons/` and the checkmark in `css/selectify-radio-checkbox.css`
+are Google Material Symbols (https://fonts.google.com/icons), Apache License
+2.0, drawings unchanged; only the viewBox is trimmed to the painted edge.

@@ -205,20 +205,48 @@
   Drupal.selectify.renderSelectifyDropdownCheckbox = (nativeSelect, selectedDisplay, arrowIcon, selectedValues) => {
     selectedDisplay.innerHTML = '';
 
-    if (selectedValues.length > 0) {
+    // The summary shows the first two choices by name; the rest are counted
+    // in one "+N" chip so the field stays one line.
+    const shownMax = 2;
+    const chosen = [];
+    selectedValues.forEach(value => {
+      const option = nativeSelect.querySelector(`option[value="${value}"]`);
+      if (option) {
+        chosen.push({ value, label: option.textContent });
+      }
+    });
+
+    if (chosen.length > 0) {
       const wrapper = document.createElement('div');
       wrapper.className = 'selectify-selected-options';
 
-      selectedValues.forEach(value => {
-        const option = nativeSelect.querySelector(`option[value="${value}"]`);
-        if (option) {
-          const span = document.createElement('span');
-          span.className = 'selectify-selected-one-option';
-          span.setAttribute('data-value', value);
-          span.textContent = option.textContent;
-          wrapper.appendChild(span);
-        }
+      chosen.slice(0, shownMax).forEach(item => {
+        const span = document.createElement('span');
+        span.className = 'selectify-selected-one-option';
+        span.setAttribute('data-value', item.value);
+        span.setAttribute('title', item.label);
+        span.textContent = item.label;
+        wrapper.appendChild(span);
       });
+
+      const hidden = chosen.length - shownMax;
+      if (hidden > 0) {
+        const chip = document.createElement('span');
+        chip.className = 'selectify-selected-count';
+        chip.setAttribute('title', chosen.slice(shownMax).map(item => item.label).join(', '));
+
+        const visible = document.createElement('span');
+        visible.setAttribute('aria-hidden', 'true');
+        visible.textContent = Drupal.t('+@count', { '@count': hidden });
+
+        const spoken = document.createElement('span');
+        spoken.className = 'visually-hidden';
+        spoken.textContent = Drupal.formatPlural(hidden, 'and 1 more', 'and @count more');
+
+        chip.appendChild(visible);
+        chip.appendChild(spoken);
+        wrapper.appendChild(chip);
+      }
 
       selectedDisplay.appendChild(wrapper);
     }

@@ -6,13 +6,13 @@ body .selectify-dropdown-checkbox-widget .selectify-available-one-option label {
 }
 
 body .selectify-available-one-option > .selectify-checkbox + label {
-  flex-grow: 1;
   padding: 0 !important;
+  flex-grow: 1;
   pointer-events: auto;
 }
 
 body .selectify-dropdown-checkbox-widget .selectify-available-one-option.s-selected label {
-  font-weight: bold;
+  font-weight: 600;
 }
 
 /* Disabled options (e.g. max selections reached): not-allowed on whole row */
@@ -23,4 +23,43 @@ body .selectify-dropdown-checkbox-widget .selectify-available-one-option[aria-di
 
 body .selectify-dropdown-checkbox-widget .selectify-available-one-option[aria-disabled="true"] label {
   cursor: not-allowed;
+}
+
+/* Summary: the first two choices on one line, cut with an ellipsis, then a
+   "+N" count chip tinted like the tag chips (ring 14%). */
+body .selectify-dropdown-checkbox-widget .selectify-selected-options {
+  overflow: hidden;
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+body .selectify-dropdown-checkbox-widget .selectify-selected-options .selectify-selected-one-option {
+  display: block;
+  min-inline-size: 0;
+  max-inline-size: 12rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+body .selectify-dropdown-checkbox-widget .selectify-selected-count {
+  display: inline-flex;
+  border: 1px solid color-mix(in srgb, color-mix(in srgb, var(--selectify-select-focus-border-color, var(--selectify-select-focus-border, currentColor)) 65%, var(--selectify-select-color, currentColor)) 35%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, color-mix(in srgb, var(--selectify-select-focus-border-color, var(--selectify-select-focus-border, currentColor)) 65%, var(--selectify-select-color, currentColor)) 14%, transparent);
+  color: var(--selectify-select-color, currentColor);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  flex: none;
+  align-items: center;
+  min-block-size: 22px;
+  padding-inline: 8px;
+}
+
+@media (forced-colors: active) {
+  body .selectify-dropdown-checkbox-widget .selectify-selected-count {
+    border-color: CanvasText;
+  }
 }

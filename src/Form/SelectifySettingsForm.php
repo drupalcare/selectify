@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\selectify\Form;
 
+use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Config\Config;
 use Drupal\Core\Config\ConfigFactoryInterface;
@@ -87,12 +88,278 @@ class SelectifySettingsForm extends ConfigFormBase {
    */
   protected function getSelectifyWidgetOptions(): array {
     return [
-      'selectify_dropdown' => $this->t('Dropdown - Enhanced dropdown with better styling'),
-      'selectify_tags' => $this->t('Tags - Enhanced dropdown displaying selections as removable tags'),
-      'selectify_searchable' => $this->t('Searchable - Enhanced dropdown with search/filter capability'),
-      'selectify_checkbox' => $this->t('Checkbox - Enhanced dropdown with checkbox-style selections'),
-      'selectify_dual' => $this->t('Dual List - Side-by-side selection (available/selected lists)'),
+      'selectify_dropdown' => $this->t('Dropdown'),
+      'selectify_tags' => $this->t('Tags'),
+      'selectify_searchable' => $this->t('Searchable'),
+      'selectify_checkbox' => $this->t('Checkbox'),
+      'selectify_dual' => $this->t('Dual List'),
     ];
+  }
+
+  /**
+   * Returns one-line widget descriptions, keyed like the widget options.
+   *
+   * @return array<string, \Drupal\Core\StringTranslation\TranslatableMarkup>
+   *   Associative array of widget machine name => translated description.
+   */
+  protected function getSelectifyWidgetDescriptions(): array {
+    return [
+      'selectify_dropdown' => $this->t('Enhanced dropdown with better styling'),
+      'selectify_tags' => $this->t('Enhanced dropdown displaying selections as removable tags'),
+      'selectify_searchable' => $this->t('Enhanced dropdown with search/filter capability'),
+      'selectify_checkbox' => $this->t('Enhanced dropdown with checkbox-style selections'),
+      'selectify_dual' => $this->t('Side-by-side selection (available/selected lists)'),
+    ];
+  }
+
+  /**
+   * Builds a section summary: the title plus a one-line hint.
+   *
+   * @param \Drupal\Core\StringTranslation\TranslatableMarkup|string $name
+   *   The section title.
+   * @param \Drupal\Core\StringTranslation\TranslatableMarkup|string $hint
+   *   The short hint shown under the title.
+   *
+   * @return \Drupal\Component\Render\FormattableMarkup
+   *   Escaped summary markup.
+   */
+  protected function sectionTitle($name, $hint): FormattableMarkup {
+    return new FormattableMarkup('<span class="selectify-head"><span class="selectify-head__name">@name</span><span class="selectify-head__hint">@hint</span></span>', [
+      '@name' => $name,
+      '@hint' => $hint,
+    ]);
+  }
+
+  /**
+   * Builds a chapter summary: icon, title and hint.
+   *
+   * @param string $icon
+   *   The icon modifier (look, scope or widgets); the file is set in CSS.
+   * @param \Drupal\Core\StringTranslation\TranslatableMarkup|string $name
+   *   The chapter title.
+   * @param \Drupal\Core\StringTranslation\TranslatableMarkup|string $hint
+   *   The short hint shown beside the title.
+   *
+   * @return \Drupal\Component\Render\FormattableMarkup
+   *   Escaped summary markup.
+   */
+  protected function chapterTitle(string $icon, $name, $hint): FormattableMarkup {
+    return new FormattableMarkup('<span class="selectify-chapter-head"><span class="selectify-icon selectify-icon--@icon" aria-hidden="true"></span><span class="selectify-chapter-head__title">@name</span><span class="selectify-chapter-head__hint">@hint</span></span>', [
+      '@icon' => $icon,
+      '@name' => $name,
+      '@hint' => $hint,
+    ]);
+  }
+
+  /**
+   * Builds the header band, the chapters and the look-chapter specimen.
+   *
+   * These elements hold no value; sections join them with #group so every
+   * form value path stays the same.
+   *
+   * @param array<string, mixed> $form
+   *   The form being built.
+   */
+  protected function buildLayout(array &$form): void {
+    $form['selectify_header'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'header',
+      '#attributes' => ['class' => ['selectify-band']],
+      '#weight' => -100,
+      'icon' => [
+        '#type' => 'html_tag',
+        '#tag' => 'span',
+        '#attributes' => ['class' => ['selectify-band__icon'], 'aria-hidden' => 'true'],
+        'glyph' => [
+          '#type' => 'html_tag',
+          '#tag' => 'span',
+          '#attributes' => ['class' => ['selectify-icon', 'selectify-icon--tune']],
+        ],
+      ],
+      'text' => [
+        '#type' => 'html_tag',
+        '#tag' => 'div',
+        '#attributes' => ['class' => ['selectify-band__text']],
+        'name' => [
+          '#type' => 'html_tag',
+          '#tag' => 'h2',
+          '#value' => $this->t('Selectify'),
+        ],
+        'purpose' => [
+          '#type' => 'html_tag',
+          '#tag' => 'p',
+          '#value' => $this->t('Accessible, styled select lists, radios and checkboxes for every Drupal form.'),
+        ],
+      ],
+      'facts' => [
+        '#type' => 'html_tag',
+        '#tag' => 'ul',
+        '#attributes' => ['class' => ['selectify-band__facts']],
+        'widgets' => [
+          '#type' => 'html_tag',
+          '#tag' => 'li',
+          '#value' => $this->formatPlural(count($this->getSelectifyWidgetOptions()), '1 select widget', '@count select widgets'),
+        ],
+        'colors' => [
+          '#type' => 'html_tag',
+          '#tag' => 'li',
+          '#value' => $this->formatPlural(count($this->getAccentColorOptions()), '1 accent color, light and dark', '@count accent colors, light and dark'),
+        ],
+        'sources' => [
+          '#type' => 'html_tag',
+          '#tag' => 'li',
+          '#value' => $this->t('Views, Form API, Webform'),
+        ],
+      ],
+    ];
+
+    $chapters = [
+      'selectify_chapter_look' => [
+        'look',
+        $this->t('Look'),
+        $this->t('Radios, checkboxes and accent color'),
+        -30,
+      ],
+      'selectify_chapter_scope' => [
+        'scope',
+        $this->t('Where Selectify runs'),
+        $this->t('Pages it skips'),
+        -20,
+      ],
+      'selectify_chapter_widgets' => [
+        'widgets',
+        $this->t('Select widgets'),
+        $this->t('Choose a widget per source'),
+        -10,
+      ],
+    ];
+    foreach ($chapters as $key => [$icon, $name, $hint, $weight]) {
+      $form[$key] = [
+        '#type' => 'details',
+        '#title' => $this->chapterTitle($icon, $name, $hint),
+        '#open' => TRUE,
+        '#weight' => $weight,
+        '#attributes' => [
+          'class' => ['selectify-chapter'],
+          'data-selectify-chapter' => $icon,
+        ],
+      ];
+    }
+
+    // Look chapter: specimen on the left, then two pairs of sections.
+    $form['selectify_look_grid'] = [
+      '#type' => 'container',
+      '#group' => 'selectify_chapter_look',
+      '#attributes' => ['class' => ['sy-look-grid']],
+    ];
+    $form['selectify_look_pair_controls'] = [
+      '#type' => 'container',
+      '#group' => 'selectify_look_grid',
+      '#weight' => 1,
+      '#attributes' => ['class' => ['sy-look-pair']],
+    ];
+    $form['selectify_look_pair_colors'] = [
+      '#type' => 'container',
+      '#group' => 'selectify_look_grid',
+      '#weight' => 2,
+      '#attributes' => ['class' => ['sy-look-pair']],
+    ];
+
+    // Decorative preview: CSS reads the checked radios with :has().
+    $span = static fn (array $classes, $text = NULL): array => [
+      '#type' => 'html_tag',
+      '#tag' => 'span',
+      '#attributes' => ['class' => $classes],
+    ] + ($text === NULL ? [] : ['#value' => $text]);
+    // A container, not html_tag: only elements with a #process of
+    // processGroup can join a #group.
+    $form['selectify_specimen'] = [
+      '#type' => 'container',
+      '#group' => 'selectify_look_grid',
+      '#weight' => 0,
+      '#attributes' => ['class' => ['sy-specimen'], 'aria-hidden' => 'true'],
+      'label' => [
+        '#type' => 'html_tag',
+        '#tag' => 'p',
+        '#attributes' => ['class' => ['sy-specimen__label']],
+        '#value' => $this->t('Preview'),
+      ],
+      'toggle_on' => [
+        '#type' => 'html_tag',
+        '#tag' => 'div',
+        '#attributes' => ['class' => ['sy-specimen__row']],
+        'control' => $span(['sy-tog', 'is-on']),
+        'text' => $span([], $this->t('Newsletter')),
+      ],
+      'toggle_off' => [
+        '#type' => 'html_tag',
+        '#tag' => 'div',
+        '#attributes' => ['class' => ['sy-specimen__row']],
+        'control' => $span(['sy-tog']),
+        'text' => $span([], $this->t('Show archived')),
+      ],
+      'box' => [
+        '#type' => 'html_tag',
+        '#tag' => 'div',
+        '#attributes' => ['class' => ['sy-specimen__row']],
+        'control' => $span(['sy-box', 'is-on']),
+        'text' => $span([], $this->t('Accept terms')),
+      ],
+      'select' => [
+        '#type' => 'html_tag',
+        '#tag' => 'div',
+        '#attributes' => ['class' => ['sy-specimen__select']],
+        'text' => $span([], $this->t('Choose a category')),
+        'chev' => $span(['sy-specimen__chev']),
+      ],
+      'list' => [
+        '#type' => 'html_tag',
+        '#tag' => 'div',
+        '#attributes' => ['class' => ['sy-specimen__list']],
+        'a' => $span(['is-active'], $this->t('Design')),
+        'b' => $span([], $this->t('Development')),
+        'c' => $span([], $this->t('Hosting')),
+      ],
+    ];
+
+    // Widget guide: the short option labels, each with its description.
+    $guide = [
+      '#type' => 'html_tag',
+      '#tag' => 'dl',
+      '#attributes' => ['class' => ['selectify-guide']],
+    ];
+    $descriptions = $this->getSelectifyWidgetDescriptions();
+    foreach ($this->getSelectifyWidgetOptions() as $key => $label) {
+      $guide[$key] = [
+        '#type' => 'html_tag',
+        '#tag' => 'div',
+        '#attributes' => ['class' => ['selectify-guide__item']],
+        'term' => ['#type' => 'html_tag', '#tag' => 'dt', '#value' => $label],
+        'desc' => ['#type' => 'html_tag', '#tag' => 'dd', '#value' => $descriptions[$key] ?? ''],
+      ];
+    }
+    $form['selectify_widget_guide'] = [
+      '#type' => 'container',
+      '#group' => 'selectify_chapter_widgets',
+      '#weight' => 0,
+      'list' => $guide,
+    ];
+  }
+
+  /**
+   * Adds the shared section attributes and joins the section to a group.
+   *
+   * @param array<string, mixed> $element
+   *   The section details element.
+   * @param string $group
+   *   The group (chapter or pair container) key.
+   * @param string $section
+   *   Short section name for data-selectify-section.
+   */
+  protected function placeSection(array &$element, string $group, string $section): void {
+    $element['#group'] = $group;
+    $element['#attributes']['class'][] = 'selectify-section';
+    $element['#attributes']['data-selectify-section'] = $section;
   }
 
   /**
@@ -122,16 +389,20 @@ class SelectifySettingsForm extends ConfigFormBase {
     // Attach a library for styling the radio buttons.
     $form['#attached']['library'][] = 'selectify/selectify-settings-style';
 
+    // Header band, chapters and specimen: markup only, no values.
+    $this->buildLayout($form);
+
     // =========================================================================
     // SECTION 1: Page Control Settings
     // =========================================================================
     $form['page_control'] = [
       '#type' => 'details',
-      '#title' => $this->t('Page Control Settings'),
+      '#title' => $this->sectionTitle($this->t('Pages'), $this->t('Admin routes and path list')),
       '#description' => $this->t('Control where Selectify is enabled or disabled on your site.'),
       '#open' => TRUE,
       '#weight' => 0,
     ];
+    $this->placeSection($form['page_control'], 'selectify_chapter_scope', 'page');
 
     $form['page_control']['disable_on_admin_routes'] = [
       '#type' => 'checkbox',
@@ -153,11 +424,12 @@ class SelectifySettingsForm extends ConfigFormBase {
     // =========================================================================
     $form['radio_settings'] = [
       '#type' => 'details',
-      '#title' => $this->t('Radio Button Styling'),
+      '#title' => $this->sectionTitle($this->t('Radio Button Styling'), $this->t('Style, shape and size')),
       '#description' => $this->t('Customize the appearance of radio buttons throughout your site.'),
       '#open' => TRUE,
       '#weight' => 10,
     ];
+    $this->placeSection($form['radio_settings'], 'selectify_look_pair_controls', 'radio');
 
     $form['radio_settings']['enable_radio'] = [
       '#type' => 'checkbox',
@@ -168,6 +440,8 @@ class SelectifySettingsForm extends ConfigFormBase {
 
     $form['radio_settings']['radio_style'] = [
       '#type' => 'radios',
+      '#prefix' => '<div class="sy-cards">',
+      '#suffix' => '</div>',
       '#title' => $this->t('Radio button style'),
       '#options' => [
         'toggle' => $this->t('Toggle Switch - Modern sliding switch design'),
@@ -183,6 +457,8 @@ class SelectifySettingsForm extends ConfigFormBase {
 
     $form['radio_settings']['radio_shape'] = [
       '#type' => 'radios',
+      '#prefix' => '<div class="sy-cards">',
+      '#suffix' => '</div>',
       '#title' => $this->t('Radio button shape'),
       '#options' => [
         'circle' => $this->t('Circle - Traditional round shape'),
@@ -198,6 +474,8 @@ class SelectifySettingsForm extends ConfigFormBase {
 
     $form['radio_settings']['radio_size'] = [
       '#type' => 'radios',
+      '#prefix' => '<div class="sy-cards">',
+      '#suffix' => '</div>',
       '#title' => $this->t('Radio button size'),
       '#options' => [
         'small' => $this->t('Small - Compact for dense forms'),
@@ -217,11 +495,12 @@ class SelectifySettingsForm extends ConfigFormBase {
     // =========================================================================
     $form['checkbox_settings'] = [
       '#type' => 'details',
-      '#title' => $this->t('Checkbox Styling'),
+      '#title' => $this->sectionTitle($this->t('Checkbox Styling'), $this->t('Style, shape and size')),
       '#description' => $this->t('Customize the appearance of checkboxes throughout your site.'),
       '#open' => TRUE,
       '#weight' => 20,
     ];
+    $this->placeSection($form['checkbox_settings'], 'selectify_look_pair_controls', 'checkbox');
 
     $form['checkbox_settings']['enable_checkbox'] = [
       '#type' => 'checkbox',
@@ -232,6 +511,8 @@ class SelectifySettingsForm extends ConfigFormBase {
 
     $form['checkbox_settings']['checkbox_style'] = [
       '#type' => 'radios',
+      '#prefix' => '<div class="sy-cards">',
+      '#suffix' => '</div>',
       '#title' => $this->t('Checkbox style'),
       '#options' => [
         'toggle' => $this->t('Toggle Switch - Modern sliding switch design'),
@@ -247,6 +528,8 @@ class SelectifySettingsForm extends ConfigFormBase {
 
     $form['checkbox_settings']['checkbox_shape'] = [
       '#type' => 'radios',
+      '#prefix' => '<div class="sy-cards">',
+      '#suffix' => '</div>',
       '#title' => $this->t('Checkbox shape'),
       '#options' => [
         'circle' => $this->t('Circle - Modern rounded style'),
@@ -262,6 +545,8 @@ class SelectifySettingsForm extends ConfigFormBase {
 
     $form['checkbox_settings']['checkbox_size'] = [
       '#type' => 'radios',
+      '#prefix' => '<div class="sy-cards">',
+      '#suffix' => '</div>',
       '#title' => $this->t('Checkbox size'),
       '#options' => [
         'small' => $this->t('Small - Compact for dense forms'),
@@ -281,14 +566,17 @@ class SelectifySettingsForm extends ConfigFormBase {
     // =========================================================================
     $form['color_theme'] = [
       '#type' => 'details',
-      '#title' => $this->t('Frontend Color Theme'),
+      '#title' => $this->sectionTitle($this->t('Frontend Color Theme'), $this->t('Accent on the public site')),
       '#description' => $this->t('Choose accent colors for radio buttons, checkboxes, and select widgets on the frontend.'),
-      '#open' => FALSE,
+      '#open' => TRUE,
       '#weight' => 30,
     ];
+    $this->placeSection($form['color_theme'], 'selectify_look_pair_colors', 'front');
 
     $form['color_theme']['accent_color_mode'] = [
       '#type' => 'radios',
+      '#prefix' => '<div class="sy-seg">',
+      '#suffix' => '</div>',
       '#title' => $this->t('Color mode'),
       '#description' => $this->t('Choose between light and dark variants of the selected accent color.'),
       '#options' => [
@@ -301,6 +589,8 @@ class SelectifySettingsForm extends ConfigFormBase {
 
     $form['color_theme']['accent_color'] = [
       '#type' => 'radios',
+      '#prefix' => '<div class="sy-swatches">',
+      '#suffix' => '</div>',
       '#title' => $this->t('Accent color'),
       '#description' => $this->t('Choose the color that appears when a radio button or checkbox is selected.'),
       '#default_value' => $config->get('accent_color') ?? 'blue',
@@ -320,14 +610,17 @@ class SelectifySettingsForm extends ConfigFormBase {
     // =========================================================================
     $form['admin_color_theme'] = [
       '#type' => 'details',
-      '#title' => $this->t('Admin Color Theme'),
+      '#title' => $this->sectionTitle($this->t('Admin Color Theme'), $this->t('Accent on admin pages')),
       '#description' => $this->t('Choose accent colors for radio buttons, checkboxes, and select widgets on admin pages.'),
-      '#open' => FALSE,
+      '#open' => TRUE,
       '#weight' => 35,
     ];
+    $this->placeSection($form['admin_color_theme'], 'selectify_look_pair_colors', 'admin');
 
     $form['admin_color_theme']['admin_accent_color_mode'] = [
       '#type' => 'radios',
+      '#prefix' => '<div class="sy-seg">',
+      '#suffix' => '</div>',
       '#title' => $this->t('Color mode'),
       '#description' => $this->t('Choose between light and dark variants of the selected accent color for admin pages.'),
       '#options' => [
@@ -340,6 +633,8 @@ class SelectifySettingsForm extends ConfigFormBase {
 
     $form['admin_color_theme']['admin_accent_color'] = [
       '#type' => 'radios',
+      '#prefix' => '<div class="sy-swatches">',
+      '#suffix' => '</div>',
       '#title' => $this->t('Accent color'),
       '#description' => $this->t('Choose the color that appears when a radio button or checkbox is selected on admin pages.'),
       '#default_value' => $config->get('admin_accent_color') ?? 'blue',
@@ -359,10 +654,25 @@ class SelectifySettingsForm extends ConfigFormBase {
     // =========================================================================
     $form['form_api_selects'] = [
       '#type' => 'details',
-      '#title' => $this->t('Form API Select Elements'),
-      '#description' => $this->t('Apply Selectify to plain &lt;select&gt; elements in regular Drupal forms (Form API). This covers any select that is not already handled by Views exposed filters, Webform submissions, or Field Widgets.<br><br><strong>Two ways to target selects:</strong><br>1. <strong>Per-form discovery</strong> &ndash; Enable the checkbox below, visit pages with forms, then return here to assign a widget to each discovered form.<br>2. <strong>CSS selector rules</strong> &ndash; Target specific selects by CSS selector (e.g. <code>select[id^="edit-parent"]</code>, <code>select.my-class</code>) and assign a widget per rule. CSS selector rules are evaluated first; any select already matched by a rule will not be overridden by the per-form widget.<br><br><strong>Safety:</strong> Selectify maintains a built-in blocklist of AJAX-dependent admin forms that are always excluded (Field UI, Views UI, Layout Builder, Editor config, Media Library, etc.). Individual selects with <code>#ajax</code> callbacks are also automatically skipped.'),
+      '#title' => $this->sectionTitle($this->t('Form API Select Elements'), $this->t('CSS rules and discovered forms')),
+      '#description' => $this->t('Apply Selectify to plain &lt;select&gt; elements in regular Drupal forms (Form API).'),
       '#open' => FALSE,
       '#weight' => 42,
+    ];
+    $this->placeSection($form['form_api_selects'], 'selectify_chapter_widgets', 'fapi');
+
+    // The rest of the long help, words kept, in a closed details first.
+    $form['form_api_selects']['targeting_help'] = [
+      '#type' => 'details',
+      '#title' => $this->t('How targeting works'),
+      '#open' => FALSE,
+      '#weight' => -10,
+      '#attributes' => ['class' => ['selectify-sub']],
+      'text' => [
+        '#markup' => $this->t('This covers any select that is not already handled by Views exposed filters, Webform submissions, or Field Widgets.<br><br><strong>Two ways to target selects:</strong><br>1. <strong>Per-form discovery</strong> &ndash; Enable the checkbox below, visit pages with forms, then return here to assign a widget to each discovered form.<br>2. <strong>CSS selector rules</strong> &ndash; Target specific selects by CSS selector (e.g. <code>select[id^="edit-parent"]</code>, <code>select.my-class</code>) and assign a widget per rule. CSS selector rules are evaluated first; any select already matched by a rule will not be overridden by the per-form widget.<br><br><strong>Safety:</strong> Selectify maintains a built-in blocklist of AJAX-dependent admin forms that are always excluded (Field UI, Views UI, Layout Builder, Editor config, Media Library, etc.). Individual selects with <code>#ajax</code> callbacks are also automatically skipped.'),
+        '#prefix' => '<div class="description">',
+        '#suffix' => '</div>',
+      ],
     ];
 
     $form['form_api_selects']['enable_form_api_selects'] = [
@@ -376,12 +686,25 @@ class SelectifySettingsForm extends ConfigFormBase {
     $form['form_api_selects']['css_selector_configuration'] = [
       '#type' => 'details',
       '#title' => $this->t('CSS selector rules'),
-      '#description' => $this->t('Target specific select elements using CSS selectors. These rules are evaluated first &mdash; any select matched here will not be overridden by the per-form widget below.<br><strong>Supported selectors:</strong> <code>select#edit-type</code>, <code>select[id^="edit-parent"]</code>, <code>select[id*="schema"]</code>, <code>select.my-class</code>, <code>select[name="field_color"]</code>, <code>select[name^="field_"]</code><br><strong>Note:</strong> Drupal appends <code>--N</code> suffixes (e.g. <code>edit-admin-theme--2</code>) to HTML IDs during rendering, but selectors are matched <em>before</em> rendering. Use the base ID without the suffix (e.g. <code>select#edit-admin-theme</code>) or a starts-with selector (e.g. <code>select[id^="edit-admin-theme"]</code>). The <code>name</code> attribute (e.g. <code>select[name="admin_theme"]</code>) is always reliable. If the ID contains <code>--N</code> suffixes and you want to style all selects in that form, use the <strong>Per-form configuration</strong> below instead &mdash; it applies the widget to every eligible select in the form without needing to match individual IDs.'),
+      '#description' => $this->t('Target specific select elements using CSS selectors.'),
       '#open' => FALSE,
       '#states' => [
         'visible' => [
           ':input[name="enable_form_api_selects"]' => ['checked' => TRUE],
         ],
+      ],
+    ];
+
+    $form['form_api_selects']['css_selector_configuration']['selector_help'] = [
+      '#type' => 'details',
+      '#title' => $this->t('How targeting works'),
+      '#open' => FALSE,
+      '#weight' => -10,
+      '#attributes' => ['class' => ['selectify-sub']],
+      'text' => [
+        '#markup' => $this->t('These rules are evaluated first &mdash; any select matched here will not be overridden by the per-form widget below.<br><strong>Supported selectors:</strong> <code>select#edit-type</code>, <code>select[id^="edit-parent"]</code>, <code>select[id*="schema"]</code>, <code>select.my-class</code>, <code>select[name="field_color"]</code>, <code>select[name^="field_"]</code><br><strong>Note:</strong> Drupal appends <code>--N</code> suffixes (e.g. <code>edit-admin-theme--2</code>) to HTML IDs during rendering, but selectors are matched <em>before</em> rendering. Use the base ID without the suffix (e.g. <code>select#edit-admin-theme</code>) or a starts-with selector (e.g. <code>select[id^="edit-admin-theme"]</code>). The <code>name</code> attribute (e.g. <code>select[name="admin_theme"]</code>) is always reliable. If the ID contains <code>--N</code> suffixes and you want to style all selects in that form, use the <strong>Per-form configuration</strong> below instead &mdash; it applies the widget to every eligible select in the form without needing to match individual IDs.'),
+        '#prefix' => '<div class="description">',
+        '#suffix' => '</div>',
       ],
     ];
 
@@ -457,7 +780,7 @@ class SelectifySettingsForm extends ConfigFormBase {
 
     $form['form_api_selects']['per_form_configuration']['description'] = [
       '#type' => 'markup',
-      '#markup' => '<div class="messages messages--info">' . $this->t('<strong>Per-form configuration:</strong> Only forms that have been detected with eligible select elements are shown below.<br><br><strong>To discover forms:</strong><ol><li>Enable "@checkbox_label" above</li><li>Click "@save_button" at the bottom of this page</li><li>Visit the pages on your site that contain the forms you want to style</li><li>Return to this settings page and refresh/reload it</li></ol>The forms you visited will then appear in the table below.', [
+      '#markup' => '<div class="selectify-note">' . $this->t('<strong>Per-form configuration:</strong> Only forms that have been detected with eligible select elements are shown below.<br><br><strong>To discover forms:</strong><ol><li>Enable "@checkbox_label" above</li><li>Click "@save_button" at the bottom of this page</li><li>Visit the pages on your site that contain the forms you want to style</li><li>Return to this settings page and refresh/reload it</li></ol>The forms you visited will then appear in the table below.', [
         '@checkbox_label' => $this->t('Enable Selectify for Form API selects'),
         '@save_button' => $this->t('Save configuration'),
       ]) . '</div>',
@@ -568,11 +891,12 @@ class SelectifySettingsForm extends ConfigFormBase {
 
       $form['webform_selects'] = [
         '#type' => 'details',
-        '#title' => $this->t('Webform Select Elements'),
+        '#title' => $this->sectionTitle($this->t('Webform Select Elements'), $this->t('Site-wide or per webform')),
         '#description' => $this->t('Configure Selectify for Webform select elements, including composite elements like Select Other and Entity Select.'),
         '#open' => FALSE,
         '#weight' => 44,
       ];
+      $this->placeSection($form['webform_selects'], 'selectify_chapter_widgets', 'webform');
 
       $form['webform_selects']['disable_webform_widgets'] = [
         '#type' => 'checkbox',
@@ -626,7 +950,7 @@ class SelectifySettingsForm extends ConfigFormBase {
 
         $form['webform_selects']['per_webform_configuration']['description'] = [
           '#type' => 'markup',
-          '#markup' => '<div class="messages messages--info">' . $this->t('<strong>Per-Webform configuration:</strong> Only Webforms that contain select elements are listed below. Choose a widget for each Webform as needed.') . '</div>',
+          '#markup' => '<div class="selectify-note">' . $this->t('<strong>Per-Webform configuration:</strong> Only Webforms that contain select elements are listed below. Choose a widget for each Webform as needed.') . '</div>',
         ];
 
         $form['webform_selects']['per_webform_configuration']['webform_widgets'] = [
@@ -674,11 +998,12 @@ class SelectifySettingsForm extends ConfigFormBase {
     // =========================================================================
     $form['views_filters'] = [
       '#type' => 'details',
-      '#title' => $this->t('Views Select Filters'),
+      '#title' => $this->sectionTitle($this->t('Views Select Filters'), $this->t('Site-wide or per view')),
       '#description' => $this->t('Configure custom widgets for Views exposed filters. Choose between site-wide or per-view configuration.'),
       '#open' => FALSE,
       '#weight' => 40,
     ];
+    $this->placeSection($form['views_filters'], 'selectify_chapter_widgets', 'views');
 
     $form['views_filters']['disable_views_widgets'] = [
       '#type' => 'checkbox',
@@ -726,7 +1051,7 @@ class SelectifySettingsForm extends ConfigFormBase {
 
     $form['views_filters']['per_view_configuration']['description'] = [
       '#type' => 'markup',
-      '#markup' => '<div class="messages messages--info">' . $this->t('<strong>Per-View Configuration:</strong> Select individual widgets for each View display below. Only Views with exposed select filters are shown.') . '</div>',
+      '#markup' => '<div class="selectify-note">' . $this->t('<strong>Per-View Configuration:</strong> Select individual widgets for each View display below. Only Views with exposed select filters are shown.') . '</div>',
     ];
 
     $all_filters = $this->getExposedFilters();
@@ -845,6 +1170,8 @@ class SelectifySettingsForm extends ConfigFormBase {
         $element[$key]['#attributes'] = [];
       }
       $element[$key]['#attributes']['data-accent'] = $label;
+      // The machine key drives the swatch dot color in the settings CSS.
+      $element[$key]['#attributes']['data-sy-swatch'] = $key;
     }
     return $element;
   }

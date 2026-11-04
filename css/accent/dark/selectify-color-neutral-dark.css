@@ -6,46 +6,46 @@
 .selectify-radio *,
 .selectify-checkbox * {
   /* Base */
-  --selectify-checkbox-border-color: #76777b;
-  --selectify-checkbox-bg: linear-gradient(180deg, #1a1a1a 0%, #222 50%, #2a2a2a 100%);
-  --selectify-checkbox-check-circle: radial-gradient(circle at 45% 45%, #cfcfcf 0%, #8a8a8a 55%, #222 100%);
+  --selectify-checkbox-border-color: #656972;
+  --selectify-checkbox-bg: linear-gradient(180deg, #202224 0%, #1d1e20 100%);
+  --selectify-checkbox-check-circle: radial-gradient(circle at 50% 35%, #aeb1b7 0%, #858a93 100%);
 
   /* Checked */
-  --selectify-checkbox-checked-border-color: #bfbfbf;
-  --selectify-checkbox-checked-bg: linear-gradient(180deg, #222 0%, #2a2a2a 50%, #303030 100%);
-  --selectify-checkbox-checked-circle: radial-gradient(circle at 45% 45%, #efefef 0%, #cfcfcf 55%, #2a2a2a 100%);
+  --selectify-checkbox-checked-border-color: #6b7079;
+  --selectify-checkbox-checked-bg: linear-gradient(180deg, #2b2d31 0%, #26282b 100%);
+  --selectify-checkbox-checked-circle: radial-gradient(circle at 50% 35%, #ced0d4 0%, #6b7079 100%);
 
-  /* Disabled (matte gray neutrals, low contrast) */
-  --selectify-checkbox-disabled-border-color: #5a5a5a;
-  --selectify-checkbox-disabled-bg: linear-gradient(180deg, #141414 0%, #1a1a1a 50%, #222 100%);
-  --selectify-checkbox-disabled-circle: radial-gradient(circle at 45% 45%, #2a2a2a 0%, #3a3a3a 45%, #4a4a4a 100%);
+  /* Disabled (neutral, low contrast) */
+  --selectify-checkbox-disabled-border-color: #484b51;
+  --selectify-checkbox-disabled-bg: linear-gradient(180deg, #1f2123 0%, #1d1e20 100%);
+  --selectify-checkbox-disabled-circle: radial-gradient(circle at 50% 35%, #52555b 0%, #3f4146 100%);
 
   /* ============================================
      Extended Colors (Hover / Active / States)
      ============================================ */
-  --selectify-checkbox-hover-border-color: #9a9a9a;
-  --selectify-checkbox-hover-bg: linear-gradient(180deg, #1c1c1c 0%, #242424 60%, #2c2c2c 100%);
-  --selectify-checkbox-active-border-color: #bfbfbf;
-  --selectify-checkbox-active-bg: linear-gradient(180deg, #222 0%, #2c2c2c 100%);
-  --selectify-checkbox-indeterminate-border-color: #a6a6a6;
-  --selectify-checkbox-indeterminate-bg: linear-gradient(180deg, #202020 0%, #2a2a2a 100%);
-  --selectify-checkbox-indeterminate-bar: #707070;
-  --selectify-checkbox-invalid-border-color: #ef4444;
-  --selectify-checkbox-invalid-bg: linear-gradient(180deg, #1b1a1a 0%, #231a1a 100%);
+  --selectify-checkbox-hover-border-color: #989ca4;
+  --selectify-checkbox-hover-bg: linear-gradient(180deg, #242529 0%, #202224 100%);
+  --selectify-checkbox-active-border-color: #6b7079;
+  --selectify-checkbox-active-bg: linear-gradient(180deg, #2e2f33 0%, #292a2e 100%);
+  --selectify-checkbox-indeterminate-border-color: #6b7079;
+  --selectify-checkbox-indeterminate-bg: linear-gradient(180deg, #2b2d31 0%, #26282b 100%);
+  --selectify-checkbox-indeterminate-bar: #848892;
+  --selectify-checkbox-invalid-border-color: #f08a7e;
+  --selectify-checkbox-invalid-bg: linear-gradient(180deg, #221a1a 0%, #1f1818 100%);
 }
 
 
 .selectify-select,
 .selectify-select * {
-  --selectify-select-bg: linear-gradient(180deg, #3b3b3f 0%, #2a2a2a 100%);
-  --selectify-select-border-color: #76777b;
-  --selectify-select-focus-border: #d0d0d0;
-  --selectify-select-color: #e6e6e6;
-  --selectify-select-hover-bg: linear-gradient(180deg, #1f1f1f 0%, #2a2a2a 100%);
-  --selectify-select-focus-border-color: #8a8a8a;
-  --selectify-select-disabled-bg: linear-gradient(180deg, #141414 0%, #1a1a1a 100%);
-  --selectify-select-arrow-color: #8a8a8a;
-  --selectify-dropdown-shadow: 0 4px 14px rgb(0 0 0 / 60%);
-  --selectify-option-hover-bg: linear-gradient(180deg, #1f1f1f 0%, #2a2a2a 100%);
-  --selectify-option-active-bg: linear-gradient(180deg, #2a2a2a 0%, #3a3a3a 100%);
+  --selectify-select-bg: #1e1f22;
+  --selectify-select-border-color: #484b51;
+  --selectify-select-focus-border: #b3b6bc;
+  --selectify-select-color: #e5e7eb;
+  --selectify-select-hover-bg: #25272a;
+  --selectify-select-focus-border-color: #848892;
+  --selectify-select-disabled-bg: #242628;
+  --selectify-select-arrow-color: #848892;
+  --selectify-dropdown-shadow: 0 12px 32px -12px rgb(0 0 0 / 55%);
+  --selectify-option-hover-bg: #26282b;
+  --selectify-option-active-bg: #303236;
 }

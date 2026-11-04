@@ -67,7 +67,9 @@
         event.preventDefault();
         event.stopPropagation();
         if (event.target.classList.contains('selectify-available-one-option')) {
-          Drupal.selectify.toggleMultiSelectOption(type, nativeSelect, event.target, selectedDisplay, clearAllButton);
+          animateDualMove(selectifySelect, () => {
+            Drupal.selectify.toggleMultiSelectOption(type, nativeSelect, event.target, selectedDisplay, clearAllButton);
+          });
         }
       });
     });
@@ -89,19 +91,21 @@
 
         const selectedItem = event.target;
         const valueToRemove = selectedItem.getAttribute('data-value');
-        selectedItem.remove();
-        const correspondingOption = dropdownMenu.querySelector(`.selectify-available-one-option[data-value="${valueToRemove}"]`);
-        if (correspondingOption) {
-          correspondingOption.classList.remove('s-hidden', 's-selected');
-        }
-        const selectOption = nativeSelect.querySelector(`option[value="${valueToRemove}"]`);
-        if (selectOption) {
-          selectOption.selected = false;
-        }
-        // Collect all current selected values after the removal.
-        const selectedValues = [...selectedDisplay.querySelectorAll('.selectify-selected-one-option')].map(item => item.getAttribute('data-value'));
-        Drupal.selectify.syncHiddenSelect(nativeSelect, selectedValues);
-        Drupal.selectify.updateSelectedDisplay(type, nativeSelect, selectedDisplay, clearAllButton);
+        animateDualMove(selectifySelect, () => {
+          selectedItem.remove();
+          const correspondingOption = dropdownMenu.querySelector(`.selectify-available-one-option[data-value="${valueToRemove}"]`);
+          if (correspondingOption) {
+            correspondingOption.classList.remove('s-hidden', 's-selected');
+          }
+          const selectOption = nativeSelect.querySelector(`option[value="${valueToRemove}"]`);
+          if (selectOption) {
+            selectOption.selected = false;
+          }
+          // Collect all current selected values after the removal.
+          const selectedValues = [...selectedDisplay.querySelectorAll('.selectify-selected-one-option')].map(item => item.getAttribute('data-value'));
+          Drupal.selectify.syncHiddenSelect(nativeSelect, selectedValues);
+          Drupal.selectify.updateSelectedDisplay(type, nativeSelect, selectedDisplay, clearAllButton);
+        });
         nativeSelect.dispatchEvent(new Event('change'));
       }
     });
@@ -126,5 +130,73 @@
     const selectedValues = Drupal.selectify.getSelectedValues(nativeSelect);
     Drupal.selectify.syncHiddenSelect(nativeSelect, selectedValues);
     Drupal.selectify.updateSelectedDisplay(type, nativeSelect, selectedDisplay, clearAllButton);
+  }
+
+  /**
+   * Moves an option between the two lists with a calm slide (FLIP).
+   *
+   * The selected list is rebuilt on every change and the chosen option hides
+   * at once, so without this both lists jump. The positions of every visible
+   * row are read before and after the change: rows that stay on their side
+   * glide from the old place to the new one, and the moved row fades in on
+   * its new side with a short drift from the direction it came from. No
+   * motion when the visitor asks for reduced motion.
+   *
+   * @param {HTMLElement} widget
+   *   The dual-list wrapper.
+   * @param {function} mutate
+   *   Applies the change to the lists.
+   */
+  function animateDualMove(widget, mutate) {
+    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce || typeof Element.prototype.animate !== 'function') {
+      mutate();
+      return;
+    }
+    const before = snapshotRows(widget);
+    mutate();
+    const after = snapshotRows(widget);
+    const easing = 'cubic-bezier(0.22, 1, 0.36, 1)';
+    after.forEach(({ el, rect }, key) => {
+      const old = before.get(key);
+      if (old) {
+        const dx = old.rect.left - rect.left;
+        const dy = old.rect.top - rect.top;
+        if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
+          el.animate(
+            [{ transform: `translate(${dx}px, ${dy}px)` }, { transform: 'none' }],
+            { duration: 240, easing }
+          );
+        }
+        return;
+      }
+      // New on this side: drift in from the list it left.
+      const fromStart = key.startsWith('R:') ? -12 : 12;
+      el.animate(
+        [{ opacity: 0, transform: `translateX(${fromStart}px)` }, { opacity: 1, transform: 'none' }],
+        { duration: 260, easing }
+      );
+    });
+  }
+
+  /**
+   * Records the on-screen box of every visible row in both lists.
+   *
+   * @param {HTMLElement} widget
+   *   The dual-list wrapper.
+   *
+   * @return {Map<string, {el: HTMLElement, rect: DOMRect}>}
+   *   Keyed by side ("L" available, "R" selected) and option value.
+   */
+  function snapshotRows(widget) {
+    const rows = new Map();
+    widget.querySelectorAll('.dual-available .selectify-available-one-option, .dual-selected .selectify-selected-one-option').forEach((el) => {
+      if (el.getClientRects().length === 0) {
+        return;
+      }
+      const side = el.classList.contains('selectify-selected-one-option') ? 'R' : 'L';
+      rows.set(`${side}:${el.dataset.value}`, { el, rect: el.getBoundingClientRect() });
+    });
+    return rows;
   }
 })(Drupal, once, drupalSettings);

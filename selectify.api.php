@@ -5,6 +5,10 @@
  * Hooks provided by the Selectify module.
  *
  * These hooks allow other modules to extend and customize Selectify's behavior.
+ *
+ * Checkbox and radio styling has no hook: a module that draws its own control
+ * adds the data-selectify-skip attribute to that element's #attributes, and
+ * Selectify then leaves the input and its wrapper untouched.
  */
 
 /**

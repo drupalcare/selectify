@@ -3,6 +3,7 @@
   "plugins": ["stylelint-order"],
   "rules": {
     "order/properties-order": [
+      "all",
       "position",
       "top",
       "right",
@@ -78,8 +79,7 @@
       "appearance",
       "-webkit-appearance",
       "mask-image",
-      "-webkit-mask-image",
-      "all"
+      "-webkit-mask-image"
     ],
     "color-hex-length": "short",
     "color-function-notation": "modern",

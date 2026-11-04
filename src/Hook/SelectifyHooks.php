@@ -190,6 +190,10 @@ class SelectifyHooks implements ContainerInjectionInterface {
     if (!isset($variables['element']['#type'])) {
       return;
     }
+    // A module that draws its own control opts out per element.
+    if (isset($variables['element']['#attributes']['data-selectify-skip'])) {
+      return;
+    }
     $type = $variables['element']['#type'];
     if ($type === 'radio' && $config['enable_radio'] === TRUE) {
       $variables['attributes']['class'][] = 'selectify-form-item selectify-radio-wrapper';
@@ -211,6 +215,10 @@ class SelectifyHooks implements ContainerInjectionInterface {
       return;
     }
     if (!isset($variables['attributes']['type'])) {
+      return;
+    }
+    // A module that draws its own control opts out per element.
+    if (isset($variables['attributes']['data-selectify-skip']) || isset($variables['element']['#attributes']['data-selectify-skip'])) {
       return;
     }
     $type = $variables['attributes']['type'];

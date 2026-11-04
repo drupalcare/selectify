@@ -1,16 +1,25 @@
 /**
  * @file
- * Selectify Radio & Checkbox - Complete Styles with Squash & Stretch Animation
+ * Selectify Radio & Checkbox: "Glide" motion.
  *
- * All style combinations using data attributes from page preprocess.
- * Supports: 2 styles × 2 shapes × 3 sizes = 12 combinations per input type.
+ * All style combinations come from body classes and PHP-emitted variables:
+ * 2 styles (toggle, checkbox) x 2 shapes x 3 sizes, for both input types.
+ *
+ * Glide: the knob is one solid color and moves by `translate` only, on a
+ * settling curve with no overshoot. The accent floods into the track as an
+ * inset shadow (gradients cannot cross-fade). The check mark rides the knob
+ * and draws in after the knob lands. Nothing scales on hover.
+ *
+ * Declarations carry !important because core's off-canvas reset
+ * (#drupal-off-canvas-wrapper *, ::before, ::after { all: revert }) wins on
+ * ID specificity otherwise.
  *
  * Filename: selectify-radio-checkbox.css
  * Website: https://www.flashwebcenter.com
  * Developer: Alaa Haddad https://www.alaahaddad.com
  */
 
-/* Force pseudo-elements to work in off-canvas */
+/* Force pseudo-elements to exist in off-canvas */
 #drupal-off-canvas input.selectify-checkbox[type="checkbox"]::before,
 #drupal-off-canvas input.selectify-checkbox[type="checkbox"]::after,
 #drupal-off-canvas input.selectify-radio[type="radio"]::before,
@@ -18,13 +27,11 @@
   position: absolute !important;
   display: block !important;
   visibility: visible !important;
-  opacity: 1 !important;
-  content: '' !important;
-  mask-image: none !important;
+  content: "" !important;
 }
 
 /* ============================================
-   Global Variable Registry (base keys only)
+   Track
    ============================================ */
 input.selectify-radio[type="radio"],
 input.selectify-checkbox[type="checkbox"] {
@@ -34,17 +41,24 @@ input.selectify-checkbox[type="checkbox"] {
   overflow: visible !important;
   margin: 0 !important;
   padding: 0 !important;
-  outline: none !important;
-  box-shadow: none !important;
+  box-shadow: inset 0 0 0 0 color-mix(in srgb, var(--selectify-checkbox-checked-border-color) 16%, transparent) !important;
   box-sizing: border-box !important;
-  background: transparent !important;
+  background: var(--selectify-checkbox-bg) !important;
   vertical-align: middle;
   cursor: pointer;
+  transition:
+    border-color 200ms ease,
+    box-shadow 240ms cubic-bezier(0.22, 1, 0.36, 1),
+    scale 120ms ease,
+    opacity 200ms ease !important;
+  flex: none !important;
   appearance: none !important;
+  margin-inline-end: 8px !important;
+  -webkit-tap-highlight-color: transparent;
 }
 
 input.selectify-radio[type="radio"] {
-  border: var(--selectify-radio-border-width, 2px) solid var(--selectify-checkbox-border-color, #555)!important;
+  border: var(--selectify-radio-border-width, 2px) solid color-mix(in srgb, var(--selectify-checkbox-border-color, #555) 45%, currentColor) !important;
   block-size: var(--selectify-radio-height) !important;
   inline-size: var(--selectify-radio-width) !important;
   min-block-size: var(--selectify-radio-height) !important;
@@ -52,14 +66,10 @@ input.selectify-radio[type="radio"] {
   max-block-size: var(--selectify-radio-height) !important;
   max-inline-size: var(--selectify-radio-width) !important;
   border-radius: var(--selectify-radio-border-radius) !important;
-  transition:
-    background var(--selectify-radio-transition-speed) var(--selectify-radio-transition-easing),
-    border var(--selectify-radio-transition-speed) var(--selectify-radio-transition-easing),
-    opacity var(--selectify-radio-transition-speed) var(--selectify-radio-transition-easing);
 }
 
 input.selectify-checkbox[type="checkbox"] {
-  border: var(--selectify-radio-border-width, 2px) solid var(--selectify-checkbox-border-color, #555)!important;
+  border: var(--selectify-radio-border-width, 2px) solid color-mix(in srgb, var(--selectify-checkbox-border-color, #555) 45%, currentColor) !important;
   block-size: var(--selectify-checkbox-height) !important;
   inline-size: var(--selectify-checkbox-width) !important;
   min-block-size: var(--selectify-checkbox-height) !important;
@@ -67,31 +77,62 @@ input.selectify-checkbox[type="checkbox"] {
   max-block-size: var(--selectify-checkbox-height) !important;
   max-inline-size: var(--selectify-checkbox-width) !important;
   border-radius: var(--selectify-checkbox-border-radius) !important;
-  transition:
-    background var(--selectify-checkbox-transition-speed) var(--selectify-checkbox-transition-easing),
-    border var(--selectify-checkbox-transition-speed) var(--selectify-checkbox-transition-easing),
-    opacity var(--selectify-checkbox-transition-speed) var(--selectify-checkbox-transition-easing);
 }
 
-input.selectify-radio[type="radio"],
-input.selectify-checkbox[type="checkbox"] {
-  margin-inline-end: 8px !important;
+/* Checked: the accent floods in from the edges. */
+input.selectify-radio[type="radio"]:checked,
+input.selectify-checkbox[type="checkbox"]:checked {
+  border-color: color-mix(in srgb, var(--selectify-checkbox-checked-border-color) 70%, currentcolor) !important;
+  box-shadow: inset 0 0 0 2rem color-mix(in srgb, var(--selectify-checkbox-checked-border-color) 16%, transparent) !important;
+  background: var(--selectify-checkbox-checked-bg) !important;
+}
+
+/* Hover: the line firms up. No movement. */
+input.selectify-radio[type="radio"]:hover:not(:checked, :disabled, [aria-invalid="true"]),
+input.selectify-checkbox[type="checkbox"]:hover:not(:checked, :disabled, [aria-invalid="true"]) {
+  border-color: color-mix(in srgb, var(--selectify-checkbox-hover-border-color) 60%, currentcolor) !important;
+  background: var(--selectify-checkbox-hover-bg) !important;
+}
+
+/* Pressed while unchecked. */
+input.selectify-radio[type="radio"]:active:not(:checked, :disabled, [aria-invalid="true"]),
+input.selectify-checkbox[type="checkbox"]:active:not(:checked, :disabled, [aria-invalid="true"]) {
+  border-color: color-mix(in srgb, var(--selectify-checkbox-active-border-color) 70%, currentcolor) !important;
+  background: var(--selectify-checkbox-active-bg) !important;
 }
 
 /* ============================================
-   Toggle Circle/Square with Squash & Stretch
+   Knob (toggle style): solid, glides by translate only
    ============================================ */
+input.selectify-radio[type="radio"]::before,
+input.selectify-checkbox[type="checkbox"]::before {
+  position: absolute !important;
+  z-index: 1;
+  display: block !important;
+  border: none !important;
+  box-shadow: 0 1px 2px color-mix(in srgb, currentcolor 30%, transparent) !important;
+  background: color-mix(in srgb, var(--selectify-checkbox-border-color) 45%, currentcolor) !important;
+  transform: none !important;
+  clip-path: none !important;
+  content: "" !important;
+  mask-image: none !important;
+  inset-block: 0 auto !important;
+  inset-inline: 0 auto !important;
+  transform-origin: left center !important;
+  scale: 1 1 !important;
+  will-change: translate, scale;
+}
+
 input.selectify-radio[type="radio"]::before {
   margin: var(--selectify-radio-circle-margin) !important;
   inline-size: var(--selectify-radio-circle-size) !important;
   block-size: var(--selectify-radio-circle-size) !important;
   border-radius: var(--selectify-radio-circle-radius) !important;
-  transition:
-    translate var(--selectify-radio-transition-speed) var(--selectify-radio-transition-easing),
-    scale var(--selectify-radio-transition-speed) var(--selectify-radio-transition-easing),
-    background var(--selectify-radio-transition-speed) ease,
-    opacity var(--selectify-radio-transition-speed) ease !important;
   translate: var(--selectify-radio-circle-translate-unchecked) 0 !important;
+  transition:
+    translate var(--selectify-radio-transition-speed) cubic-bezier(0.22, 1, 0.36, 1),
+    scale var(--selectify-radio-transition-speed) cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 200ms ease !important;
 }
 
 input.selectify-checkbox[type="checkbox"]::before {
@@ -99,94 +140,19 @@ input.selectify-checkbox[type="checkbox"]::before {
   inline-size: var(--selectify-checkbox-circle-size) !important;
   block-size: var(--selectify-checkbox-circle-size) !important;
   border-radius: var(--selectify-checkbox-circle-radius) !important;
-  transition:
-    translate var(--selectify-checkbox-transition-speed) var(--selectify-checkbox-transition-easing),
-    scale var(--selectify-checkbox-transition-speed) var(--selectify-checkbox-transition-easing),
-    background var(--selectify-checkbox-transition-speed) ease,
-    opacity var(--selectify-checkbox-transition-speed) ease !important;
   translate: var(--selectify-checkbox-circle-translate-unchecked) 0 !important;
-}
-
-input.selectify-radio[type="radio"]::before,
-input.selectify-checkbox[type="checkbox"]::before {
-  position: absolute;
-  z-index: 1;
-  border: none !important;
-  box-shadow: none !important;
-  clip-path: none !important;
-  content: "";
-  mask-image: none !important;
-  inset-block: 0 auto !important;
-  inset-inline: 0 auto !important;
-  scale: 1 1 !important;
-  will-change: translate, scale;
-}
-
-/* Active state - squash when clicking (gives tactile feedback) */
-input.selectify-radio[type="radio"]:active::before,
-input.selectify-checkbox[type="checkbox"]:active::before {
-  scale: 1.15 0.85 !important;
-  transition-duration: 0.1s !important;
-}
-
-/* Hover state - subtle grow */
-input.selectify-radio[type="radio"]:hover::before,
-input.selectify-checkbox[type="checkbox"]:hover::before {
-  scale: 1.05 1.05 !important;
-}
-
-/* ============================================
-   Icon - Checkmark Only (Toggle Style)
-   ============================================ */
-input.selectify-radio[type="radio"]::after,
-input.selectify-checkbox[type="checkbox"]::after {
-  position: absolute;
-  z-index: 2;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 -960 960 960' fill='%2322c55e'%3E%3Cpath d='M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: contain;
-  opacity: 0;
   transition:
-    opacity 0.25s ease,
-    scale 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-  pointer-events: none;
-  clip-path: none !important;
-  content: "";
-  mask-image: none !important;
-  inset-block-start: 50%;
-  translate: 0 -50%;
-  will-change: opacity, scale;
-  scale: 0.8;
+    translate var(--selectify-checkbox-transition-speed) cubic-bezier(0.22, 1, 0.36, 1),
+    scale var(--selectify-checkbox-transition-speed) cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 200ms ease !important;
 }
 
-input.selectify-radio[type="radio"]::after {
-  inline-size: var(--selectify-radio-icon-size);
-  block-size: var(--selectify-radio-icon-size);
+input.selectify-radio[type="radio"]:checked::before,
+input.selectify-checkbox[type="checkbox"]:checked::before {
+  background: color-mix(in srgb, var(--selectify-checkbox-checked-border-color) 70%, currentcolor) !important;
+  transform-origin: right center !important;
 }
 
-input.selectify-checkbox[type="checkbox"]::after {
-  inline-size: var(--selectify-checkbox-icon-size);
-  block-size: var(--selectify-checkbox-icon-size);
-}
-
-/* Unchecked state - no icon (clean slate) */
-input.selectify-radio[type="radio"]::after,
-input.selectify-checkbox[type="checkbox"]::after {
-  inset-inline-end: auto;
-  opacity: 0;
-  scale: 0.8;
-}
-
-input.selectify-radio[type="radio"]::after {
-  inset-inline-start: var(--selectify-radio-icon-left-unchecked);
-}
-
-input.selectify-checkbox[type="checkbox"]::after {
-  inset-inline-start: var(--selectify-checkbox-icon-left-unchecked);
-}
-
-/* Checked state - checkmark fades in and pops with scale */
 input.selectify-radio[type="radio"]:checked::before {
   translate: var(--selectify-radio-circle-translate-checked) 0 !important;
 }
@@ -195,23 +161,27 @@ input.selectify-checkbox[type="checkbox"]:checked::before {
   translate: var(--selectify-checkbox-circle-translate-checked) 0 !important;
 }
 
-/* Checked state - checkmark fades in and pops with scale */
-input.selectify-radio[type="radio"]:checked::after,
-input.selectify-checkbox[type="checkbox"]:checked::after {
-  inset-inline-start: auto;
-  opacity: 1;
-  scale: 1.3;
+/* Stretch that settles: the knob widens toward its travel while pressed. */
+input.selectify-radio[type="radio"]:active::before {
+  scale: 1.22 1 !important;
+  transition-duration: var(--selectify-radio-transition-speed), 120ms, 200ms !important;
 }
 
-input.selectify-radio[type="radio"]:checked::after {
-  inset-inline-end: var(--selectify-radio-icon-right-checked);
+input.selectify-checkbox[type="checkbox"]:active::before {
+  scale: 1.22 1 !important;
+  transition-duration: var(--selectify-checkbox-transition-speed), 120ms, 200ms !important;
 }
 
-input.selectify-checkbox[type="checkbox"]:checked::after {
-  inset-inline-end: var(--selectify-checkbox-icon-right-checked);
+html[dir="rtl"] input.selectify-radio[type="radio"]::before,
+html[dir="rtl"] input.selectify-checkbox[type="checkbox"]::before {
+  transform-origin: right center !important;
 }
 
-/* RTL Support */
+html[dir="rtl"] input.selectify-radio[type="radio"]:checked::before,
+html[dir="rtl"] input.selectify-checkbox[type="checkbox"]:checked::before {
+  transform-origin: left center !important;
+}
+
 html[dir="rtl"] input.selectify-radio[type="radio"]::before {
   translate: calc(-1 * var(--selectify-radio-circle-translate-unchecked)) 0 !important;
 }
@@ -228,180 +198,203 @@ html[dir="rtl"] input.selectify-checkbox[type="checkbox"]:checked::before {
   translate: calc(-1 * var(--selectify-checkbox-circle-translate-checked)) 0 !important;
 }
 
-/* Disabled states */
-input.selectify-radio[type="radio"]:disabled,
-input.selectify-checkbox[type="checkbox"]:disabled {
-  box-shadow: none;
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-/* Disabled unchecked - no icon needed */
-input.selectify-radio[type="radio"]:disabled::after,
-input.selectify-checkbox[type="checkbox"]:disabled::after {
+/* ============================================
+   Check mark (toggle style): rides the knob, draws in after it lands
+   ============================================ */
+input.selectify-radio[type="radio"]::after,
+input.selectify-checkbox[type="checkbox"]::after {
+  position: absolute !important;
+  z-index: 2;
+  display: block !important;
+  background: var(--selectify-checkbox-bg) !important;
   opacity: 0 !important;
+  transform: none !important;
+  pointer-events: none;
+  content: "" !important;
+  inset-block-start: 50% !important;
+  inset-inline-end: auto !important;
+  scale: 1 !important;
 }
 
-/* Disabled checked - show faded checkmark only */
-input.selectify-radio[type="radio"]:disabled:checked::after,
-input.selectify-checkbox[type="checkbox"]:disabled:checked::after {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 -960 960 960' fill='%239ca3af'%3E%3Cpath d='M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z'/%3E%3C/svg%3E");
-  opacity: 0.4;
+input.selectify-radio[type="radio"]::after {
+  inline-size: var(--selectify-radio-icon-size) !important;
+  block-size: var(--selectify-radio-icon-size) !important;
+  inset-inline-start: calc(var(--selectify-radio-circle-margin) + (var(--selectify-radio-circle-size) - var(--selectify-radio-icon-size)) / 2) !important;
+  translate: var(--selectify-radio-circle-translate-unchecked) -50% !important;
+  transition:
+    translate var(--selectify-radio-transition-speed) cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 90ms ease,
+    clip-path 0s linear 90ms !important;
 }
 
-/* Focus states */
+input.selectify-checkbox[type="checkbox"]::after {
+  inline-size: var(--selectify-checkbox-icon-size) !important;
+  block-size: var(--selectify-checkbox-icon-size) !important;
+  inset-inline-start: calc(var(--selectify-checkbox-circle-margin) + (var(--selectify-checkbox-circle-size) - var(--selectify-checkbox-icon-size)) / 2) !important;
+  translate: var(--selectify-checkbox-circle-translate-unchecked) -50% !important;
+  transition:
+    translate var(--selectify-checkbox-transition-speed) cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 90ms ease,
+    clip-path 0s linear 90ms !important;
+}
+
+input.selectify-radio[type="radio"]:checked::after,
+input.selectify-checkbox[type="checkbox"]:checked::after {
+  opacity: 1 !important;
+}
+
+input.selectify-radio[type="radio"]:checked::after {
+  translate: var(--selectify-radio-circle-translate-checked) -50% !important;
+  transition:
+    translate var(--selectify-radio-transition-speed) cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 120ms ease 150ms,
+    clip-path 200ms cubic-bezier(0.65, 0, 0.35, 1) 150ms !important;
+}
+
+input.selectify-checkbox[type="checkbox"]:checked::after {
+  translate: var(--selectify-checkbox-circle-translate-checked) -50% !important;
+  transition:
+    translate var(--selectify-checkbox-transition-speed) cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 120ms ease 150ms,
+    clip-path 200ms cubic-bezier(0.65, 0, 0.35, 1) 150ms !important;
+}
+
+html[dir="rtl"] input.selectify-radio[type="radio"]::after {
+  translate: calc(-1 * var(--selectify-radio-circle-translate-unchecked)) -50% !important;
+}
+
+html[dir="rtl"] input.selectify-checkbox[type="checkbox"]::after {
+  translate: calc(-1 * var(--selectify-checkbox-circle-translate-unchecked)) -50% !important;
+}
+
+html[dir="rtl"] input.selectify-radio[type="radio"]:checked::after {
+  translate: calc(-1 * var(--selectify-radio-circle-translate-checked)) -50% !important;
+}
+
+html[dir="rtl"] input.selectify-checkbox[type="checkbox"]:checked::after {
+  translate: calc(-1 * var(--selectify-checkbox-circle-translate-checked)) -50% !important;
+}
+
+/*
+ * Mark shape and draw-in. The class is repeated twice on purpose: the Claro
+ * and Gin companion files (css/claro/selectify-claro.css:66,
+ * css/gin/selectify-gin-base.css:28) reset the mark's mask and clip-path with
+ * !important at two classes plus .form-boolean, and load later; at equal
+ * weight they won and a checked control drew a plain square over its knob.
+ */
+input.selectify-radio.selectify-radio.selectify-radio[type="radio"]::after,
+input.selectify-checkbox.selectify-checkbox.selectify-checkbox[type="checkbox"]::after {
+  clip-path: inset(0 100% 0 0) !important;
+  mask: url("../icons/check.svg") center / contain no-repeat !important;
+}
+
+html[dir="rtl"] input.selectify-radio.selectify-radio.selectify-radio[type="radio"]::after,
+html[dir="rtl"] input.selectify-checkbox.selectify-checkbox.selectify-checkbox[type="checkbox"]::after {
+  clip-path: inset(0 0 0 100%) !important;
+}
+
+input.selectify-radio.selectify-radio.selectify-radio[type="radio"]:checked::after,
+input.selectify-checkbox.selectify-checkbox.selectify-checkbox[type="checkbox"]:checked::after {
+  clip-path: inset(0) !important;
+}
+
+/* ============================================
+   Focus: ring plus soft halo, flood kept
+   ============================================ */
 input.selectify-radio[type="radio"]:focus,
 input.selectify-checkbox[type="checkbox"]:focus {
-  outline: none;
-  box-shadow: none;
+  outline: none !important;
 }
 
 input.selectify-radio[type="radio"]:focus-visible,
 input.selectify-checkbox[type="checkbox"]:focus-visible {
-  outline: 2px solid var(--selectify-checkbox-focus, #5eead4);
-  outline-offset: 2px;
+  outline: 2px solid var(--selectify-checkbox-focus, color-mix(in srgb, var(--selectify-checkbox-checked-border-color) 65%, currentColor)) !important;
+  outline-offset: 2px !important;
+  box-shadow:
+    inset 0 0 0 0 color-mix(in srgb, var(--selectify-checkbox-checked-border-color) 16%, transparent),
+    0 0 0 6px color-mix(in srgb, var(--selectify-checkbox-focus, color-mix(in srgb, var(--selectify-checkbox-checked-border-color) 65%, currentColor)) 22%, transparent) !important;
 }
 
-/* Color variables */
-input.selectify-radio[type="radio"],
-input.selectify-checkbox[type="checkbox"] {
-  background: var(--selectify-checkbox-bg) !important;
+input.selectify-radio[type="radio"]:checked:focus-visible,
+input.selectify-checkbox[type="checkbox"]:checked:focus-visible {
+  box-shadow:
+    inset 0 0 0 2rem color-mix(in srgb, var(--selectify-checkbox-checked-border-color) 16%, transparent),
+    0 0 0 6px color-mix(in srgb, var(--selectify-checkbox-focus, color-mix(in srgb, var(--selectify-checkbox-checked-border-color) 65%, currentColor)) 22%, transparent) !important;
 }
 
-input.selectify-radio[type="radio"]::before,
-input.selectify-checkbox[type="checkbox"]::before {
-  box-shadow: none;
-  background: var(--selectify-checkbox-check-circle) !important;
-  transform: none !important;
-}
-
-input.selectify-radio[type="radio"]:checked,
-input.selectify-checkbox[type="checkbox"]:checked {
-  box-shadow: none;
-  background: var(--selectify-checkbox-checked-bg) !important;
-}
-
-input.selectify-radio[type="radio"]:checked::before,
-input.selectify-checkbox[type="checkbox"]:checked::before {
-  box-shadow: none;
-  background: var(--selectify-checkbox-checked-circle) !important;
-}
-
+/* ============================================
+   Disabled, indeterminate, invalid
+   ============================================ */
 input.selectify-radio[type="radio"]:disabled,
 input.selectify-checkbox[type="checkbox"]:disabled {
-  box-shadow: none;
+  border-style: dashed !important;
+  border-color: var(--selectify-checkbox-disabled-border-color) !important;
   background: var(--selectify-checkbox-disabled-bg) !important;
+  cursor: not-allowed;
+  opacity: 0.5 !important;
 }
 
 input.selectify-radio[type="radio"]:disabled::before,
 input.selectify-checkbox[type="checkbox"]:disabled::before {
-  box-shadow: none;
+  box-shadow: none !important;
   background: var(--selectify-checkbox-disabled-circle) !important;
 }
 
-/* Hover */
-input.selectify-checkbox[type="checkbox"]:hover,
-input.selectify-radio[type="radio"]:hover {
-  border-color: var(--selectify-checkbox-hover-border-color) !important;
-  background: var(--selectify-checkbox-hover-bg) !important;
+input.selectify-radio[type="radio"]:disabled:active::before,
+input.selectify-checkbox[type="checkbox"]:disabled:active::before {
+  scale: 1 1 !important;
 }
 
-/* Active / pressed */
-input.selectify-checkbox[type="checkbox"]:active,
-input.selectify-radio[type="radio"]:active {
-  border-color: var(--selectify-checkbox-active-border-color) !important;
-  background: var(--selectify-checkbox-active-bg) !important;
-}
-
-/* Checked (adds explicit border variable for both) */
-input.selectify-checkbox[type="checkbox"]:checked,
-input.selectify-radio[type="radio"]:checked {
-  border-color: var(--selectify-checkbox-checked-border-color) !important;
-}
-
-/* Indeterminate (checkbox only) */
 input.selectify-checkbox[type="checkbox"]:indeterminate {
   border-color: var(--selectify-checkbox-indeterminate-border-color) !important;
   background: var(--selectify-checkbox-indeterminate-bg) !important;
 }
 
-input.selectify-checkbox[type="checkbox"]:indeterminate::after {
-  background: var(--selectify-checkbox-indeterminate-bar) !important;
+input.selectify-checkbox[type="checkbox"]:indeterminate::before {
+  opacity: 0 !important;
 }
 
-/* Disabled (adds explicit border variable for both) */
-input.selectify-checkbox[type="checkbox"]:disabled,
-input.selectify-radio[type="radio"]:disabled {
-  border-color: var(--selectify-checkbox-disabled-border-color) !important;
+input.selectify-checkbox.selectify-checkbox.selectify-checkbox[type="checkbox"]:indeterminate::after {
+  inline-size: 50% !important;
+  block-size: 2px !important;
+  border-radius: 2px !important;
+  background: color-mix(in srgb, var(--selectify-checkbox-indeterminate-bar) 60%, currentcolor) !important;
+  opacity: 1 !important;
+  clip-path: none !important;
+  mask: none !important;
+  inset-inline-start: 50% !important;
+  translate: -50% -50% !important;
 }
 
-/* Invalid (ARIA) */
-input.selectify-checkbox[type="checkbox"][aria-invalid="true"],
-input.selectify-radio[type="radio"][aria-invalid="true"] {
+html[dir="rtl"] input.selectify-checkbox.selectify-checkbox.selectify-checkbox[type="checkbox"]:indeterminate::after {
+  translate: 50% -50% !important;
+}
+
+input.selectify-radio[type="radio"][aria-invalid="true"],
+input.selectify-checkbox[type="checkbox"][aria-invalid="true"] {
   border-color: var(--selectify-checkbox-invalid-border-color) !important;
   background: var(--selectify-checkbox-invalid-bg) !important;
 }
 
+/* The focus ring replaces the invalid outline while focused. */
+input.selectify-radio[type="radio"][aria-invalid="true"]:not(:focus-visible),
+input.selectify-checkbox[type="checkbox"][aria-invalid="true"]:not(:focus-visible) {
+  outline: 1px solid var(--selectify-checkbox-invalid-border-color) !important;
+  outline-offset: 0 !important;
+}
+
 /* ============================================
-   Traditional Checkbox Style - Auto Center Icons
-   Uses CSS classes for optimal performance
+   Traditional checkbox style (body classes from SelectifyStyleService).
+   The style prefix is written on EVERY selector of each list.
    ============================================ */
 
-/* Hide circle for traditional checkbox style - RADIO */
+/* No knob. */
 .selectify-radio-checkbox-circle-small input.selectify-radio[type="radio"]::before,
 .selectify-radio-checkbox-circle-medium input.selectify-radio[type="radio"]::before,
 .selectify-radio-checkbox-circle-large input.selectify-radio[type="radio"]::before,
 .selectify-radio-checkbox-square-small input.selectify-radio[type="radio"]::before,
 .selectify-radio-checkbox-square-medium input.selectify-radio[type="radio"]::before,
-.selectify-radio-checkbox-square-large input.selectify-radio[type="radio"]::before {
-  display: none !important;
-}
-
-/* Center icon for traditional checkbox style - RADIO */
-.selectify-radio-checkbox-circle-small input.selectify-radio[type="radio"]::after,
-.selectify-radio-checkbox-circle-medium input.selectify-radio[type="radio"]::after,
-.selectify-radio-checkbox-circle-large input.selectify-radio[type="radio"]::after,
-.selectify-radio-checkbox-square-small input.selectify-radio[type="radio"]::after,
-.selectify-radio-checkbox-square-medium input.selectify-radio[type="radio"]::after,
-.selectify-radio-checkbox-square-large input.selectify-radio[type="radio"]::after {
-  inset-inline-end: auto !important;
-  inset-block-start: 50% !important;
-  inset-inline-start: 50% !important;
-  transform: translate(-50%, -50%) !important;
-  transition:
-    opacity 0.25s ease,
-    scale 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
-  translate: none !important;
-}
-
-/* Traditional - unchecked (fade out completely) */
-.selectify-radio-checkbox-circle-small input.selectify-radio[type="radio"]:not(:checked)::after,
-.selectify-radio-checkbox-circle-medium input.selectify-radio[type="radio"]:not(:checked)::after,
-.selectify-radio-checkbox-circle-large input.selectify-radio[type="radio"]:not(:checked)::after,
-.selectify-radio-checkbox-square-small input.selectify-radio[type="radio"]:not(:checked)::after,
-.selectify-radio-checkbox-square-medium input.selectify-radio[type="radio"]:not(:checked)::after,
-.selectify-radio-checkbox-square-large input.selectify-radio[type="radio"]:not(:checked)::after {
-  opacity: 0 !important;
-  scale: 0.8;
-}
-
-/* Traditional - checked (pop in) */
-.selectify-radio-checkbox-circle-small input.selectify-radio[type="radio"]:checked::after,
-.selectify-radio-checkbox-circle-medium input.selectify-radio[type="radio"]:checked::after,
-.selectify-radio-checkbox-circle-large input.selectify-radio[type="radio"]:checked::after,
-.selectify-radio-checkbox-square-small input.selectify-radio[type="radio"]:checked::after,
-.selectify-radio-checkbox-square-medium input.selectify-radio[type="radio"]:checked::after,
-.selectify-radio-checkbox-square-large input.selectify-radio[type="radio"]:checked::after {
-  opacity: 1 !important;
-  transform: translate(-50%, -50%) !important;
-  inset-inline-end: auto !important;
-  inset-block-start: 50% !important;
-  inset-inline-start: 50% !important;
-  translate: none !important;
-  scale: 1;
-}
-
-/* Hide circle for traditional checkbox style - CHECKBOX */
+.selectify-radio-checkbox-square-large input.selectify-radio[type="radio"]::before,
 .selectify-checkbox-checkbox-circle-small input.selectify-checkbox[type="checkbox"]::before,
 .selectify-checkbox-checkbox-circle-medium input.selectify-checkbox[type="checkbox"]::before,
 .selectify-checkbox-checkbox-circle-large input.selectify-checkbox[type="checkbox"]::before,
@@ -411,46 +404,219 @@ input.selectify-radio[type="radio"][aria-invalid="true"] {
   display: none !important;
 }
 
-/* Center icon for traditional checkbox style - CHECKBOX */
+/* Mark centered in the box, in the derived check-mark color. */
+.selectify-radio-checkbox-circle-small input.selectify-radio[type="radio"]::after,
+.selectify-radio-checkbox-circle-medium input.selectify-radio[type="radio"]::after,
+.selectify-radio-checkbox-circle-large input.selectify-radio[type="radio"]::after,
+.selectify-radio-checkbox-square-small input.selectify-radio[type="radio"]::after,
+.selectify-radio-checkbox-square-medium input.selectify-radio[type="radio"]::after,
+.selectify-radio-checkbox-square-large input.selectify-radio[type="radio"]::after,
 .selectify-checkbox-checkbox-circle-small input.selectify-checkbox[type="checkbox"]::after,
 .selectify-checkbox-checkbox-circle-medium input.selectify-checkbox[type="checkbox"]::after,
 .selectify-checkbox-checkbox-circle-large input.selectify-checkbox[type="checkbox"]::after,
 .selectify-checkbox-checkbox-square-small input.selectify-checkbox[type="checkbox"]::after,
 .selectify-checkbox-checkbox-square-medium input.selectify-checkbox[type="checkbox"]::after,
 .selectify-checkbox-checkbox-square-large input.selectify-checkbox[type="checkbox"]::after {
+  background: color-mix(in srgb, var(--selectify-checkbox-checked-border-color) 30%, currentcolor) !important;
   inset-inline-start: 50% !important;
-  inset-inline-end: auto !important;
-  inset-block-start: 50% !important;
-  translate: none !important;
-  transform: translate(-50%, -50%) !important;
+  translate: -50% -50% !important;
   transition:
-    opacity 0.25s ease,
-    scale 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    opacity 90ms ease,
+    clip-path 0s linear 90ms !important;
 }
 
-/* Traditional - unchecked (fade out completely) */
-.selectify-checkbox-checkbox-circle-small input.selectify-checkbox[type="checkbox"]:not(:checked)::after,
-.selectify-checkbox-checkbox-circle-medium input.selectify-checkbox[type="checkbox"]:not(:checked)::after,
-.selectify-checkbox-checkbox-circle-large input.selectify-checkbox[type="checkbox"]:not(:checked)::after,
-.selectify-checkbox-checkbox-square-small input.selectify-checkbox[type="checkbox"]:not(:checked)::after,
-.selectify-checkbox-checkbox-square-medium input.selectify-checkbox[type="checkbox"]:not(:checked)::after,
-.selectify-checkbox-checkbox-square-large input.selectify-checkbox[type="checkbox"]:not(:checked)::after {
-  opacity: 0 !important;
-  scale: 0.8;
-}
-
-/* Traditional - checked (pop in) */
+.selectify-radio-checkbox-circle-small input.selectify-radio[type="radio"]:checked::after,
+.selectify-radio-checkbox-circle-medium input.selectify-radio[type="radio"]:checked::after,
+.selectify-radio-checkbox-circle-large input.selectify-radio[type="radio"]:checked::after,
+.selectify-radio-checkbox-square-small input.selectify-radio[type="radio"]:checked::after,
+.selectify-radio-checkbox-square-medium input.selectify-radio[type="radio"]:checked::after,
+.selectify-radio-checkbox-square-large input.selectify-radio[type="radio"]:checked::after,
 .selectify-checkbox-checkbox-circle-small input.selectify-checkbox[type="checkbox"]:checked::after,
 .selectify-checkbox-checkbox-circle-medium input.selectify-checkbox[type="checkbox"]:checked::after,
 .selectify-checkbox-checkbox-circle-large input.selectify-checkbox[type="checkbox"]:checked::after,
 .selectify-checkbox-checkbox-square-small input.selectify-checkbox[type="checkbox"]:checked::after,
 .selectify-checkbox-checkbox-square-medium input.selectify-checkbox[type="checkbox"]:checked::after,
 .selectify-checkbox-checkbox-square-large input.selectify-checkbox[type="checkbox"]:checked::after {
-  inset-inline-start: 50% !important;
-  inset-inline-end: auto !important;
-  inset-block-start: 50% !important;
-  translate: none !important;
-  transform: translate(-50%, -50%) !important;
-  opacity: 1 !important;
-  scale: 1;
+  translate: -50% -50% !important;
+  transition:
+    opacity 100ms ease 60ms,
+    clip-path 220ms cubic-bezier(0.65, 0, 0.35, 1) 60ms !important;
+}
+
+html[dir="rtl"] .selectify-radio-checkbox-circle-small input.selectify-radio[type="radio"]::after,
+html[dir="rtl"] .selectify-radio-checkbox-circle-medium input.selectify-radio[type="radio"]::after,
+html[dir="rtl"] .selectify-radio-checkbox-circle-large input.selectify-radio[type="radio"]::after,
+html[dir="rtl"] .selectify-radio-checkbox-square-small input.selectify-radio[type="radio"]::after,
+html[dir="rtl"] .selectify-radio-checkbox-square-medium input.selectify-radio[type="radio"]::after,
+html[dir="rtl"] .selectify-radio-checkbox-square-large input.selectify-radio[type="radio"]::after,
+html[dir="rtl"] .selectify-checkbox-checkbox-circle-small input.selectify-checkbox[type="checkbox"]::after,
+html[dir="rtl"] .selectify-checkbox-checkbox-circle-medium input.selectify-checkbox[type="checkbox"]::after,
+html[dir="rtl"] .selectify-checkbox-checkbox-circle-large input.selectify-checkbox[type="checkbox"]::after,
+html[dir="rtl"] .selectify-checkbox-checkbox-square-small input.selectify-checkbox[type="checkbox"]::after,
+html[dir="rtl"] .selectify-checkbox-checkbox-square-medium input.selectify-checkbox[type="checkbox"]::after,
+html[dir="rtl"] .selectify-checkbox-checkbox-square-large input.selectify-checkbox[type="checkbox"]::after {
+  translate: 50% -50% !important;
+}
+
+/* Press: the whole box gives a little. */
+.selectify-radio-checkbox-circle-small input.selectify-radio[type="radio"]:active:not(:disabled),
+.selectify-radio-checkbox-circle-medium input.selectify-radio[type="radio"]:active:not(:disabled),
+.selectify-radio-checkbox-circle-large input.selectify-radio[type="radio"]:active:not(:disabled),
+.selectify-radio-checkbox-square-small input.selectify-radio[type="radio"]:active:not(:disabled),
+.selectify-radio-checkbox-square-medium input.selectify-radio[type="radio"]:active:not(:disabled),
+.selectify-radio-checkbox-square-large input.selectify-radio[type="radio"]:active:not(:disabled),
+.selectify-checkbox-checkbox-circle-small input.selectify-checkbox[type="checkbox"]:active:not(:disabled),
+.selectify-checkbox-checkbox-circle-medium input.selectify-checkbox[type="checkbox"]:active:not(:disabled),
+.selectify-checkbox-checkbox-circle-large input.selectify-checkbox[type="checkbox"]:active:not(:disabled),
+.selectify-checkbox-checkbox-square-small input.selectify-checkbox[type="checkbox"]:active:not(:disabled),
+.selectify-checkbox-checkbox-square-medium input.selectify-checkbox[type="checkbox"]:active:not(:disabled),
+.selectify-checkbox-checkbox-square-large input.selectify-checkbox[type="checkbox"]:active:not(:disabled) {
+  scale: 0.92 !important;
+}
+
+/* ============================================
+   24px target: the label is part of the row.
+   ============================================ */
+.form-item:has(> input.selectify-radio[type="radio"]),
+.form-item:has(> input.selectify-checkbox[type="checkbox"]) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  min-block-size: 1.5rem;
+}
+
+.form-item:has(> input.selectify-radio[type="radio"]) > .description,
+.form-item:has(> input.selectify-checkbox[type="checkbox"]) > .description {
+  flex-basis: 100%;
+}
+
+/* ============================================
+   Accessibility layers
+   ============================================ */
+@media (forced-colors: active) {
+  input.selectify-radio[type="radio"],
+  input.selectify-checkbox[type="checkbox"] {
+    border-color: CanvasText !important;
+    box-shadow: none !important;
+    background: Canvas !important;
+    forced-color-adjust: none;
+  }
+
+  input.selectify-radio[type="radio"]:hover:not(:checked, :disabled, [aria-invalid="true"]),
+  input.selectify-checkbox[type="checkbox"]:hover:not(:checked, :disabled, [aria-invalid="true"]),
+  input.selectify-radio[type="radio"]:active:not(:checked, :disabled, [aria-invalid="true"]),
+  input.selectify-checkbox[type="checkbox"]:active:not(:checked, :disabled, [aria-invalid="true"]) {
+    border-color: Highlight !important;
+    background: Canvas !important;
+  }
+
+  input.selectify-radio[type="radio"]:checked,
+  input.selectify-checkbox[type="checkbox"]:checked {
+    border-color: Highlight !important;
+    background: Highlight !important;
+  }
+
+  input.selectify-radio[type="radio"]:disabled,
+  input.selectify-checkbox[type="checkbox"]:disabled {
+    border-color: GrayText !important;
+    background: Canvas !important;
+  }
+
+  input.selectify-checkbox[type="checkbox"]:indeterminate,
+  input.selectify-radio[type="radio"][aria-invalid="true"],
+  input.selectify-checkbox[type="checkbox"][aria-invalid="true"] {
+    border-color: CanvasText !important;
+    background: Canvas !important;
+  }
+
+  input.selectify-radio[type="radio"][aria-invalid="true"]:not(:focus-visible),
+  input.selectify-checkbox[type="checkbox"][aria-invalid="true"]:not(:focus-visible) {
+    outline-color: CanvasText !important;
+  }
+
+  input.selectify-radio[type="radio"]::before,
+  input.selectify-checkbox[type="checkbox"]::before,
+  input.selectify-radio[type="radio"]:checked::before,
+  input.selectify-checkbox[type="checkbox"]:checked::before,
+  input.selectify-radio[type="radio"]:disabled::before,
+  input.selectify-checkbox[type="checkbox"]:disabled::before {
+    box-shadow: none !important;
+    background: CanvasText !important;
+  }
+
+  input.selectify-radio.selectify-radio[type="radio"]:checked::after,
+  input.selectify-checkbox.selectify-checkbox[type="checkbox"]:checked::after {
+    background: HighlightText !important;
+  }
+
+  input.selectify-checkbox.selectify-checkbox[type="checkbox"]:indeterminate::after {
+    background: CanvasText !important;
+  }
+
+  input.selectify-radio[type="radio"]:focus-visible,
+  input.selectify-checkbox[type="checkbox"]:focus-visible,
+  input.selectify-radio[type="radio"]:checked:focus-visible,
+  input.selectify-checkbox[type="checkbox"]:checked:focus-visible {
+    outline: 2px solid Highlight !important;
+    box-shadow: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  input.selectify-radio[type="radio"],
+  input.selectify-checkbox[type="checkbox"],
+  input.selectify-radio[type="radio"]::before,
+  input.selectify-checkbox[type="checkbox"]::before,
+  input.selectify-radio[type="radio"]::after,
+  input.selectify-checkbox[type="checkbox"]::after,
+  input.selectify-radio[type="radio"]:checked::after,
+  input.selectify-checkbox[type="checkbox"]:checked::after,
+  .selectify-radio-checkbox-circle-small input.selectify-radio[type="radio"]::after,
+  .selectify-radio-checkbox-circle-medium input.selectify-radio[type="radio"]::after,
+  .selectify-radio-checkbox-circle-large input.selectify-radio[type="radio"]::after,
+  .selectify-radio-checkbox-square-small input.selectify-radio[type="radio"]::after,
+  .selectify-radio-checkbox-square-medium input.selectify-radio[type="radio"]::after,
+  .selectify-radio-checkbox-square-large input.selectify-radio[type="radio"]::after,
+  .selectify-checkbox-checkbox-circle-small input.selectify-checkbox[type="checkbox"]::after,
+  .selectify-checkbox-checkbox-circle-medium input.selectify-checkbox[type="checkbox"]::after,
+  .selectify-checkbox-checkbox-circle-large input.selectify-checkbox[type="checkbox"]::after,
+  .selectify-checkbox-checkbox-square-small input.selectify-checkbox[type="checkbox"]::after,
+  .selectify-checkbox-checkbox-square-medium input.selectify-checkbox[type="checkbox"]::after,
+  .selectify-checkbox-checkbox-square-large input.selectify-checkbox[type="checkbox"]::after,
+  .selectify-radio-checkbox-circle-small input.selectify-radio[type="radio"]:checked::after,
+  .selectify-radio-checkbox-circle-medium input.selectify-radio[type="radio"]:checked::after,
+  .selectify-radio-checkbox-circle-large input.selectify-radio[type="radio"]:checked::after,
+  .selectify-radio-checkbox-square-small input.selectify-radio[type="radio"]:checked::after,
+  .selectify-radio-checkbox-square-medium input.selectify-radio[type="radio"]:checked::after,
+  .selectify-radio-checkbox-square-large input.selectify-radio[type="radio"]:checked::after,
+  .selectify-checkbox-checkbox-circle-small input.selectify-checkbox[type="checkbox"]:checked::after,
+  .selectify-checkbox-checkbox-circle-medium input.selectify-checkbox[type="checkbox"]:checked::after,
+  .selectify-checkbox-checkbox-circle-large input.selectify-checkbox[type="checkbox"]:checked::after,
+  .selectify-checkbox-checkbox-square-small input.selectify-checkbox[type="checkbox"]:checked::after,
+  .selectify-checkbox-checkbox-square-medium input.selectify-checkbox[type="checkbox"]:checked::after,
+  .selectify-checkbox-checkbox-square-large input.selectify-checkbox[type="checkbox"]:checked::after {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+
+  input.selectify-radio[type="radio"]:active::before,
+  input.selectify-checkbox[type="checkbox"]:active::before {
+    scale: 1 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .selectify-radio-checkbox-circle-small input.selectify-radio[type="radio"]:active:not(:disabled),
+  .selectify-radio-checkbox-circle-medium input.selectify-radio[type="radio"]:active:not(:disabled),
+  .selectify-radio-checkbox-circle-large input.selectify-radio[type="radio"]:active:not(:disabled),
+  .selectify-radio-checkbox-square-small input.selectify-radio[type="radio"]:active:not(:disabled),
+  .selectify-radio-checkbox-square-medium input.selectify-radio[type="radio"]:active:not(:disabled),
+  .selectify-radio-checkbox-square-large input.selectify-radio[type="radio"]:active:not(:disabled),
+  .selectify-checkbox-checkbox-circle-small input.selectify-checkbox[type="checkbox"]:active:not(:disabled),
+  .selectify-checkbox-checkbox-circle-medium input.selectify-checkbox[type="checkbox"]:active:not(:disabled),
+  .selectify-checkbox-checkbox-circle-large input.selectify-checkbox[type="checkbox"]:active:not(:disabled),
+  .selectify-checkbox-checkbox-square-small input.selectify-checkbox[type="checkbox"]:active:not(:disabled),
+  .selectify-checkbox-checkbox-square-medium input.selectify-checkbox[type="checkbox"]:active:not(:disabled),
+  .selectify-checkbox-checkbox-square-large input.selectify-checkbox[type="checkbox"]:active:not(:disabled) {
+    scale: 1 !important;
+  }
 }

@@ -69,14 +69,8 @@
         if (correspondingOption) {
           correspondingOption.selected = event.target.checked;
         }
-        // **Add or remove .s-selected and .s-hidden on the parent div**
-        if (parentOption) {
-          if (event.target.checked) {
-            parentOption.classList.add('s-selected');
-          } else {
-            parentOption.classList.remove('s-selected');
-          }
-        }
+        // The row's look and its announced state follow the checkbox.
+        setRowState(parentOption, event.target.checked);
         Drupal.selectify.syncHiddenSelect(nativeSelect, Drupal.selectify.getSelectedValues(nativeSelect));
         Drupal.selectify.updateSelectedDisplay(type, nativeSelect, selectedDisplay, clearAllButton);
         nativeSelect.dispatchEvent(new Event('change'));
@@ -93,8 +87,7 @@
                 opt.disabled = false;
               });
               options.forEach((opt) => {
-                const parentOption = opt.closest('.selectify-available-one-option');
-                if (parentOption) parentOption.classList.remove('s-selected');
+                setRowState(opt.closest('.selectify-available-one-option'), false);
               });
             },
             focusTarget: () => selectedDisplay,
@@ -108,6 +101,28 @@
     const selectedValues = Drupal.selectify.getSelectedValues(nativeSelect);
     options.forEach(checkbox => {
       checkbox.checked = selectedValues.includes(checkbox.value);
+      setRowState(checkbox.closest('.selectify-available-one-option'), checkbox.checked);
     });
+  }
+
+  /**
+   * Keeps an option row's class and aria-selected in step with its checkbox.
+   *
+   * The server renders aria-selected="true" on saved values and the row
+   * color keys on it, so clearing only the class left the row colored.
+   *
+   * @param {HTMLElement|null} row
+   *   The .selectify-available-one-option element.
+   * @param {boolean} selected
+   *   Whether the option is selected.
+   */
+  function setRowState(row, selected) {
+    // The "_none" placeholder row is role="presentation"; it is not an
+    // option, so it must never carry aria-selected.
+    if (!row || row.getAttribute('role') === 'presentation') {
+      return;
+    }
+    row.classList.toggle('s-selected', selected);
+    row.setAttribute('aria-selected', selected ? 'true' : 'false');
   }
 })(Drupal, once, drupalSettings);

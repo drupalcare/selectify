@@ -1,6 +1,26 @@
 /**
  * Selectify styles specific to Gin admin theme
  */
+
+/* Sizes from Gin's own tokens (gin/dist/css/theme/variables.css). The base CSS
+   reads these; nothing is overridden. :root (0,1,0) beats the Claro file's
+   :where(:root), whatever the load order. */
+:root {
+  --selectify-ui-field-height: calc(var(--input-line-height) + 2 * var(--input-padding-vertical) + 2px);
+  --selectify-ui-search-height: calc(var(--input-line-height) + 2 * var(--input-padding-vertical) + 2px);
+  --selectify-ui-font-size: var(--gin-font-size-s);
+
+  /* 15px/500 and the 34px, 36px rows are owner-approved values with no Gin token. */
+  --selectify-ui-single-size: 0.9375rem;
+  --selectify-ui-value-weight: 500;
+  --selectify-ui-row-height: calc(var(--gin-spacing-l) + var(--gin-spacing-xs) + 2px);
+  --selectify-ui-row-height-dual: calc(var(--gin-spacing-l) + var(--gin-spacing-xs) + 2px);
+  --selectify-ui-row-height-check: calc(var(--gin-spacing-l) + var(--gin-spacing-xs) + var(--gin-spacing-xxs));
+  --selectify-ui-radius: var(--gin-border-s);
+  --selectify-ui-gap: var(--gin-spacing-xs);
+  --selectify-ui-pad-inline: var(--gin-spacing-s);
+}
+
 body .dual-available,
 body .dual-selected,
 body .selectify-available-display,

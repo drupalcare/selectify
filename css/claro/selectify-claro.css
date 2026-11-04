@@ -2,6 +2,25 @@
  * Selectify styles for Claro admin theme
  */
 
+/* Sizes from Claro's own tokens (core/themes/claro/css/base/variables.css).
+   :where() keeps specificity at 0 so the Gin file, which loads with Claro as
+   its base theme, always wins. The base CSS reads these; nothing is overridden. */
+:where(:root) {
+  --selectify-ui-field-height: calc(var(--input-line-height) + 2 * (var(--input-padding-vertical) + var(--input-border-size)));
+  --selectify-ui-search-height: calc(var(--input-line-height) + 2 * (var(--input-padding-vertical) + var(--input-border-size)));
+  --selectify-ui-font-size: var(--font-size-s);
+
+  /* 15px/500 and the 34px, 36px rows are owner-approved values with no Claro token. */
+  --selectify-ui-single-size: 0.9375rem;
+  --selectify-ui-value-weight: 500;
+  --selectify-ui-row-height: calc(var(--space-l) + var(--space-xs) + 2 * var(--input-border-size));
+  --selectify-ui-row-height-dual: calc(var(--space-l) + var(--space-xs) + 2 * var(--input-border-size));
+  --selectify-ui-row-height-check: calc(var(--space-l) + var(--space-xs) + 0.25rem);
+  --selectify-ui-radius: var(--input-border-radius-size);
+  --selectify-ui-gap: var(--space-xs);
+  --selectify-ui-pad-inline: var(--space-s);
+}
+
 /* Claro theme adjustments */
 .wrapper-selectify {
   border: none;
@@ -42,12 +61,6 @@ body .selectify-selected-display {
   margin-inline-end: 0 !important;
 }
 
-input.selectify-radio[type="radio"]:focus,
-input.selectify-checkbox[type="select"]:focus,
-input.selectify-checkbox[type="checkbox"]:focus {
-  box-shadow: 0 0 0 2px var(--color-white), 0 0 0 5px var(--color-focus);
-}
-
 input.selectify-radio[type="radio"],
 input.selectify-checkbox[type="checkbox"] {
   border-color: var(--selectify-select-border-color, var(--input-border-color));
@@ -77,7 +90,7 @@ input.selectify-radio.form-boolean[type="radio"]::after {
 
 .selectify-select-dropdowns .selectify-selected-display {
   max-inline-size: 100%;
-  block-size: var(--sp3);
+  block-size: auto;
   min-block-size: calc(((var(--input-padding-vertical) + var(--input-border-size)) * 2) + var(--input-line-height));
   padding-block: var(--input-padding-vertical);
   padding-inline: var(--input-padding-horizontal);
@@ -93,4 +106,20 @@ input.selectify-radio.form-boolean[type="radio"]::after {
 .selectify-available-one-option:hover,
 .selectify-selected-display:hover {
   border-color: var(--selectify-select-focus-border-color, var(--input--hover-border-color), var(--gin-color-text));
+}
+
+/* Radio and checkbox focus is the Selectify ring and halo (no Claro double
+   ring). The row is a 24px target with the label inside it. */
+.form-type--boolean:has(> input.selectify-checkbox),
+.form-type--boolean:has(> input.selectify-radio) {
+  display: flex;
+  flex-wrap: wrap;
+  min-block-size: 1.5rem;
+  align-items: center;
+  column-gap: var(--space-xs);
+}
+
+.form-type--boolean:has(> input.selectify-checkbox) > .form-item__description,
+.form-type--boolean:has(> input.selectify-radio) > .form-item__description {
+  flex-basis: 100%;
 }
