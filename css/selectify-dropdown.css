@@ -8,9 +8,9 @@ body .selectify-dropdown-widget .selectify-available-one-option label {
 }
 
 body .selectify-dropdown-widget .selectify-available-one-option.s-selected {
-  display: flex !important;
+  display: block !important;
 }
 
 body .selectify-dropdown-widget .selectify-available-one-option.s-selected label {
-  font-weight: 600 !important;
+  font-weight: bold !important;
 }
