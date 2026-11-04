@@ -14,7 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   selected option, pill chips with a 24px remove button, a soft open animation,
   one focus ring style, forced-colors and reduced-motion support. Every
   `--selectify-*` variable keeps its name, so theme and site overrides keep
-  working. On Olivero the grey box around each widget is gone.
+  working. On Olivero the gray box around each widget is gone.
 - **Better accent colors, for every site.** All 14 accent palettes (7 colors,
   light and dark) and the default colors were retuned for comfort and
   readability: solid fields, soft two-stop gradients, clearer focus rings and
