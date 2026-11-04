@@ -206,7 +206,7 @@ interface SelectifyHelperInterface {
   public function isSelectInExcludedContext(array $element): bool;
 
   /**
-   * Checks if a select element should be skipped (single source for skip rules).
+   * Checks if a select element should be skipped (one source for skip rules).
    *
    * Combines third-party library, hidden/disabled, and context checks.
    * Call after integration-specific checks (#ajax, #key_column, etc.).

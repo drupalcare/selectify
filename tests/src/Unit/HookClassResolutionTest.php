@@ -15,7 +15,7 @@ use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * Procedural wrappers must build the Hook classes without needing them as services.
+ * Procedural wrappers build the Hook classes without them being services.
  *
  * WHY THIS EXISTS. Issue #3628961: "You have requested a non-existent
  * service ...Hooks". The SelectifyHooks, SelectifyWebformHooks and

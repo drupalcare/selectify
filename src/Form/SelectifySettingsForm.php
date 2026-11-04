@@ -844,7 +844,8 @@ class SelectifySettingsForm extends ConfigFormBase {
       $last_seen = (is_numeric($last_seen) && $last_seen > 0) ? (int) $last_seen : NULL;
       $last_seen_markup = $last_seen ? $date_formatter->format($last_seen, 'short') : '-';
 
-      // Row structure matches Webform table: no #attributes on row, same cell keys pattern.
+      // Row structure matches Webform table: no #attributes on row, same cell
+      // keys pattern.
       $form['form_api_selects']['per_form_configuration']['form_api_widgets'][$discovered_form_id] = [
         'form_id' => [
           '#markup' => '<code>' . Html::escape($discovered_form_id) . '</code>',

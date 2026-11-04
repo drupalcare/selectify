@@ -2,7 +2,7 @@
  * @file
  * Contains utility functions for Selectify module multi-select.
  *
- * Filename: selectify-dropdown-checkbod.js
+ * Filename: selectify-dropdown-checkbox.js
  * Website: https://www.flashwebcenter.com
  * Developer: Alaa Haddad https://www.alaahaddad.com.
  */
