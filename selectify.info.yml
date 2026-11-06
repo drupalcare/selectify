@@ -1,6 +1,6 @@
 name: 'Selectify'
 type: module
-description: 'Modern, accessible select and radio/checkbox components for Drupal forms (Views, Field UI, Form API, Webform). Five dropdown widgets, RTL/LTR support, WCAG 2.1 AA.'
+description: 'Replaces select lists, radio buttons and checkboxes with accessible styled widgets in Views, Field UI, Form API and Webform forms, with five dropdown styles and right-to-left support.'
 package: 'User interface'
 core_version_requirement: ^10 || ^11 || ^12
 dependencies:
