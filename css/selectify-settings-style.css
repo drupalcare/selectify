@@ -22,7 +22,7 @@ form.selectify-settings-form {
   --sy-line: color-mix(in srgb, currentcolor 25%, transparent);
 
   /* Brand accent: thin borders, icon color and the checked outline only. */
-  --sy-accent: #2747a8;
+  --sy-accent: #a44769;
 
   /* Specimen: widget colors of the chosen palette (teal until one is read). */
   --sy-widget: #10b981;
@@ -72,7 +72,7 @@ form.selectify-settings-form {
 
 .dark-mode form.selectify-settings-form,
 .gin--dark-mode form.selectify-settings-form {
-  --sy-accent: #9db4ff;
+  --sy-accent: #d994ab;
   --sy-widget: #14b8a6;
   --sy-widget-on: #111316;
   --sy-field: #222428;
@@ -788,4 +788,15 @@ form.selectify-settings-form > .form-actions {
   form.selectify-settings-form details.selectify-section {
     transition: background-color 0.15s ease, border-color 0.15s ease;
   }
+}
+
+/* The Selectify logo takes the place of the tune glyph in the band. */
+form.selectify-settings-form .selectify-band__icon {
+  inline-size: 3rem;
+  block-size: 3rem;
+  background: url("../images/logo.svg") no-repeat center / contain;
+}
+
+form.selectify-settings-form .selectify-band__icon .selectify-icon {
+  display: none;
 }
