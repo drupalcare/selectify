@@ -95,10 +95,10 @@
 .dual-selected,
 .selectify-available-display,
 .selectify-selected-display {
-  border: 2px solid var(--r-br, #999);
+  border: 2px solid var(--r-border, var(--r-br, #999));
   border-radius: 8px;
-  background: var(--r-bg, #f1f1f1);
-  color: var(--r-tx, currentColor);
+  background: var(--r-background, var(--r-bg, #f1f1f1));
+  color: var(--r-text, var(--r-tx, currentColor));
   transition:
     border-color 120ms ease,
     background-color 120ms ease,
@@ -153,10 +153,10 @@
   display: flex;
   margin: 0;
   padding: 4px 8px;
-  border: 1px solid var(--r-br, var(--r-br-b), #999);
+  border: 1px solid var(--r-border, var(--r-br, var(--solo-border-default, var(--r-br-b, #999))));
   border-radius: 999px;
-  background-color: var(--r-bg-bt, var(--r-bg), #f8f8f8);
-  color: var(--r-tx-bt, var(--r-tx), currentColor);
+  background-color: var(--r-button-background, var(--r-bg-bt, var(--r-background, var(--r-bg, #f8f8f8))));
+  color: var(--r-button-text, var(--r-tx-bt, var(--r-text, var(--r-tx, currentColor))));
   font-size: .75rem;
   line-height: 1.2;
   cursor: pointer;
@@ -395,8 +395,8 @@ body .selectify-select .selectify-select-footer button.selectify-clear-all {
 }
 
 body .selectify-select .selectify-select-footer button.selectify-clear-all:hover {
-  border-color: color-mix(in srgb, var(--selectify-select-border-color, var(--r-br, transparent)) 45%, var(--selectify-select-color, currentColor));
-  background: var(--selectify-select-hover-bg, var(--r-bg));
+  border-color: color-mix(in srgb, var(--selectify-select-border-color, var(--r-border, var(--r-br, transparent))) 45%, var(--selectify-select-color, currentColor));
+  background: var(--selectify-select-hover-bg, var(--r-background, var(--r-bg)));
 }
 
 body .selectify-select .selectify-select-footer button.selectify-clear-all:focus-visible {

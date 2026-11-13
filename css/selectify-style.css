@@ -34,8 +34,8 @@ body .wrapper-selectify {
 
 body .selectify-select,
 body .selectify-select * {
-  border-color: var(--selectify-select-border-color, var(--r-br));
-  color: var(--selectify-select-color, var(--r-tx));
+  border-color: var(--selectify-select-border-color, var(--r-border, var(--r-br)));
+  color: var(--selectify-select-color, var(--r-text, var(--r-tx)));
 }
 
 body .selectify-select .selectify-selected-one-option {
@@ -45,7 +45,7 @@ body .selectify-select .selectify-selected-one-option {
 body .selectify-clear-all,
 body .selectify-select .selectify-available-display,
 body .selectify-select .selectify-selected-display{
-  background: var(--selectify-select-bg, var(--r-bg));
+  background: var(--selectify-select-bg, var(--r-background, var(--r-bg)));
 }
 
 body .selectify-select .selectify-selected-display,
@@ -55,16 +55,16 @@ body .selectify-select .selectify-available-display {
 
 body .selectify-clear-all,
 body .selectify-select .selectify-selected-display {
-  border: 1px solid color-mix(in srgb, var(--selectify-select-border-color, var(--r-br, transparent)) 45%, var(--selectify-select-color, currentColor));
+  border: 1px solid color-mix(in srgb, var(--selectify-select-border-color, var(--r-border, var(--r-br, transparent))) 45%, var(--selectify-select-color, currentColor));
 }
 
 body .selectify-select .search-input input {
   margin: 0;
-  border: 1px solid color-mix(in srgb, var(--selectify-select-border-color, var(--r-br, transparent)) 45%, var(--selectify-select-color, currentColor));
+  border: 1px solid color-mix(in srgb, var(--selectify-select-border-color, var(--r-border, var(--r-br, transparent))) 45%, var(--selectify-select-color, currentColor));
   border-radius: var(--selectify-select-border-radius, 0.25rem);
   box-shadow: none !important;
-  background: var(--selectify-select-bg, var(--r-bg));
-  color: var(--selectify-select-color, var(--r-tx));
+  background: var(--selectify-select-bg, var(--r-background, var(--r-bg)));
+  color: var(--selectify-select-color, var(--r-text, var(--r-tx)));
   font-size: 0.875rem;
   line-height: 1.3;
   transition:
@@ -76,17 +76,17 @@ body .selectify-select .search-input input {
 
 body .dual-available,
 body .dual-selected {
-  border: 1px solid color-mix(in srgb, var(--selectify-select-border-color, var(--r-br, transparent)) 45%, var(--selectify-select-color, currentColor));
-  background: var(--selectify-select-bg, var(--r-bg));
+  border: 1px solid color-mix(in srgb, var(--selectify-select-border-color, var(--r-border, var(--r-br, transparent))) 45%, var(--selectify-select-color, currentColor));
+  background: var(--selectify-select-bg, var(--r-background, var(--r-bg)));
 }
 
 body .selectify-select .selectify-available-display {
-  border: 1px solid var(--selectify-select-border-color, var(--r-br));
+  border: 1px solid var(--selectify-select-border-color, var(--r-border, var(--r-br)));
   box-shadow: var(--selectify-dropdown-shadow, unset);
 }
 
 body .selectify-select .search-input+.selectify-selected-one-option {
-  border-block-start: 1px solid color-mix(in srgb, color-mix(in srgb, var(--selectify-select-border-color, var(--r-br, transparent)) 45%, var(--selectify-select-color, currentColor)) 40%, transparent);
+  border-block-start: 1px solid color-mix(in srgb, color-mix(in srgb, var(--selectify-select-border-color, var(--r-border, var(--r-br, transparent))) 45%, var(--selectify-select-color, currentColor)) 40%, transparent);
 }
 
 /* Focus (Rail & Halo): ring outside the widget, inset ring inside the menu. */
@@ -113,31 +113,31 @@ body .selectify-select .selectify-available-display *:focus-visible {
 }
 
 body .selectify-select:disabled {
-  border-color: var(--selectify-select-border-color, var(--r-br));
-  background: var(--selectify-select-disabled-bg, var(--r-bg));
+  border-color: var(--selectify-select-border-color, var(--r-border, var(--r-br)));
+  background: var(--selectify-select-disabled-bg, var(--r-background, var(--r-bg)));
   cursor: not-allowed;
 }
 
 body .selectify-available-one-option {
-  background: var(--selectify-select-bg, var(--r-bg));
-  color: var(--selectify-select-color, var(--r-tx));
+  background: var(--selectify-select-bg, var(--r-background, var(--r-bg)));
+  color: var(--selectify-select-color, var(--r-text, var(--r-tx)));
   border-block-end: 0;
 }
 
 body .selectify-selected-display:hover {
   border-color: color-mix(in srgb, var(--selectify-select-focus-border-color, var(--selectify-select-focus-border, currentColor)) 65%, var(--selectify-select-color, currentColor));
-  background: var(--selectify-select-hover-bg, var(--r-bg));
+  background: var(--selectify-select-hover-bg, var(--r-background, var(--r-bg)));
 }
 
 body .selectify-clear-all:hover,
 body .selectify-available-one-option:hover,
 body .selectify-selected-one-option.dual-item:hover {
   border-color: color-mix(in srgb, var(--selectify-select-focus-border-color, var(--selectify-select-focus-border, currentColor)) 65%, var(--selectify-select-color, currentColor));
-  background: var(--selectify-select-hover-bg, var(--r-bg));
+  background: var(--selectify-select-hover-bg, var(--r-background, var(--r-bg)));
 }
 
 body .selectify-available-one-option:active {
-  background: var(--selectify-option-active-bg, var(--r-bg));
+  background: var(--selectify-option-active-bg, var(--r-background, var(--r-bg)));
 }
 
 /* Option Items Styling */

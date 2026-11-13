@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+- Admin pages: checked radios and checkboxes were invisible on sites upgraded from before 2.0.2, which never got the admin color settings. An update sets them to the install defaults (neutral, light), and the checked color now falls back to the text color when no palette is loaded.
+- Select, button and toggle fallbacks: three `var()` chains that ended in a comma list now nest properly and end in their literal color (`#999`, `#f8f8f8`, `currentColor`).
+- Styles read the current Solo region color names (`--r-background`, `--r-text`, `--r-border`, button names) first and the 1.x short names second.
 - Extend and Appearance pages: every module and theme description is a short, professional statement that begins with a verb; credits, links and version notes moved out of the info files.
 - New Selectify logo in the settings page header.
 

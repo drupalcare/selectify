@@ -83,3 +83,25 @@ function selectify_update_10004(): void {
     $config->save();
   }
 }
+
+/**
+ * Adds the admin color defaults that sites upgraded from before 2.0.2 lack.
+ */
+function selectify_update_10005(): void {
+  // Selectify 2.0.2 added separate admin colors with no update path. Without
+  // them no palette loads on admin pages and checked toggles are invisible.
+  // The values match config/install/selectify.settings.yml.
+  $config = \Drupal::configFactory()->getEditable('selectify.settings');
+  $changed = FALSE;
+  if ($config->get('admin_accent_color') === NULL) {
+    $config->set('admin_accent_color', 'neutral');
+    $changed = TRUE;
+  }
+  if ($config->get('admin_accent_color_mode') === NULL) {
+    $config->set('admin_accent_color_mode', 'light');
+    $changed = TRUE;
+  }
+  if ($changed) {
+    $config->save();
+  }
+}

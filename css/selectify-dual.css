@@ -190,9 +190,9 @@ body .selectify-select.selectify-select-dual-list .dual-available,
 body .selectify-select.selectify-select-dual-list .dual-selected {
   min-block-size: 15rem;
   padding: 6px;
-  border: 1px solid color-mix(in srgb, var(--selectify-select-border-color, var(--r-br, transparent)) 45%, var(--selectify-select-color, currentColor));
+  border: 1px solid color-mix(in srgb, var(--selectify-select-border-color, var(--r-border, var(--r-br, transparent))) 45%, var(--selectify-select-color, currentColor));
   box-shadow: none;
-  background: var(--selectify-select-bg, var(--r-bg));
+  background: var(--selectify-select-bg, var(--r-background, var(--r-bg)));
 }
 
 body .selectify-select.selectify-select-dual-list .dual-selected {
@@ -232,7 +232,7 @@ body .selectify-select.selectify-select-dual-list .dual-item {
 
 body .selectify-select.selectify-select-dual-list .dual-item:hover {
   border-color: color-mix(in srgb, var(--selectify-select-focus-border-color, var(--selectify-select-focus-border, currentColor)) 65%, var(--selectify-select-color, currentColor));
-  background: var(--selectify-select-hover-bg, var(--r-bg));
+  background: var(--selectify-select-hover-bg, var(--r-background, var(--r-bg)));
 }
 
 body .selectify-select.selectify-select-dual-list .dual-item:focus-visible {
