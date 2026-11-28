@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [2.1.1] — 2026-11-27
+
+Covers everything since 2.1.0, the last published release.
+
 - Admin pages: checked radios and checkboxes were invisible on sites upgraded from before 2.0.2, which never got the admin color settings. An update sets them to the install defaults (neutral, light), and the checked color now falls back to the text color when no palette is loaded.
 - Select, button and toggle fallbacks: three `var()` chains that ended in a comma list now nest properly and end in their literal color (`#999`, `#f8f8f8`, `currentColor`).
 - Styles read the current Solo region color names (`--r-background`, `--r-text`, `--r-border`, button names) first and the 1.x short names second.
